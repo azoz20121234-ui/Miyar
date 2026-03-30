@@ -18,7 +18,7 @@ export const NavStepper = () => {
   const pathname = usePathname();
 
   return (
-    <nav className="hidden rounded-full border border-white/8 bg-white/5 px-3 py-2 backdrop-blur lg:block">
+    <nav className="hidden rounded-full border border-white/10 bg-white/[0.03] px-2 py-2 lg:block">
       <div className="flex items-center gap-2">
         {items.map((item) => {
           const active = pathname === item.href;
@@ -26,15 +26,12 @@ export const NavStepper = () => {
             <Link
               key={item.href}
               href={item.href}
-              className={`rounded-full px-4 py-2 text-sm transition ${
+              className={`rounded-full px-3 py-2 text-sm transition ${
                 active
-                  ? "bg-accent text-slate-950"
-                  : "text-slate-300 hover:bg-white/5 hover:text-white"
+                  ? "bg-white text-slate-950"
+                  : "text-slate-400 hover:bg-white/5 hover:text-white"
               }`}
             >
-              <span className="ml-2 rounded-full bg-black/20 px-2 py-0.5 text-[11px]">
-                {items.indexOf(item) + 1}
-              </span>
               {item.label}
             </Link>
           );

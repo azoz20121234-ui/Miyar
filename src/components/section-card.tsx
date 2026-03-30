@@ -16,13 +16,15 @@ export const SectionCard = ({
   className = ""
 }: SectionCardProps) => (
   <section
-    className={`rounded-[28px] border border-white/8 bg-panel/80 p-6 shadow-panel backdrop-blur ${className}`}
+    className={`rounded-[24px] border border-white/10 bg-white/[0.03] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.16)] ${className}`}
   >
     <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
-      <div className="space-y-2">
-        {eyebrow ? <div className="text-xs text-accent">{eyebrow}</div> : null}
-        <h2 className="text-xl font-semibold text-white">{title}</h2>
-        {description ? <p className="max-w-3xl text-sm leading-7 text-slate-300">{description}</p> : null}
+      <div className="space-y-1.5">
+        {eyebrow ? (
+          <div className="text-[11px] font-medium uppercase tracking-[0.24em] text-slate-500">{eyebrow}</div>
+        ) : null}
+        <h2 className="text-lg font-semibold text-white sm:text-xl">{title}</h2>
+        {description ? <p className="max-w-2xl text-sm leading-6 text-slate-400">{description}</p> : null}
       </div>
     </div>
     {children}

@@ -6,10 +6,10 @@ interface MetricCardProps {
 }
 
 const toneMap: Record<NonNullable<MetricCardProps["tone"]>, string> = {
-  success: "from-emerald-500/12 to-emerald-500/4",
-  warning: "from-amber-500/12 to-amber-500/4",
-  danger: "from-rose-500/12 to-rose-500/4",
-  neutral: "from-white/10 to-white/5"
+  success: "border-emerald-500/14",
+  warning: "border-amber-500/14",
+  danger: "border-rose-500/14",
+  neutral: "border-white/10"
 };
 
 export const MetricCard = ({
@@ -19,10 +19,10 @@ export const MetricCard = ({
   tone = "neutral"
 }: MetricCardProps) => (
   <div
-    className={`rounded-3xl border border-white/8 bg-gradient-to-br ${toneMap[tone]} p-5 shadow-glow`}
+    className={`rounded-[24px] border bg-white/[0.03] p-5 shadow-[0_18px_40px_rgba(0,0,0,0.14)] ${toneMap[tone]}`}
   >
-    <div className="text-xs text-slate-400">{label}</div>
-    <div className="mt-3 text-3xl font-semibold text-white">{value}</div>
-    <p className="mt-2 text-sm leading-6 text-slate-300">{hint}</p>
+    <div className="text-[11px] uppercase tracking-[0.18em] text-slate-500">{label}</div>
+    <div className="mt-3 text-2xl font-semibold text-white sm:text-[28px]">{value}</div>
+    <p className="mt-2 text-sm leading-6 text-slate-400">{hint}</p>
   </div>
 );

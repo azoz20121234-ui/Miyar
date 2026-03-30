@@ -12,7 +12,10 @@ html {
 
 body {
   font-family: var(--font-body), sans-serif;
-  background: #08111f;
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.05), transparent 28%),
+    linear-gradient(180deg, #0a0d12 0%, #0b1017 100%);
+  color: #f8fafc;
 }
 
 h1,
@@ -29,7 +32,7 @@ h6 {
 }
 
 ::selection {
-  background: rgba(46, 197, 206, 0.28);
+  background: rgba(46, 197, 206, 0.18);
   color: white;
 }
 
@@ -38,11 +41,11 @@ h6 {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.025);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 999px;
 }
 
