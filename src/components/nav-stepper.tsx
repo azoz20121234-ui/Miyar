@@ -9,9 +9,9 @@ const items = [
   { href: "/job-analysis", label: "تحليل الوظيفة" },
   { href: "/candidate-profile", label: "ملف القدرات" },
   { href: "/matching", label: "المطابقة" },
-  { href: "/accommodation-plan", label: "خطة التكييف" },
-  { href: "/readiness-report", label: "تقرير الجاهزية" },
-  { href: "/dashboard", label: "لوحة تنفيذية" }
+  { href: "/accommodation-plan", label: "التكييف" },
+  { href: "/readiness-report", label: "التقرير" },
+  { href: "/dashboard", label: "اللوحة" }
 ];
 
 export const NavStepper = () => {
@@ -32,6 +32,9 @@ export const NavStepper = () => {
                   : "text-slate-300 hover:bg-white/5 hover:text-white"
               }`}
             >
+              <span className="ml-2 rounded-full bg-black/20 px-2 py-0.5 text-[11px]">
+                {items.indexOf(item) + 1}
+              </span>
               {item.label}
             </Link>
           );

@@ -6,7 +6,7 @@ import { AppShell } from "@/components/app-shell";
 import { MetricCard } from "@/components/metric-card";
 import { SectionCard } from "@/components/section-card";
 import { StatusPill } from "@/components/status-pill";
-import { formatCurrency, statusLabel } from "@/lib/scoring";
+import { formatCurrencyRange, statusLabel } from "@/lib/scoring";
 import { useAssessment } from "@/store/assessment-context";
 
 const flow = [
@@ -56,7 +56,7 @@ export default function LandingPage() {
           />
           <MetricCard
             label="تكلفة التهيئة"
-            value={formatCurrency(bundle.plan.totalCostSar)}
+            value={formatCurrencyRange(bundle.report.totalCostRangeSar)}
             hint="تكلفة واضحة بدل مفاجآت بعد التوظيف."
             tone="neutral"
           />
@@ -149,9 +149,9 @@ export default function LandingPage() {
                 <div className="rounded-3xl border border-white/8 bg-white/5 p-5">
                   <div className="text-sm text-slate-400">أهم العوائق</div>
                   <div className="mt-3 space-y-2">
-                    {bundle.report.keyBarriers.slice(0, 3).map((item) => (
-                      <div key={item} className="rounded-2xl bg-white/5 px-3 py-2 text-sm text-slate-200">
-                        {item}
+                    {bundle.report.topBarriers.map((item) => (
+                      <div key={item.title} className="rounded-2xl bg-white/5 px-3 py-2 text-sm text-slate-200">
+                        {item.title}
                       </div>
                     ))}
                   </div>
@@ -159,9 +159,9 @@ export default function LandingPage() {
                 <div className="rounded-3xl border border-white/8 bg-white/5 p-5">
                   <div className="text-sm text-slate-400">التكييفات الحاسمة</div>
                   <div className="mt-3 space-y-2">
-                    {bundle.report.topAdjustments.map((item) => (
-                      <div key={item} className="rounded-2xl bg-white/5 px-3 py-2 text-sm text-slate-200">
-                        {item}
+                    {bundle.report.topActions.map((item) => (
+                      <div key={item.title} className="rounded-2xl bg-white/5 px-3 py-2 text-sm text-slate-200">
+                        {item.title}
                       </div>
                     ))}
                   </div>

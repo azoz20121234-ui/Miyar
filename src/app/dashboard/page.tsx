@@ -4,7 +4,7 @@ import { AppShell } from "@/components/app-shell";
 import { MetricCard } from "@/components/metric-card";
 import { SectionCard } from "@/components/section-card";
 import { pipelineCases } from "@/data/dashboard";
-import { formatCurrency } from "@/lib/scoring";
+import { bandToneForSignal, formatCurrency, statusLabel } from "@/lib/scoring";
 import { useAssessment } from "@/store/assessment-context";
 
 export default function DashboardPage() {
@@ -21,7 +21,7 @@ export default function DashboardPage() {
   return (
     <AppShell
       title="لوحة تنفيذية"
-      subtitle="عرض مختصر للمحفظة الحالية: مستوى الجاهزية، حجم الإنفاق المتوقع، والحالات التي يمكن دفعها إلى قرار أسرع."
+      subtitle="عرض مختصر للمحفظة الحالية مع إشارات Saudi-first: وضوح الدور، كفاية التكييف، واحتمالية الاستمرارية عبر الحالات."
     >
       <div className="space-y-6">
         <section className="grid gap-4 lg:grid-cols-4">
@@ -44,9 +44,9 @@ export default function DashboardPage() {
             tone="success"
           />
           <MetricCard
-            label="الحالة قيد المراجعة"
-            value={`${bundle.report.finalReadiness}%`}
-            hint="الحالة النشطة داخل صفحات الديمو."
+            label="الحالة النشطة"
+            value={statusLabel(bundle.report.status)}
+            hint="الحكم النهائي للحالة المفتوحة."
             tone="neutral"
           />
         </section>
@@ -55,7 +55,7 @@ export default function DashboardPage() {
           <SectionCard
             eyebrow="Portfolio View"
             title="توزيع الجاهزية"
-            description="قراءة سريعة لحجم القضايا التي يمكن اعتمادها مقابل القضايا التي تحتاج تهيئة أوسع."
+            description="قراءة سريعة لحجم الحالات التي يمكن اعتمادها مقابل الحالات التي تحتاج تهيئة أوسع."
           >
             <div className="space-y-4">
               {pipelineCases.map((item) => (
@@ -85,33 +85,62 @@ export default function DashboardPage() {
           </SectionCard>
 
           <SectionCard
-            eyebrow="Governance"
-            title="إشارات إدارة"
-            description="ما الذي يجب أن تراه الإدارة أو لجنة الامتثال بوضوح؟"
+            eyebrow="Signals"
+            title="إشارات الجاهزية الحالية"
+            description="ما الذي يجب أن تراه الإدارة أو لجنة الامتثال بوضوح في الحالة النشطة؟"
           >
             <div className="space-y-4">
-              <div className="rounded-3xl border border-white/8 bg-white/5 p-5">
-                <div className="text-sm text-slate-400">أسرع رافعة قرار</div>
-                <div className="mt-3 text-lg leading-8 text-white">
-                  رفع نضج الوصول الرقمي من Basic إلى Managed ينعكس فورًا على غالبية الحالات المكتبية.
-                </div>
-              </div>
-              <div className="rounded-3xl border border-white/8 bg-white/5 p-5">
-                <div className="text-sm text-slate-400">إشارة محفظة</div>
-                <div className="mt-3 text-lg leading-8 text-white">
-                  الحالات ذات الكلفة الأقل من {formatCurrency(6000)} وزمن تنفيذ أقل من أسبوع تمثل أفضل مسار
-                  للبدء السريع.
-                </div>
-              </div>
-              <div className="rounded-3xl border border-white/8 bg-white/5 p-5">
-                <div className="text-sm text-slate-400">حالة الديمو</div>
-                <div className="mt-3 text-lg leading-8 text-white">
-                  {bundle.report.recommendation} مع خطة محدودة وتكلفة إجمالية {formatCurrency(bundle.plan.totalCostSar)}.
-                </div>
-              </div>
+              {bundle.report.signals.map((signal) => {
+                const tone = bandToneForSignal(signal.score, signal.direction);
+                return (
+                  <div key={signal.id} className="rounded-3xl border border-white/8 bg-white/5 p-5">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <div className="text-sm text-slate-400">{signal.label}</div>
+                      <div
+                        className={`rounded-full px-3 py-1 text-xs ${
+                          tone === "success"
+                            ? "bg-emerald-400/15 text-emerald-300"
+                            : tone === "warning"
+                              ? "bg-amber-400/15 text-amber-200"
+                              : "bg-rose-400/15 text-rose-200"
+                        }`}
+                      >
+                        {signal.score}%
+                      </div>
+                    </div>
+                    <div className="text-sm leading-7 text-white">{signal.rationale}</div>
+                  </div>
+                );
+              })}
             </div>
           </SectionCard>
         </section>
+
+        <SectionCard
+          eyebrow="Role Comparison"
+          title="مقارنة الأدوار ضمن الملف الحالي"
+          description="يعرض كيف يتغير القرار عند تبديل الدور مع ثبات ملف القدرات نفسه."
+        >
+          <div className="grid gap-4 lg:grid-cols-3">
+            {bundle.roleCatalogPreviews.slice(0, 9).map((role) => (
+              <div key={role.jobId} className="rounded-[28px] border border-white/8 bg-white/5 p-5">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-lg font-semibold text-white">{role.title}</div>
+                    <div className="mt-1 text-xs text-slate-500">{role.family}</div>
+                  </div>
+                  <div className="rounded-full border border-white/10 bg-[#091120] px-3 py-2 text-sm text-white">
+                    {role.readiness}%
+                  </div>
+                </div>
+                <div className="text-sm leading-7 text-slate-300">
+                  {statusLabel(role.status)} مع ثقة {role.confidence}%
+                </div>
+                <div className="mt-3 text-xs text-accent">{role.topSignal}</div>
+              </div>
+            ))}
+          </div>
+        </SectionCard>
       </div>
     </AppShell>
   );

@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import { defaultLibrary, demoCapabilityProfile, demoJob } from "@/data/demo-case";
+import { roleCatalog } from "@/data/roles";
 import { buildAssessmentBundle } from "@/lib/scoring";
 import { Accommodation, CapabilityProfile, Job } from "@/models/types";
 
@@ -16,7 +17,9 @@ interface AssessmentContextValue {
   job: Job;
   profile: CapabilityProfile;
   library: Accommodation[];
+  roleCatalog: Job[];
   bundle: ReturnType<typeof buildAssessmentBundle>;
+  selectRoleTemplate: (jobId: string) => void;
   toggleTaskEssential: (taskId: string) => void;
   toggleTaskAdaptable: (taskId: string) => void;
   setEnvironmentField: <
@@ -33,7 +36,10 @@ const STORAGE_KEY = "miyar-demo-assessment";
 
 const AssessmentContext = createContext<AssessmentContextValue | null>(null);
 
-const cloneJob = (): Job => JSON.parse(JSON.stringify(demoJob)) as Job;
+const cloneJob = (jobId?: string): Job =>
+  JSON.parse(
+    JSON.stringify(roleCatalog.find((role) => role.id === jobId) ?? demoJob)
+  ) as Job;
 const cloneProfile = (): CapabilityProfile =>
   JSON.parse(JSON.stringify(demoCapabilityProfile)) as CapabilityProfile;
 
@@ -49,8 +55,8 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const parsed = JSON.parse(stored) as { job: Job; profile: CapabilityProfile };
-      setJob(parsed.job);
-      setProfile(parsed.profile);
+      setJob(parsed.job ?? cloneJob());
+      setProfile(parsed.profile ?? cloneProfile());
     } catch {
       window.localStorage.removeItem(STORAGE_KEY);
     }
@@ -64,9 +70,19 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
     setJob((current) => ({
       ...current,
       tasks: current.tasks.map((task) =>
-        task.id === taskId ? { ...task, essential: !task.essential } : task
+        task.id === taskId
+          ? {
+              ...task,
+              essential: !task.essential,
+              taskTier: task.essential ? "secondary" : "essential"
+            }
+          : task
       )
     }));
+  };
+
+  const selectRoleTemplate = (jobId: string) => {
+    setJob(cloneJob(jobId));
   };
 
   const toggleTaskAdaptable = (taskId: string) => {
@@ -108,7 +124,7 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
     window.localStorage.removeItem(STORAGE_KEY);
   };
 
-  const bundle = buildAssessmentBundle(job, profile, defaultLibrary);
+  const bundle = buildAssessmentBundle(job, profile, defaultLibrary, roleCatalog);
 
   return (
     <AssessmentContext.Provider
@@ -116,7 +132,9 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
         job,
         profile,
         library: defaultLibrary,
+        roleCatalog,
         bundle,
+        selectRoleTemplate,
         toggleTaskEssential,
         toggleTaskAdaptable,
         setEnvironmentField,

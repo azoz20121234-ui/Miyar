@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { ReactNode } from "react";
+import { usePathname } from "next/navigation";
 
+import { bandToneForSignal, statusTone } from "@/lib/scoring";
 import { useAssessment } from "@/store/assessment-context";
 
 import { NavStepper } from "./nav-stepper";
@@ -17,6 +19,20 @@ interface AppShellProps {
 
 export const AppShell = ({ title, subtitle, children, actions }: AppShellProps) => {
   const { bundle } = useAssessment();
+  const pathname = usePathname();
+  const steps = [
+    "/",
+    "/workspace",
+    "/job-analysis",
+    "/candidate-profile",
+    "/matching",
+    "/accommodation-plan",
+    "/readiness-report",
+    "/dashboard"
+  ];
+  const currentStep = Math.max(0, steps.indexOf(pathname));
+  const progress = Math.round(((currentStep + 1) / steps.length) * 100);
+  const topSignals = bundle.report.signals.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-cinematic text-slate-100">
@@ -43,7 +59,7 @@ export const AppShell = ({ title, subtitle, children, actions }: AppShellProps) 
             <div className="flex items-center gap-3">
               <StatusPill
                 label={bundle.report.recommendation}
-                tone={bundle.report.finalReadiness >= 75 ? "success" : "warning"}
+                tone={statusTone(bundle.report.status)}
               />
               {actions}
             </div>
@@ -70,7 +86,107 @@ export const AppShell = ({ title, subtitle, children, actions }: AppShellProps) 
               </div>
             </div>
           </div>
-          {children}
+
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+            <div>{children}</div>
+
+            <aside className="hidden xl:block">
+              <div className="sticky top-28 space-y-4">
+                <div className="rounded-[28px] border border-white/8 bg-[#08121f]/90 p-5 shadow-panel">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-xs tracking-[0.2em] text-slate-500">FLOW PROGRESS</div>
+                      <div className="mt-2 text-lg font-semibold text-white">
+                        {currentStep + 1} / {steps.length}
+                      </div>
+                    </div>
+                    <div className="rounded-full border border-accent/20 bg-accent/10 px-3 py-2 text-sm text-accent">
+                      {progress}%
+                    </div>
+                  </div>
+                  <div className="h-2 rounded-full bg-white/8">
+                    <div
+                      className="h-2 rounded-full bg-gradient-to-r from-accent to-gold"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <div className="mt-4 text-sm leading-7 text-slate-300">
+                    الحالة النشطة: {bundle.job.title}
+                  </div>
+                </div>
+
+                <div className="rounded-[28px] border border-white/8 bg-white/5 p-5">
+                  <div className="text-sm text-slate-400">ملخص القرار</div>
+                  <div className="mt-3 text-xl font-semibold text-white">{bundle.report.recommendation}</div>
+                  <div className="mt-4 grid grid-cols-2 gap-3">
+                    <div className="rounded-2xl bg-[#091120] p-4">
+                      <div className="text-xs text-slate-500">قبل التهيئة</div>
+                      <div className="mt-2 text-2xl font-semibold text-white">
+                        {bundle.report.baselineReadiness}%
+                      </div>
+                    </div>
+                    <div className="rounded-2xl bg-[#091120] p-4">
+                      <div className="text-xs text-slate-500">بعد التهيئة</div>
+                      <div className="mt-2 text-2xl font-semibold text-white">
+                        {bundle.report.finalReadiness}%
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-4 rounded-2xl border border-accent/20 bg-accent/10 px-4 py-3 text-sm text-slate-100">
+                    أثر التهيئة المتوقع: +{bundle.report.readinessDelta} نقطة
+                  </div>
+                </div>
+
+                <div className="rounded-[28px] border border-white/8 bg-white/5 p-5">
+                  <div className="text-sm text-slate-400">الثقة والمخاطر</div>
+                  <div className="mt-4 space-y-3">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-slate-300">درجة الثقة</span>
+                      <span className="font-semibold text-white">{bundle.report.confidence}%</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-slate-300">المخاطر المتبقية</span>
+                      <span className="font-semibold text-white">{bundle.report.residualRiskLevel}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-slate-300">التكلفة التقديرية</span>
+                      <span className="font-semibold text-white">
+                        {bundle.report.totalCostRangeSar.midpoint.toLocaleString("ar-SA")} ر.س
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-[28px] border border-white/8 bg-white/5 p-5">
+                  <div className="text-sm text-slate-400">Saudi-first signals</div>
+                  <div className="mt-4 space-y-3">
+                    {topSignals.map((signal) => {
+                      const tone = bandToneForSignal(signal.score, signal.direction);
+                      return (
+                        <div key={signal.id} className="rounded-2xl border border-white/8 bg-[#091120] p-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="text-sm text-white">{signal.label}</div>
+                            <div
+                              className={`rounded-full px-3 py-1 text-xs ${
+                                tone === "success"
+                                  ? "bg-emerald-400/15 text-emerald-300"
+                                  : tone === "warning"
+                                    ? "bg-amber-400/15 text-amber-200"
+                                    : "bg-rose-400/15 text-rose-200"
+                              }`}
+                            >
+                              {signal.score}%
+                            </div>
+                          </div>
+                          <div className="mt-2 text-xs leading-6 text-slate-400">{signal.rationale}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </div>
         </main>
       </div>
     </div>

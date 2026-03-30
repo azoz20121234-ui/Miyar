@@ -7,13 +7,13 @@ import { MetricCard } from "@/components/metric-card";
 import { SectionCard } from "@/components/section-card";
 import { StatusPill } from "@/components/status-pill";
 import { pipelineCases } from "@/data/dashboard";
-import { formatCurrency } from "@/lib/scoring";
+import { bandToneForSignal, formatCurrency, statusLabel } from "@/lib/scoring";
 import { useAssessment } from "@/store/assessment-context";
 
 type FilterValue = "all" | "strong" | "attention";
 
 export default function WorkspacePage() {
-  const { bundle, resetDemo } = useAssessment();
+  const { bundle, resetDemo, selectRoleTemplate } = useAssessment();
   const [filter, setFilter] = useState<FilterValue>("all");
 
   const filteredCases = pipelineCases.filter((item) => {
@@ -25,7 +25,7 @@ export default function WorkspacePage() {
   return (
     <AppShell
       title="مساحة صاحب العمل"
-      subtitle="لوحة تشغيلية تجمع الحالات المفتوحة، مؤشر الجاهزية، والتكلفة المتوقعة قبل اتخاذ قرار التوظيف."
+      subtitle="مساحة تشغيلية تربط تحليل الدور بمؤشرات القرار الفعلية: جاهزية، تكلفة، مخاطر متبقية، واحتمال استمرارية."
       actions={
         <button
           type="button"
@@ -52,14 +52,14 @@ export default function WorkspacePage() {
           />
           <MetricCard
             label="تكلفة التنفيذ"
-            value={formatCurrency(bundle.plan.totalCostSar)}
-            hint="ميزانية التهيئة الأولية المقترحة."
+            value={formatCurrency(bundle.report.totalCostRangeSar.midpoint)}
+            hint="المنتصف التقديري للخطة المقترحة."
             tone="neutral"
           />
           <MetricCard
             label="عدد التكييفات"
             value={`${bundle.plan.items.length}`}
-            hint="عناصر خطة عملية وليست توصيات عامة."
+            hint="عناصر تنفيذ فعلية وليست توصيات عامة."
             tone="success"
           />
         </section>
@@ -76,35 +76,98 @@ export default function WorkspacePage() {
                   <div className="text-sm text-slate-400">الشركة التجريبية</div>
                   <div className="mt-1 text-2xl font-semibold text-white">شركة خدمات رقمية سعودية</div>
                 </div>
-                <StatusPill label={bundle.report.recommendation} tone="success" />
+                <StatusPill label={statusLabel(bundle.report.status)} tone="warning" />
               </div>
-              <p className="text-sm leading-7 text-slate-300">
-                الوظيفة مستهدفة لأعمال مكتبية ورقمية فقط. القرار لا يعتمد على انطباع عام، بل على تفكيك المهام
-                الأساسية والفجوات والتكلفة المتوقعة للتهيئة.
-              </p>
+              <p className="text-sm leading-7 text-slate-300">{bundle.report.whyThisDecision}</p>
               <div className="mt-5 grid gap-3 sm:grid-cols-3">
                 <div className="rounded-2xl bg-white/5 p-4">
-                  <div className="text-xs text-slate-400">ملاءمة البيئة</div>
-                  <div className="mt-2 text-2xl font-semibold text-white">{bundle.report.environmentFit}%</div>
+                  <div className="text-xs text-slate-400">قبل التهيئة</div>
+                  <div className="mt-2 text-2xl font-semibold text-white">{bundle.report.baselineReadiness}%</div>
                 </div>
                 <div className="rounded-2xl bg-white/5 p-4">
-                  <div className="text-xs text-slate-400">التغطية الحرجة</div>
-                  <div className="mt-2 text-2xl font-semibold text-white">{bundle.report.criticalCoverage}%</div>
+                  <div className="text-xs text-slate-400">بعد التهيئة</div>
+                  <div className="mt-2 text-2xl font-semibold text-white">{bundle.report.finalReadiness}%</div>
                 </div>
                 <div className="rounded-2xl bg-white/5 p-4">
-                  <div className="text-xs text-slate-400">مستوى المخاطر</div>
-                  <div className="mt-2 text-2xl font-semibold text-white">{bundle.report.riskLevel}</div>
+                  <div className="text-xs text-slate-400">المخاطر المتبقية</div>
+                  <div className="mt-2 text-2xl font-semibold text-white">{bundle.report.residualRiskLevel}</div>
                 </div>
               </div>
             </div>
 
             <div className="space-y-3">
-              {bundle.job.outcomes.map((item) => (
-                <div key={item} className="rounded-3xl border border-white/8 bg-white/5 p-5">
-                  <div className="text-sm leading-7 text-slate-200">{item}</div>
-                </div>
-              ))}
+              {bundle.report.signals.slice(0, 3).map((signal) => {
+                const tone = bandToneForSignal(signal.score, signal.direction);
+                return (
+                  <div key={signal.id} className="rounded-3xl border border-white/8 bg-white/5 p-5">
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <div className="text-sm text-slate-400">{signal.label}</div>
+                      <div
+                        className={`rounded-full px-3 py-1 text-xs ${
+                          tone === "success"
+                            ? "bg-emerald-400/15 text-emerald-300"
+                            : tone === "warning"
+                              ? "bg-amber-400/15 text-amber-200"
+                              : "bg-rose-400/15 text-rose-200"
+                        }`}
+                      >
+                        {signal.score}%
+                      </div>
+                    </div>
+                    <div className="text-sm leading-7 text-slate-200">{signal.rationale}</div>
+                  </div>
+                );
+              })}
             </div>
+          </div>
+        </SectionCard>
+
+        <SectionCard
+          eyebrow="Role Catalog"
+          title="قوالب الوظائف الجاهزة في MVP"
+          description="هذه ليست قائمة وظائف عامة؛ بل قوالب أدوار يمكن تقييمها فورًا داخل المحرك نفسه."
+        >
+          <div className="grid gap-4 lg:grid-cols-3">
+            {bundle.roleCatalogPreviews.map((role) => (
+              <button
+                key={role.jobId}
+                type="button"
+                onClick={() => selectRoleTemplate(role.jobId)}
+                className={`rounded-[28px] border p-5 text-right transition ${
+                  bundle.job.id === role.jobId
+                    ? "border-accent/30 bg-accent/10"
+                    : "border-white/8 bg-white/5 hover:bg-white/10"
+                }`}
+              >
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-lg font-semibold text-white">{role.title}</div>
+                    <div className="mt-1 text-xs text-slate-500">{role.family}</div>
+                  </div>
+                  <div className="rounded-full border border-white/10 bg-[#091120] px-3 py-2 text-sm text-white">
+                    {role.readiness}%
+                  </div>
+                </div>
+                <div className="text-sm leading-7 text-slate-300">
+                  {statusLabel(role.status)} مع ثقة {role.confidence}%
+                </div>
+                <div className="mt-3 text-xs text-accent">{role.topSignal}</div>
+              </button>
+            ))}
+          </div>
+        </SectionCard>
+
+        <SectionCard
+          eyebrow="Decision Logic"
+          title="لماذا القرار الحالي مقنع؟"
+          description="المحرك يشرح منطق الحكم لا يكتفي بإظهار النتيجة."
+        >
+          <div className="grid gap-4 lg:grid-cols-2">
+            {bundle.report.decisionRationale.map((item) => (
+              <div key={item} className="rounded-3xl border border-white/8 bg-white/5 p-5">
+                <div className="text-sm leading-7 text-slate-200">{item}</div>
+              </div>
+            ))}
           </div>
         </SectionCard>
 
