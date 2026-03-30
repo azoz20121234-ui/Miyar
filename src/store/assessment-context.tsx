@@ -9,6 +9,8 @@ import {
 } from "react";
 
 import { defaultLibrary, demoCapabilityProfile, demoJob } from "@/data/demo-case";
+import { buildStandardsEvaluation } from "@/lib/standards-engine";
+import { CaseStandardsEvaluation } from "@/lib/standards-types";
 import { roleCatalog } from "@/data/roles";
 import { buildAssessmentBundle } from "@/lib/scoring";
 import { Accommodation, CapabilityProfile, Job } from "@/models/types";
@@ -19,6 +21,7 @@ interface AssessmentContextValue {
   library: Accommodation[];
   roleCatalog: Job[];
   bundle: ReturnType<typeof buildAssessmentBundle>;
+  standards: CaseStandardsEvaluation;
   selectRoleTemplate: (jobId: string) => void;
   toggleTaskEssential: (taskId: string) => void;
   toggleTaskAdaptable: (taskId: string) => void;
@@ -125,6 +128,7 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const bundle = buildAssessmentBundle(job, profile, defaultLibrary, roleCatalog);
+  const standards = buildStandardsEvaluation(bundle);
 
   return (
     <AssessmentContext.Provider
@@ -134,6 +138,7 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
         library: defaultLibrary,
         roleCatalog,
         bundle,
+        standards,
         selectRoleTemplate,
         toggleTaskEssential,
         toggleTaskAdaptable,

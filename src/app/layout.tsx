@@ -19,9 +19,9 @@ const headingFont = Noto_Kufi_Arabic({
 });
 
 export const metadata: Metadata = {
-  title: "ميار | قرار تشغيلي قبل التوظيف",
+  title: "Meyar — Decision & Compliance Standard Engine",
   description:
-    "منصة عربية RTL لتحليل الوظيفة، بناء ملف القدرات التشغيلية، واقتراح خطة تكييف مسعّرة قبل اتخاذ قرار التوظيف."
+    "Arabic RTL platform for role-based decision review, standards checks, operational capability assessment, and pre-employment compliance readiness."
 };
 
 export default function RootLayout({

@@ -8,7 +8,7 @@ import { bandToneForSignal, formatCurrency, statusLabel } from "@/lib/scoring";
 import { useAssessment } from "@/store/assessment-context";
 
 export default function DashboardPage() {
-  const { bundle } = useAssessment();
+  const { bundle, standards } = useAssessment();
 
   const averageReadiness = Math.round(
     pipelineCases.reduce((sum, item) => sum + item.readiness, 0) / pipelineCases.length
@@ -16,7 +16,6 @@ export default function DashboardPage() {
   const averageCost = Math.round(
     pipelineCases.reduce((sum, item) => sum + item.costSar, 0) / pipelineCases.length
   );
-  const strongCases = pipelineCases.filter((item) => item.readiness >= 75).length;
 
   return (
     <AppShell
@@ -39,18 +38,62 @@ export default function DashboardPage() {
             tone="neutral"
           />
           <MetricCard
-            label="حالات قابلة للدفع"
-            value={`${strongCases}`}
-            hint="عدد الحالات فوق 75% جاهزية."
+            label="Standards Completion"
+            value={`${standards.overview.completionRate}%`}
+            hint="اكتمال checks للحالة الحالية."
             tone="success"
           />
           <MetricCard
-            label="الحالة النشطة"
-            value={statusLabel(bundle.report.status)}
-            hint="الحكم النهائي للحالة المفتوحة."
-            tone="neutral"
+            label="Blockers"
+            value={`${standards.blockers.length}`}
+            hint="ما يمنع الاعتماد الآن."
+            tone={standards.blockers.length > 0 ? "warning" : "success"}
           />
         </section>
+
+        <SectionCard
+          eyebrow="Standards Snapshot"
+          title="ملخص المعايير"
+          description="Built on references + case-linked checks."
+        >
+          <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
+                <div className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Checks</div>
+                <div className="mt-2 text-2xl font-semibold text-white">{standards.overview.totalChecks}</div>
+                <div className="mt-1 text-sm text-slate-400">إجمالي checks</div>
+              </div>
+              <div className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
+                <div className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Evidence Pending</div>
+                <div className="mt-2 text-2xl font-semibold text-white">
+                  {standards.counts["missing-evidence"] + standards.counts["needs-review"]}
+                </div>
+                <div className="mt-1 text-sm text-slate-400">تحتاج إغلاق</div>
+              </div>
+              <div className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
+                <div className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Decision</div>
+                <div className="mt-2 text-2xl font-semibold text-white">
+                  {statusLabel(bundle.report.status)}
+                </div>
+                <div className="mt-1 text-sm text-slate-400">الحكم الحالي</div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {standards.blockers.slice(0, 3).map((item) => (
+                <div key={item.id} className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="text-white">{item.title}</div>
+                    <div className="rounded-full border border-rose-500/20 bg-rose-500/12 px-3 py-1 text-xs text-rose-200">
+                      Blocker
+                    </div>
+                  </div>
+                  <div className="mt-2 text-sm text-slate-400">{item.rationale}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </SectionCard>
 
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <SectionCard

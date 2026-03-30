@@ -6,9 +6,9 @@ import { useAssessment } from "@/store/assessment-context";
 import { useRoleSession } from "@/store/role-session-context";
 
 export default function RoleHomePage() {
-  const { bundle } = useAssessment();
+  const { bundle, standards } = useAssessment();
   const { role } = useRoleSession();
-  const content = getRoleHomeContent(role, bundle);
+  const content = getRoleHomeContent(role, bundle, standards);
 
   return (
     <RoleHubView

@@ -49,8 +49,8 @@ export default function LandingPage() {
                 م
               </Link>
               <div>
-                <div className="text-xs uppercase tracking-[0.28em] text-slate-500">Miyar</div>
-                <div className="mt-1 text-sm text-slate-300">محرك قرار تشغيلي قبل التوظيف</div>
+                <div className="text-xs uppercase tracking-[0.28em] text-slate-500">Meyar</div>
+                <div className="mt-1 text-sm text-slate-300">Decision &amp; Compliance Standard Engine</div>
               </div>
             </div>
 
@@ -268,7 +268,7 @@ export default function LandingPage() {
         </main>
 
         <footer className="mt-10 flex flex-col gap-4 border-t border-white/10 py-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-          <div>ميار</div>
+          <div>Meyar</div>
           <div className="flex flex-wrap gap-4">
             <Link href="/home" className="transition hover:text-white">
               Home

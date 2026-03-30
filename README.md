@@ -1,4 +1,4 @@
-# ميار | محرك قرار تشغيلي قبل التوظيف
+# Meyar — Decision & Compliance Standard Engine
 
 منصة عربية RTL مبنية بـ `Next.js + TypeScript + Tailwind` لتحويل قرار توظيف الأشخاص ذوي الإعاقة في السعودية من خطاب عام إلى قرار تشغيلي واضح:
 

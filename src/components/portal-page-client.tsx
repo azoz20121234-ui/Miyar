@@ -5,12 +5,22 @@ import { PORTAL_PAGE_KEYS, type PortalSlug } from "@/lib/role-model";
 import { useAssessment } from "@/store/assessment-context";
 import { useRoleSession } from "@/store/role-session-context";
 
+import { CaseStandardsView } from "./case-standards-view";
 import { RoleHubView } from "./role-hub-view";
+import { StandardsLibraryView } from "./standards-library-view";
 
 export const PortalPageClient = ({ slug }: { slug: PortalSlug }) => {
-  const { bundle } = useAssessment();
+  const { bundle, standards } = useAssessment();
   const { role } = useRoleSession();
-  const content = getPortalPageContent(slug, role, bundle);
+  const content = getPortalPageContent(slug, role, bundle, standards);
+
+  if (slug === "standards") {
+    return <StandardsLibraryView standards={standards} />;
+  }
+
+  if (slug === "standards-check") {
+    return <CaseStandardsView standards={standards} />;
+  }
 
   return (
     <RoleHubView

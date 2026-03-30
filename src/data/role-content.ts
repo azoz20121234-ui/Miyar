@@ -1,4 +1,5 @@
 import { pipelineCases } from "@/data/dashboard";
+import { CaseStandardsEvaluation } from "@/lib/standards-types";
 import { getRoleConfig, type AppRole, type PortalSlug } from "@/lib/role-model";
 import { AssessmentBundle } from "@/models/types";
 
@@ -51,7 +52,21 @@ const sharedRows = (): QueueRow[] =>
     owner: item.owner
   }));
 
-export const getRoleHomeContent = (role: AppRole, bundle: AssessmentBundle): RoleHomeContent => {
+const ownedChecks = (
+  standards: CaseStandardsEvaluation,
+  ownerRole: "assessor" | "hiring-manager" | "compliance-reviewer" | "platform-admin"
+) => standards.checks.filter((check) => check.ownerRole === ownerRole);
+
+const openOwnedChecks = (
+  standards: CaseStandardsEvaluation,
+  ownerRole: "assessor" | "hiring-manager" | "compliance-reviewer" | "platform-admin"
+) => ownedChecks(standards, ownerRole).filter((check) => check.status !== "passed");
+
+export const getRoleHomeContent = (
+  role: AppRole,
+  bundle: AssessmentBundle,
+  standards: CaseStandardsEvaluation
+): RoleHomeContent => {
   const config = getRoleConfig(role);
 
   switch (role) {
@@ -75,92 +90,130 @@ export const getRoleHomeContent = (role: AppRole, bundle: AssessmentBundle): Rol
     case "assessor":
       return {
         title: "لوحة التقييم",
-        subtitle: "راجع الملف التشغيلي والعوائق والخطة المقترحة.",
+        subtitle: "قدرات، عوائق، وتكييف مع checks تشغيلية على مسؤوليتك.",
         cta: config.primaryAction,
         metrics: [
           { label: "حالات معيّنة", value: "3", hint: "قيد العمل", tone: "neutral" },
-          { label: "عوائق مفتوحة", value: `${bundle.barriers.length}`, hint: "في الحالة الحالية", tone: "warning" },
-          { label: "خطط تكييف", value: `${bundle.plan.items.length}`, hint: "جاهزة للمراجعة", tone: "success" }
+          {
+            label: "Checks عليك",
+            value: `${standards.ownerCounts.assessor}`,
+            hint: "مطلوبة من Assessor",
+            tone: standards.ownerCounts.assessor > 0 ? "warning" : "success"
+          },
+          {
+            label: "Evidence ناقص",
+            value: `${standards.evidenceRequirements.filter((item) => item.ownerRole === "assessor").length}`,
+            hint: "قبل الإغلاق",
+            tone: "warning"
+          }
         ],
         actions: [
           { title: "حدّث ملف القدرات", meta: bundle.profile.candidateAlias, status: "بانتظارك" },
-          { title: "راجع العوائق", meta: `${bundle.barriers.length} عوائق مستخرجة`, status: "مفتوح" },
+          { title: "أغلق checks القدرات والعوائق", meta: `${standards.ownerCounts.assessor} check`, status: "مفتوح" },
           { title: "أكمل خطة التكييف", meta: midpoint(bundle), status: "جاهز" }
         ],
-        rows: sharedRows()
+        rows: openOwnedChecks(standards, "assessor").slice(0, 4).map((item) => ({
+          primary: item.label,
+          secondary: item.rationale,
+          status: item.status,
+          owner: "Assessor"
+        }))
       };
     case "hiring-manager":
       return {
         title: "لوحة مدير التوظيف",
-        subtitle: "أكد واقعية الدور وراجع التوصية قبل الاعتماد.",
+        subtitle: "أكد واقعية المهام واحسم task reality قبل الرفع للاعتماد.",
         cta: config.primaryAction,
         metrics: [
           { label: "بانتظار مراجعتك", value: "2", hint: "حالات الفريق", tone: "warning" },
           {
-            label: "مهام أساسية",
-            value: `${bundle.job.tasks.filter((task) => task.essential).length}`,
-            hint: "في الحالة الحالية",
-            tone: "neutral"
+            label: "Task Reality Checks",
+            value: `${standards.ownerCounts["hiring-manager"]}`,
+            hint: "على Hiring Manager",
+            tone: standards.ownerCounts["hiring-manager"] > 0 ? "warning" : "success"
           },
-          { label: "جاهز للتوصية", value: "1", hint: "بعد مراجعة المهام", tone: "success" }
+          { label: "مهام أساسية", value: `${bundle.job.tasks.filter((task) => task.essential).length}`, hint: "في الحالة الحالية", tone: "neutral" }
         ],
         actions: [
           { title: "راجع واقعية المهام", meta: bundle.job.title, status: "نشطة" },
-          { title: "أكّد essential vs adaptable", meta: "ضمن Task Validation", status: "مفتوح" },
+          { title: "أكّد essential vs adaptable", meta: `${openOwnedChecks(standards, "hiring-manager").length} check مفتوح`, status: "مفتوح" },
           { title: "اعتمد أو أعد للتعديل", meta: bundle.report.recommendation, status: "قرار" }
         ],
-        rows: sharedRows()
+        rows: openOwnedChecks(standards, "hiring-manager").slice(0, 4).map((item) => ({
+          primary: item.label,
+          secondary: item.rationale,
+          status: item.status,
+          owner: "Hiring Manager"
+        }))
       };
     case "compliance-reviewer":
       return {
         title: "لوحة الامتثال",
-        subtitle: "راجع decision trace واعتمد القرار أو اطلب استكمال.",
+        subtitle: "راجع blockers وdecision trace قبل الاعتماد أو طلب الاستكمال.",
         cta: config.primaryAction,
         metrics: [
           { label: "طابور الامتثال", value: "3", hint: "جاهز للمراجعة", tone: "neutral" },
-          { label: "جاهز للاعتماد", value: "1", hint: "قرار شبه مكتمل", tone: "success" },
-          { label: "استكمال مطلوب", value: "1", hint: "قبل الاعتماد", tone: "warning" }
+          { label: "Blockers", value: `${standards.blockers.length}`, hint: "قبل الاعتماد", tone: "danger" },
+          { label: "Needs Review", value: `${standards.counts["needs-review"]}`, hint: "على مسار المراجعة", tone: "warning" }
         ],
         actions: [
           { title: "افتح Decision Trace", meta: "تحقق من مبررات القرار", status: "الآن" },
-          { title: "راجع المعايير", meta: `${bundle.report.signals.length} إشارات`, status: "مفتوح" },
+          { title: "راجع Blockers", meta: `${standards.blockers.length} blocker`, status: "مفتوح" },
           { title: "اعتمد أو ارفض", meta: bundle.report.recommendation, status: "قرار" }
         ],
-        rows: sharedRows()
+        rows: standards.blockers.slice(0, 4).map((item) => ({
+          primary: item.title,
+          secondary: item.rationale,
+          status: "blocker",
+          owner: "Compliance"
+        }))
       };
     case "executive-viewer":
       return {
         title: "لوحة تنفيذية",
-        subtitle: "رؤية سريعة للمحفظة والقرارات والتكلفة.",
+        subtitle: "رؤية مختصرة للقرار، المعايير، وما بقي قبل الاعتماد.",
         cta: config.primaryAction,
         metrics: [
           { label: "قرارات نشطة", value: `${pipelineCases.length}`, hint: "في المحفظة", tone: "neutral" },
-          { label: "متوسط الجاهزية", value: "75%", hint: "محفظة حالية", tone: "success" },
-          { label: "قرار معتمد", value: "4", hint: "آخر دورة", tone: "neutral" }
+          { label: "Standards Completion", value: `${standards.overview.completionRate}%`, hint: "للحالة الحالية", tone: "success" },
+          { label: "Blockers", value: `${standards.blockers.length}`, hint: "قبل الاعتماد", tone: standards.blockers.length > 0 ? "warning" : "success" }
         ],
         actions: [
           { title: "راجع Portfolio Dashboard", meta: "عرض المحفظة الحالية", status: "جاهز" },
-          { title: "افتح التقارير", meta: "قراءة تنفيذية", status: "مفتوح" },
+          { title: "افتح التقارير", meta: `${standards.overview.blockers} blocker`, status: "مفتوح" },
           { title: "راجع الاتجاهات", meta: "التكلفة والجاهزية", status: "ملخص" }
         ],
-        rows: sharedRows()
+        rows: [
+          ...standards.blockers.slice(0, 2).map((item) => ({
+            primary: item.title,
+            secondary: item.rationale,
+            status: "blocker",
+            owner: item.ownerRole
+          })),
+          ...sharedRows().slice(0, 2)
+        ]
       };
     case "platform-admin":
       return {
         title: "لوحة إدارة المنصة",
-        subtitle: "إدارة القوالب والمعايير والصلاحيات وسجل التدقيق.",
+        subtitle: "إدارة standards catalog، القوالب، وسجل التشغيل الداخلي.",
         cta: config.primaryAction,
         metrics: [
           { label: "قوالب نشطة", value: `${bundle.roleCatalog.length}`, hint: "ضمن النظام", tone: "neutral" },
-          { label: "معايير منشورة", value: "5", hint: "جاهزة للاستخدام", tone: "success" },
-          { label: "أحداث تدقيق", value: "12", hint: "آخر 7 أيام", tone: "warning" }
+          { label: "معايير منشورة", value: `${standards.overview.totalStandards}`, hint: "داخل catalog", tone: "success" },
+          { label: "Evidence pending", value: `${standards.counts["missing-evidence"] + standards.counts["needs-review"]}`, hint: "على مستوى المعايير", tone: "warning" }
         ],
         actions: [
-          { title: "حدّث القوالب", meta: "وظائف مكتبية وإدارية", status: "مفتوح" },
+          { title: "حدّث Standards Library", meta: `${standards.overview.totalChecks} check`, status: "مفتوح" },
           { title: "راجع الصلاحيات", meta: "6 أدوار مفعلة", status: "جاهز" },
           { title: "تحقق من Audit Log", meta: "أثر التغييرات", status: "مراقبة" }
         ],
-        rows: sharedRows()
+        rows: standards.libraryRows.slice(0, 4).map((item) => ({
+          primary: item.title,
+          secondary: `${item.category} • ${item.level}`,
+          status: item.status,
+          owner: item.ownerRole
+        }))
       };
   }
 };
@@ -168,7 +221,8 @@ export const getRoleHomeContent = (role: AppRole, bundle: AssessmentBundle): Rol
 export const getPortalPageContent = (
   slug: PortalSlug,
   role: AppRole,
-  bundle: AssessmentBundle
+  bundle: AssessmentBundle,
+  standards: CaseStandardsEvaluation
 ): PortalPageContent => {
   const roleLabel = getRoleConfig(role).shortLabel;
 
@@ -230,12 +284,12 @@ export const getPortalPageContent = (
     case "assigned-cases":
       return {
         title: "الحالات المعيّنة",
-        subtitle: "الحالات التي تنتظر التقييم أو التحديث.",
+        subtitle: "حالات التقييم وما يرتبط بها من capability checks.",
         sectionLabel: "Assigned Cases",
         cta: { label: "افتح ملف القدرات", href: "/candidate-profile" },
         metrics: [
           { label: "معيّنة لك", value: "3", hint: "قيد العمل" },
-          { label: "ملف غير مكتمل", value: "1", hint: "يحتاج تحديث", tone: "warning" },
+          { label: "Checks عليك", value: `${standards.ownerCounts.assessor}`, hint: "Assessor queue", tone: "warning" },
           { label: "جاهزة للمطابقة", value: "2", hint: "بعد الملف", tone: "success" }
         ],
         actions: [
@@ -243,7 +297,12 @@ export const getPortalPageContent = (
           { title: "راجع العوائق", meta: `${bundle.barriers.length} عناصر` },
           { title: "أكمل خطة التكييف", meta: midpoint(bundle) }
         ],
-        rows: sharedRows()
+        rows: openOwnedChecks(standards, "assessor").slice(0, 4).map((item) => ({
+          primary: item.label,
+          secondary: item.rationale,
+          status: item.status,
+          owner: "Assessor"
+        }))
       };
     case "barriers":
       return {
@@ -271,12 +330,12 @@ export const getPortalPageContent = (
     case "team-queue":
       return {
         title: "Team Queue",
-        subtitle: "الحالات التي تنتظر مراجعة واقعية الدور.",
+        subtitle: "حالات Task Reality التي تنتظر تأكيدك.",
         sectionLabel: "Hiring Queue",
         cta: { label: "افتح تحليل الوظيفة", href: "/job-analysis" },
         metrics: [
           { label: "بانتظارك", value: "2", hint: "حالات حالية", tone: "warning" },
-          { label: "مهام مؤكدة", value: `${bundle.job.tasks.filter((item) => item.essential).length}`, hint: "أساسية" },
+          { label: "Task checks", value: `${standards.ownerCounts["hiring-manager"]}`, hint: "على Hiring Manager" },
           { label: "جاهز للتوصية", value: "1", hint: "بعد التحقق", tone: "success" }
         ],
         actions: [
@@ -284,7 +343,12 @@ export const getPortalPageContent = (
           { title: "اعتمد Task Validation", meta: "essential vs adaptable" },
           { title: "أعد للتعديل عند الحاجة", meta: "قبل التقرير النهائي" }
         ],
-        rows: sharedRows()
+        rows: openOwnedChecks(standards, "hiring-manager").slice(0, 4).map((item) => ({
+          primary: item.label,
+          secondary: item.rationale,
+          status: item.status,
+          owner: "Hiring Manager"
+        }))
       };
     case "task-validation":
       return {
@@ -318,19 +382,27 @@ export const getPortalPageContent = (
         metrics: [
           { label: "القرار الحالي", value: bundle.report.recommendation, hint: "الناتج الحالي" },
           { label: "الجاهزية", value: `${bundle.report.finalReadiness}%`, hint: "بعد التهيئة", tone: "success" },
-          { label: "مخاطر متبقية", value: bundle.report.residualRiskLevel, hint: "قبل الاعتماد", tone: "warning" }
+          { label: "Blockers", value: `${standards.blockers.length}`, hint: "قبل الاعتماد", tone: "warning" }
         ],
         actions: bundle.report.decisionRationale.slice(0, 3).map((item) => ({
           title: item,
           meta: "مبرر القرار",
           status: "مراجعة"
         })),
-        rows: bundle.report.topActions.map((item) => ({
-          primary: item.title,
-          secondary: item.summary,
-          status: "إجراء",
-          owner: "Hiring Manager"
-        }))
+        rows: [
+          ...openOwnedChecks(standards, "hiring-manager").slice(0, 2).map((item) => ({
+            primary: item.label,
+            secondary: item.rationale,
+            status: item.status,
+            owner: "Hiring Manager"
+          })),
+          ...bundle.report.topActions.slice(0, 3).map((item) => ({
+            primary: item.title,
+            secondary: item.summary,
+            status: "إجراء",
+            owner: "Hiring Manager"
+          }))
+        ]
       };
     case "compliance-queue":
       return {
@@ -340,15 +412,20 @@ export const getPortalPageContent = (
         cta: { label: "افتح Decision Trace", href: "/portal/decision-trace" },
         metrics: [
           { label: "جاهز للمراجعة", value: "3", hint: "حالات نشطة" },
-          { label: "جاهز للاعتماد", value: "1", hint: "مكتمل تقريبًا", tone: "success" },
-          { label: "استكمال مطلوب", value: "1", hint: "قبل القرار", tone: "warning" }
+          { label: "Blockers", value: `${standards.blockers.length}`, hint: "قبل القرار", tone: "danger" },
+          { label: "Evidence pending", value: `${standards.counts["missing-evidence"]}`, hint: "تحتاج استكمال", tone: "warning" }
         ],
         actions: [
           { title: "افتح Standards Check", meta: "راجع الإشارات" },
           { title: "تحقق من Decision Trace", meta: "مبررات القرار" },
           { title: "اصدر اعتمادًا أو طلب استكمال", meta: "ضمن Approval Panel" }
         ],
-        rows: sharedRows()
+        rows: standards.blockers.slice(0, 4).map((item) => ({
+          primary: item.title,
+          secondary: item.rationale,
+          status: "blocker",
+          owner: item.ownerRole
+        }))
       };
     case "standards-check":
       return {
@@ -383,13 +460,19 @@ export const getPortalPageContent = (
         metrics: [
           { label: "Task Fit", value: `${bundle.report.taskFit}%`, hint: "مساهمة المهام" },
           { label: "Barrier Coverage", value: `${bundle.plan.barrierCoverage}%`, hint: "تغطية الخطة", tone: "success" },
-          { label: "Confidence", value: `${bundle.report.confidence}%`, hint: "ثقة القرار" }
+          { label: "Standards", value: `${standards.overview.completionRate}%`, hint: "اكتمال checks" }
         ],
         actions: bundle.report.decisionRationale.slice(0, 3).map((item) => ({
           title: item,
           meta: "trace step"
         })),
         rows: [
+          ...standards.blockers.slice(0, 2).map((item) => ({
+            primary: item.title,
+            secondary: item.rationale,
+            status: "Blocker",
+            owner: item.ownerRole
+          })),
           ...bundle.report.topBarriers.map((item) => ({
             primary: item.title,
             secondary: item.summary,
@@ -412,7 +495,7 @@ export const getPortalPageContent = (
         cta: { label: "افتح التقرير التنفيذي", href: "/readiness-report" },
         metrics: [
           { label: "قرار مقترح", value: bundle.report.recommendation, hint: "من المحرك" },
-          { label: "Checklist مطلوب", value: `${bundle.report.checklist.filter((item) => item.priority === "required").length}`, hint: "قبل الاعتماد", tone: "warning" },
+          { label: "Blockers", value: `${standards.blockers.length}`, hint: "يمنع الاعتماد", tone: "warning" },
           { label: "جاهزية", value: `${bundle.report.finalReadiness}%`, hint: "الحالة الحالية", tone: "success" }
         ],
         actions: [
@@ -420,12 +503,20 @@ export const getPortalPageContent = (
           { title: "اطلب استكمال", meta: "إذا بقيت فجوات" , status: "Request" },
           { title: "ارفض", meta: "إذا لم تتحقق الجاهزية", status: "Reject" }
         ],
-        rows: bundle.report.checklist.map((item) => ({
-          primary: item.label,
-          secondary: item.rationale,
-          status: item.priority,
-          owner: item.owner
-        }))
+        rows: [
+          ...standards.blockers.slice(0, 3).map((item) => ({
+            primary: item.title,
+            secondary: item.rationale,
+            status: "blocker",
+            owner: item.ownerRole
+          })),
+          ...bundle.report.checklist.slice(0, 3).map((item) => ({
+            primary: item.label,
+            secondary: item.rationale,
+            status: item.priority,
+            owner: item.owner
+          }))
+        ]
       };
     case "reports":
       return {
@@ -436,7 +527,7 @@ export const getPortalPageContent = (
         metrics: [
           { label: "تقارير حديثة", value: "4", hint: "آخر دورة" },
           { label: "متوسط الجاهزية", value: "75%", hint: "محفظة نشطة", tone: "success" },
-          { label: "متوسط التكلفة", value: midpoint(bundle), hint: "في الحالة الحالية" }
+          { label: "Standards Completion", value: `${standards.overview.completionRate}%`, hint: "للحالة الحالية" }
         ],
         actions: [
           { title: "تقرير جاهزية", meta: bundle.report.recommendation },
@@ -507,23 +598,23 @@ export const getPortalPageContent = (
     case "standards":
       return {
         title: "Standards",
-        subtitle: "إدارة المعايير والإشارات المعتمدة في القرار.",
+        subtitle: "Catalog منظّم للمعايير والـ checks داخل Meyar — Decision & Compliance Standard Engine.",
         sectionLabel: "Standards",
         cta: { label: "افتح فحص المعايير", href: "/portal/standards-check" },
         metrics: [
-          { label: "إشارات فعالة", value: `${bundle.report.signals.length}`, hint: "ضمن التقرير" },
-          { label: "Checklist منشور", value: `${bundle.report.checklist.length}`, hint: "جاهز" },
-          { label: "يتطلب تحديث", value: "1", hint: "مراجعة دورية", tone: "warning" }
+          { label: "معايير", value: `${standards.overview.totalStandards}`, hint: "في المكتبة" },
+          { label: "Checks", value: `${standards.overview.totalChecks}`, hint: "إجمالي checks" },
+          { label: "Evidence pending", value: `${standards.counts["missing-evidence"]}`, hint: "بحاجة متابعة", tone: "warning" }
         ],
-        actions: bundle.report.signals.slice(0, 3).map((item) => ({
-          title: item.label,
-          meta: item.rationale
+        actions: standards.libraryRows.slice(0, 3).map((item) => ({
+          title: item.title,
+          meta: `${item.type} • ${item.checksCount} checks`
         })),
-        rows: bundle.report.signals.map((item) => ({
-          primary: item.label,
-          secondary: item.rationale,
-          status: `${item.score}%`,
-          owner: item.tone
+        rows: standards.libraryRows.slice(0, 6).map((item) => ({
+          primary: item.title,
+          secondary: `${item.category} • ${item.level}`,
+          status: item.status,
+          owner: item.ownerRole
         }))
       };
     case "roles-permissions":

@@ -48,8 +48,8 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                 م
               </Link>
               <div>
-                <div className="text-xs uppercase tracking-[0.28em] text-slate-500">Miyar</div>
-                <div className="mt-1 text-sm text-slate-300">محرك قرار تشغيلي قبل التوظيف</div>
+                <div className="text-xs uppercase tracking-[0.28em] text-slate-500">Meyar</div>
+                <div className="mt-1 text-sm text-slate-300">Decision &amp; Compliance Standard Engine</div>
               </div>
             </div>
 
