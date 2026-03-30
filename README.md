@@ -34,6 +34,15 @@ npm run deploy:prod
 
 لا توجد متغيرات بيئة مطلوبة في هذه النسخة لأن الديمو يعمل على mock data محلية.
 
+## النشر على GitHub Pages
+
+تمت تهيئة المشروع أيضًا للنشر التلقائي على GitHub Pages من خلال GitHub Actions.
+
+- المستودع: [https://github.com/azoz20121234-ui/Miyar](https://github.com/azoz20121234-ui/Miyar)
+- رابط GitHub Pages المتوقع: `https://azoz20121234-ui.github.io/Miyar/`
+
+أي push على `main` سيبني النسخة الثابتة ويعيد نشرها تلقائيًا.
+
 ## المسارات
 
 - `/` الصفحة التنفيذية
