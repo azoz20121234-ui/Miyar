@@ -12,6 +12,7 @@ export default function ReadinessReportPage() {
 
   return (
     <AppShell
+      pageId="readiness-report"
       title="Executive Decision Report"
       subtitle="وثيقة قرار قبل التوظيف تشرح الحكم النهائي، درجة الجاهزية، العوائق، التكييفات المطلوبة، ومؤشرات الاستدامة والامتثال التشغيلي."
       actions={<ReportActions />}

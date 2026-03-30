@@ -46,6 +46,7 @@ export default function JobAnalysisPage() {
 
   return (
     <AppShell
+      pageId="job-analysis"
       title="تحليل الوظيفة"
       subtitle="تفكيك الدور إلى متطلبات تشغيلية حقيقية: مهام، كثافة، أدوات، وبيئة. هنا يبدأ القرار الحقيقي قبل أي تقييم للمرشح."
     >

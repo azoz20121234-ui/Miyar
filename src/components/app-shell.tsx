@@ -5,9 +5,13 @@ import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
 import { bandToneForSignal, statusTone } from "@/lib/scoring";
+import { AppPageId, getRoleConfig } from "@/lib/role-model";
 import { useAssessment } from "@/store/assessment-context";
+import { useRoleSession } from "@/store/role-session-context";
 
-import { NavStepper } from "./nav-stepper";
+import { AccessRestricted } from "./access-restricted";
+import { RoleSidebar } from "./role-sidebar";
+import { RoleSwitcher } from "./role-switcher";
 import { StatusPill } from "./status-pill";
 
 interface AppShellProps {
@@ -15,24 +19,21 @@ interface AppShellProps {
   subtitle: string;
   children: ReactNode;
   actions?: ReactNode;
+  pageId?: AppPageId;
 }
 
-export const AppShell = ({ title, subtitle, children, actions }: AppShellProps) => {
+export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShellProps) => {
   const { bundle } = useAssessment();
+  const { role, roleLabel, canAccess } = useRoleSession();
   const pathname = usePathname();
-  const steps = [
-    "/",
-    "/workspace",
-    "/job-analysis",
-    "/candidate-profile",
-    "/matching",
-    "/accommodation-plan",
-    "/readiness-report",
-    "/dashboard"
-  ];
-  const currentStep = Math.max(0, steps.indexOf(pathname));
-  const progress = Math.round(((currentStep + 1) / steps.length) * 100);
+  const roleConfig = getRoleConfig(role);
+  const currentStep = Math.max(
+    0,
+    roleConfig.navItems.findIndex((item) => item.href === pathname)
+  );
+  const progress = Math.round(((currentStep + 1) / Math.max(roleConfig.navItems.length, 1)) * 100);
   const topSignals = bundle.report.signals.slice(0, 2);
+  const canViewPage = pageId ? canAccess(pageId) : true;
 
   return (
     <div className="min-h-screen bg-cinematic text-slate-100">
@@ -41,7 +42,7 @@ export const AppShell = ({ title, subtitle, children, actions }: AppShellProps) 
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-4">
               <Link
-                href="/"
+                href="/home"
                 className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-lg font-semibold text-white"
               >
                 م
@@ -51,14 +52,38 @@ export const AppShell = ({ title, subtitle, children, actions }: AppShellProps) 
                 <div className="mt-1 text-sm text-slate-300">محرك قرار تشغيلي قبل التوظيف</div>
               </div>
             </div>
-            <NavStepper />
+
+            <div className="hidden xl:flex">
+              <RoleSwitcher />
+            </div>
+
             <div className="flex items-center gap-3">
+              <StatusPill label={roleLabel} tone="neutral" />
               <StatusPill
                 label={bundle.report.recommendation}
                 tone={statusTone(bundle.report.status)}
               />
               {actions}
             </div>
+          </div>
+
+          <div className="mt-4 flex gap-2 overflow-x-auto pb-1 xl:hidden">
+            {roleConfig.navItems.map((item) => {
+              const active = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`whitespace-nowrap rounded-full px-4 py-2 text-sm transition ${
+                    active
+                      ? "bg-white text-slate-950"
+                      : "border border-white/10 bg-white/[0.03] text-slate-300"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </div>
         </header>
 
@@ -83,15 +108,19 @@ export const AppShell = ({ title, subtitle, children, actions }: AppShellProps) 
           </div>
 
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
-            <div>{children}</div>
+            <div>{canViewPage ? children : <AccessRestricted pageId={pageId as AppPageId} />}</div>
 
             <aside className="hidden xl:block">
               <div className="sticky top-28 space-y-4">
+                <RoleSidebar />
+
                 <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
                   <div className="mb-3 flex items-center justify-between gap-3">
                     <div>
                       <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Progress</div>
-                      <div className="mt-2 text-lg font-semibold text-white">{currentStep + 1} / {steps.length}</div>
+                      <div className="mt-2 text-lg font-semibold text-white">
+                        {Math.min(currentStep + 1, roleConfig.navItems.length)} / {roleConfig.navItems.length}
+                      </div>
                     </div>
                     <div className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white">
                       {progress}%

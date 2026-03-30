@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { MetricCard } from "@/components/metric-card";
+import { RoleSwitcher } from "@/components/role-switcher";
 import { SectionCard } from "@/components/section-card";
 import { StatusPill } from "@/components/status-pill";
 import { pipelineCases } from "@/data/dashboard";
@@ -71,12 +72,17 @@ export default function LandingPage() {
               </Link>
             </nav>
 
-            <Link
-              href="/workspace"
-              className="rounded-full bg-white px-5 py-3 text-center text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
-            >
-              ابدأ حالة جديدة
-            </Link>
+            <div className="flex items-center gap-3">
+              <div className="hidden lg:flex">
+                <RoleSwitcher />
+              </div>
+              <Link
+                href="/home"
+                className="rounded-full bg-white px-5 py-3 text-center text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
+              >
+                ادخل حسب الدور
+              </Link>
+            </div>
           </div>
         </header>
 
@@ -93,10 +99,10 @@ export default function LandingPage() {
                 </p>
                 <div className="mt-7 flex flex-wrap gap-3">
                   <Link
-                    href="/workspace"
+                    href="/home"
                     className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
                   >
-                    ابدأ حالة جديدة
+                    ادخل لوحة الدور
                   </Link>
                   <Link
                     href="/readiness-report"
@@ -145,6 +151,9 @@ export default function LandingPage() {
                   <StatusPill label={statusLabel(bundle.report.status)} tone="warning" />
                 </div>
                 <div className="text-sm text-slate-400">جاهز للمراجعة التنفيذية</div>
+                <div className="lg:hidden">
+                  <RoleSwitcher />
+                </div>
               </div>
             </SectionCard>
 
@@ -248,10 +257,10 @@ export default function LandingPage() {
                   </div>
                 </div>
                 <Link
-                  href="/workspace"
+                  href="/home"
                   className="block rounded-full border border-white/10 bg-white/[0.03] px-5 py-3 text-center text-sm text-slate-200 transition hover:bg-white/5"
                 >
-                  راجع المساحة
+                  افتح لوحة الدور
                 </Link>
               </div>
             </SectionCard>
@@ -261,8 +270,8 @@ export default function LandingPage() {
         <footer className="mt-10 flex flex-col gap-4 border-t border-white/10 py-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
           <div>ميار</div>
           <div className="flex flex-wrap gap-4">
-            <Link href="/workspace" className="transition hover:text-white">
-              Cases
+            <Link href="/home" className="transition hover:text-white">
+              Home
             </Link>
             <Link href="/readiness-report" className="transition hover:text-white">
               Reports

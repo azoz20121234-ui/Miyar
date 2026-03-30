@@ -28,6 +28,7 @@ export default function AccommodationPlanPage() {
 
   return (
     <AppShell
+      pageId="accommodation-plan"
       title="خطة التكييف التشغيلية"
       subtitle="خطة تنفيذ فعلية مرتبطة بالعائق والمهمة والتكلفة والزمن، مع تفسير واضح لأثر كل تكييف على الجاهزية النهائية."
     >

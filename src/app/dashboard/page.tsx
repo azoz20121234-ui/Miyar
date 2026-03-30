@@ -20,6 +20,7 @@ export default function DashboardPage() {
 
   return (
     <AppShell
+      pageId="dashboard"
       title="لوحة تنفيذية"
       subtitle="عرض مختصر للمحفظة الحالية مع إشارات Saudi-first: وضوح الدور، كفاية التكييف، واحتمالية الاستمرارية عبر الحالات."
     >

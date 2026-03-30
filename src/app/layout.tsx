@@ -4,6 +4,7 @@ import { Noto_Kufi_Arabic, Tajawal } from "next/font/google";
 import "./globals.css";
 
 import { AssessmentProvider } from "@/store/assessment-context";
+import { RoleSessionProvider } from "@/store/role-session-context";
 
 const bodyFont = Tajawal({
   subsets: ["arabic", "latin"],
@@ -31,7 +32,9 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl">
       <body className={`${bodyFont.variable} ${headingFont.variable} bg-ink text-slate-100`}>
-        <AssessmentProvider>{children}</AssessmentProvider>
+        <RoleSessionProvider>
+          <AssessmentProvider>{children}</AssessmentProvider>
+        </RoleSessionProvider>
       </body>
     </html>
   );

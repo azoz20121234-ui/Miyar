@@ -11,6 +11,7 @@ export default function CandidateProfilePage() {
 
   return (
     <AppShell
+      pageId="candidate-profile"
       title="ملف القدرات التشغيلية"
       subtitle="اللغة هنا تشغيلية لا طبية: ما الذي يستطيع المرشح تنفيذه فعليًا، وما الشروط التي تحافظ على الأداء والاستمرارية."
     >

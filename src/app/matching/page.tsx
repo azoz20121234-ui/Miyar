@@ -18,6 +18,7 @@ export default function MatchingPage() {
 
   return (
     <AppShell
+      pageId="matching"
       title="المطابقة والفجوات"
       subtitle="الصفحة التي تحوّل تحليل الدور والقدرات إلى قرار مفهوم: أين يوجد توافق، أين ظهرت الفجوة، ولماذا خرج الحكم بهذا الشكل."
     >

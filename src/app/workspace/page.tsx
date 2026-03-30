@@ -24,6 +24,7 @@ export default function WorkspacePage() {
 
   return (
     <AppShell
+      pageId="workspace"
       title="مساحة صاحب العمل"
       subtitle="مساحة تشغيلية تربط تحليل الدور بمؤشرات القرار الفعلية: جاهزية، تكلفة، مخاطر متبقية، واحتمال استمرارية."
       actions={
