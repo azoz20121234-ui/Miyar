@@ -36,12 +36,12 @@ npm run deploy:prod
 
 ## النشر على GitHub Pages
 
-تمت تهيئة المشروع أيضًا للنشر التلقائي على GitHub Pages من خلال GitHub Actions.
+المشروع مهيأ للتصدير الثابت على GitHub Pages عبر المسار:
 
 - المستودع: [https://github.com/azoz20121234-ui/Miyar](https://github.com/azoz20121234-ui/Miyar)
-- رابط GitHub Pages المتوقع: `https://azoz20121234-ui.github.io/Miyar/`
+- الرابط: `https://azoz20121234-ui.github.io/Miyar/`
 
-أي push على `main` سيبني النسخة الثابتة ويعيد نشرها تلقائيًا.
+الاعتماد هنا على `static export` مع `basePath=/Miyar` عند البناء المخصص لـ Pages.
 
 ## المسارات
 
