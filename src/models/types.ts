@@ -1,3 +1,5 @@
+import type { AppRole } from "@/lib/role-model";
+
 export type SuitabilityStatus =
   | "fit"
   | "conditional"
@@ -19,6 +21,20 @@ export type ImplementationEffort = "light" | "moderate" | "heavy";
 export type InvestmentClass = "quick-win" | "medium" | "capital";
 export type SummaryTone = "positive" | "watch" | "risk";
 export type SignalDirection = "higher-better" | "lower-better";
+export type DecisionDriverDirection = "positive" | "negative";
+export type DecisionDriverLevel = "blocker" | "major" | "minor";
+export type DecisionDriverDomain =
+  | "task"
+  | "environment"
+  | "barrier"
+  | "accommodation"
+  | "evidence"
+  | "governance";
+export type DecisionRecommendationMode =
+  | "conservative"
+  | "balanced"
+  | "enablement-first";
+export type DecisionUrgency = "now" | "next" | "planned";
 
 export interface CostRange {
   min: number;
@@ -210,6 +226,90 @@ export interface ExecutiveChecklistItem {
 export interface ReportHighlight {
   title: string;
   summary: string;
+}
+
+export interface DecisionDriver {
+  id: string;
+  title: string;
+  summary: string;
+  direction: DecisionDriverDirection;
+  level: DecisionDriverLevel;
+  domain: DecisionDriverDomain;
+  impact: number;
+  blocker: boolean;
+  ownerRole?: AppRole;
+}
+
+export interface ApprovalBlock {
+  id: string;
+  title: string;
+  reason: string;
+  blocker: boolean;
+  status: "blocker" | "missing-evidence" | "needs-review";
+  ownerRole: AppRole;
+  ownerLabel: string;
+  requiredAction: string;
+  impact: number;
+}
+
+export interface DecisionShiftScenario {
+  id: string;
+  title: string;
+  summary: string;
+  projectedDecision: string;
+  projectedReadiness: number;
+  projectedConfidence: number;
+  confidenceDelta: number;
+  residualRisk: BarrierSeverity;
+  closableNow: boolean;
+}
+
+export interface DecisionThresholdView {
+  currentReadiness: number;
+  approvalThreshold: number;
+  currentGap: number;
+  closableNow: boolean;
+  gapSummary: string;
+}
+
+export interface DecisionRecommendationFrame {
+  mode: DecisionRecommendationMode;
+  title: string;
+  summary: string;
+  printableText: string;
+}
+
+export interface DecisionNextAction {
+  id: string;
+  title: string;
+  ownerRole: AppRole;
+  ownerLabel: string;
+  urgency: DecisionUrgency;
+  requiredAction: string;
+  expectedImpact: string;
+  source: "blocker" | "evidence" | "accommodation";
+}
+
+export interface DecisionRequirementTrace {
+  id: string;
+  label: string;
+  passed: boolean;
+  reason: string;
+  ownerRole: AppRole;
+  ownerLabel: string;
+  requiredAction: string;
+  blocker: boolean;
+}
+
+export interface DecisionExplainability {
+  topPositiveDrivers: DecisionDriver[];
+  topNegativeDrivers: DecisionDriver[];
+  approvalBlocks: ApprovalBlock[];
+  scenarios: DecisionShiftScenario[];
+  threshold: DecisionThresholdView;
+  recommendationModes: DecisionRecommendationFrame[];
+  nextActions: DecisionNextAction[];
+  approvalRequirements: DecisionRequirementTrace[];
 }
 
 export interface ReadinessReport {

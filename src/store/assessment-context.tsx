@@ -12,6 +12,7 @@ import {
 import { defaultLibrary, demoCapabilityProfile, demoJob } from "@/data/demo-case";
 import { evaluateStageActionGuard, evaluateTransitionGuard } from "@/lib/case-guards";
 import { createInitialCaseRecord, CASE_STATE_META, type CaseRecord } from "@/lib/case-state";
+import { buildDecisionExplainability } from "@/lib/decision-explainer";
 import {
   getPrimaryTransition,
   getStageActionForRole,
@@ -22,7 +23,12 @@ import { buildStandardsEvaluation } from "@/lib/standards-engine";
 import { CaseStandardsEvaluation } from "@/lib/standards-types";
 import { roleCatalog } from "@/data/roles";
 import { buildAssessmentBundle } from "@/lib/scoring";
-import { Accommodation, CapabilityProfile, Job } from "@/models/types";
+import {
+  Accommodation,
+  CapabilityProfile,
+  DecisionExplainability,
+  Job
+} from "@/models/types";
 import { useRoleSession } from "@/store/role-session-context";
 
 type ActionTone = "primary" | "secondary" | "danger" | "neutral";
@@ -53,6 +59,7 @@ interface AssessmentContextValue {
   roleCatalog: Job[];
   bundle: ReturnType<typeof buildAssessmentBundle>;
   standards: CaseStandardsEvaluation;
+  explainability: DecisionExplainability;
   caseRecord: CaseRecord;
   caseWorkflow: CaseWorkflowSnapshot;
   selectRoleTemplate: (jobId: string) => void;
@@ -167,6 +174,7 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
 
   const bundle = buildAssessmentBundle(job, profile, defaultLibrary, roleCatalog);
   const standards = buildStandardsEvaluation(bundle);
+  const explainability = buildDecisionExplainability(bundle, standards, caseRecord);
   const caseMeta = CASE_STATE_META[caseRecord.state];
 
   const transitionCase = (transitionId: string) => {
@@ -365,6 +373,7 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
         roleCatalog,
         bundle,
         standards,
+        explainability,
         caseRecord,
         caseWorkflow,
         selectRoleTemplate,

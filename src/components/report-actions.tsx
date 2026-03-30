@@ -3,15 +3,24 @@
 import { useAssessment } from "@/store/assessment-context";
 
 export const ReportActions = () => {
-  const { bundle } = useAssessment();
+  const { bundle, standards, explainability, caseRecord } = useAssessment();
 
   const exportJson = () => {
-    const payload = JSON.stringify(bundle, null, 2);
+    const payload = JSON.stringify(
+      {
+        bundle,
+        standards,
+        explainability,
+        caseRecord
+      },
+      null,
+      2
+    );
     const blob = new Blob([payload], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = "miyar-readiness-report.json";
+    anchor.download = "meyar-executive-report.json";
     anchor.click();
     URL.revokeObjectURL(url);
   };
