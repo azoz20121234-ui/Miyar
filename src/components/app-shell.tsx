@@ -10,6 +10,9 @@ import { useAssessment } from "@/store/assessment-context";
 import { useRoleSession } from "@/store/role-session-context";
 
 import { AccessRestricted } from "./access-restricted";
+import { CaseStatusBar } from "./case-status-bar";
+import { DecisionTimeline } from "./decision-timeline";
+import { NextActionPanel } from "./next-action-panel";
 import { RoleSidebar } from "./role-sidebar";
 import { RoleSwitcher } from "./role-switcher";
 import { StatusPill } from "./status-pill";
@@ -23,15 +26,10 @@ interface AppShellProps {
 }
 
 export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShellProps) => {
-  const { bundle } = useAssessment();
+  const { bundle, caseWorkflow } = useAssessment();
   const { role, roleLabel, canAccess } = useRoleSession();
   const pathname = usePathname();
   const roleConfig = getRoleConfig(role);
-  const currentStep = Math.max(
-    0,
-    roleConfig.navItems.findIndex((item) => item.href === pathname)
-  );
-  const progress = Math.round(((currentStep + 1) / Math.max(roleConfig.navItems.length, 1)) * 100);
   const topSignals = bundle.report.signals.slice(0, 2);
   const canViewPage = pageId ? canAccess(pageId) : true;
 
@@ -63,6 +61,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                 label={bundle.report.recommendation}
                 tone={statusTone(bundle.report.status)}
               />
+              <StatusPill label={caseWorkflow.currentStateLabel} tone="neutral" />
               {actions}
             </div>
           </div>
@@ -102,10 +101,12 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                 الثقة {bundle.report.confidence}%
               </div>
               <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-slate-300">
-                الحالة {bundle.report.recommendation}
+                المرحلة {caseWorkflow.currentStateLabel}
               </div>
             </div>
           </div>
+
+          <CaseStatusBar />
 
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
             <div>{canViewPage ? children : <AccessRestricted pageId={pageId as AppPageId} />}</div>
@@ -114,31 +115,9 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
               <div className="sticky top-28 space-y-4">
                 <RoleSidebar />
 
-                <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-                  <div className="mb-3 flex items-center justify-between gap-3">
-                    <div>
-                      <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Progress</div>
-                      <div className="mt-2 text-lg font-semibold text-white">
-                        {Math.min(currentStep + 1, roleConfig.navItems.length)} / {roleConfig.navItems.length}
-                      </div>
-                    </div>
-                    <div className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white">
-                      {progress}%
-                    </div>
-                  </div>
-                  <div className="h-2 rounded-full bg-white/8">
-                    <div
-                      className="h-2 rounded-full bg-white"
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                  <div className="mt-4 text-sm leading-6 text-slate-400">
-                    الحالة النشطة
-                  </div>
-                  <div className="mt-1 text-base font-medium text-white">
-                    {bundle.job.title}
-                  </div>
-                </div>
+                <NextActionPanel />
+
+                <DecisionTimeline />
 
                 <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
                   <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Snapshot</div>
@@ -158,9 +137,13 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                         {bundle.report.totalCostRangeSar.midpoint.toLocaleString("ar-SA")} ر.س
                       </span>
                     </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-slate-400">المسؤول الحالي</span>
+                      <span className="font-medium text-white">{caseWorkflow.currentOwnerLabel}</span>
+                    </div>
                   </div>
                   <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-slate-300">
-                    أثر متوقع +{bundle.report.readinessDelta}
+                    المرحلة التالية {caseWorkflow.nextStageLabel}
                   </div>
                 </div>
 

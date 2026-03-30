@@ -5,15 +5,46 @@ import {
   ReactNode,
   useContext,
   useEffect,
+  useMemo,
   useState
 } from "react";
 
 import { defaultLibrary, demoCapabilityProfile, demoJob } from "@/data/demo-case";
+import { evaluateStageActionGuard, evaluateTransitionGuard } from "@/lib/case-guards";
+import { createInitialCaseRecord, CASE_STATE_META, type CaseRecord } from "@/lib/case-state";
+import {
+  getPrimaryTransition,
+  getStageActionForRole,
+  getTransitionsForRole
+} from "@/lib/case-transitions";
+import { getRoleConfig } from "@/lib/role-model";
 import { buildStandardsEvaluation } from "@/lib/standards-engine";
 import { CaseStandardsEvaluation } from "@/lib/standards-types";
 import { roleCatalog } from "@/data/roles";
 import { buildAssessmentBundle } from "@/lib/scoring";
 import { Accommodation, CapabilityProfile, Job } from "@/models/types";
+import { useRoleSession } from "@/store/role-session-context";
+
+type ActionTone = "primary" | "secondary" | "danger" | "neutral";
+
+interface CaseActionItem {
+  id: string;
+  label: string;
+  description: string;
+  disabled: boolean;
+  reasons: string[];
+  kind: "transition" | "stage-action" | "link";
+  tone: ActionTone;
+  href?: string;
+}
+
+interface CaseWorkflowSnapshot {
+  currentStateLabel: string;
+  nextStageLabel: string;
+  currentOwnerLabel: string;
+  primaryAction: CaseActionItem;
+  transitionActions: CaseActionItem[];
+}
 
 interface AssessmentContextValue {
   job: Job;
@@ -22,6 +53,8 @@ interface AssessmentContextValue {
   roleCatalog: Job[];
   bundle: ReturnType<typeof buildAssessmentBundle>;
   standards: CaseStandardsEvaluation;
+  caseRecord: CaseRecord;
+  caseWorkflow: CaseWorkflowSnapshot;
   selectRoleTemplate: (jobId: string) => void;
   toggleTaskEssential: (taskId: string) => void;
   toggleTaskAdaptable: (taskId: string) => void;
@@ -32,6 +65,8 @@ interface AssessmentContextValue {
     value: Job["environment"][K]
   ) => void;
   updateDimensionScore: (dimensionId: string, delta: number) => void;
+  transitionCase: (transitionId: string) => void;
+  completeStageAction: (actionId: string) => void;
   resetDemo: () => void;
 }
 
@@ -45,10 +80,14 @@ const cloneJob = (jobId?: string): Job =>
   ) as Job;
 const cloneProfile = (): CapabilityProfile =>
   JSON.parse(JSON.stringify(demoCapabilityProfile)) as CapabilityProfile;
+const cloneCaseRecord = (): CaseRecord =>
+  JSON.parse(JSON.stringify(createInitialCaseRecord())) as CaseRecord;
 
 export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
+  const { role } = useRoleSession();
   const [job, setJob] = useState<Job>(cloneJob);
   const [profile, setProfile] = useState<CapabilityProfile>(cloneProfile);
+  const [caseRecord, setCaseRecord] = useState<CaseRecord>(cloneCaseRecord);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
@@ -57,17 +96,22 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
-      const parsed = JSON.parse(stored) as { job: Job; profile: CapabilityProfile };
+      const parsed = JSON.parse(stored) as {
+        job: Job;
+        profile: CapabilityProfile;
+        caseRecord?: CaseRecord;
+      };
       setJob(parsed.job ?? cloneJob());
       setProfile(parsed.profile ?? cloneProfile());
+      setCaseRecord(parsed.caseRecord ?? cloneCaseRecord());
     } catch {
       window.localStorage.removeItem(STORAGE_KEY);
     }
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ job, profile }));
-  }, [job, profile]);
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ job, profile, caseRecord }));
+  }, [job, profile, caseRecord]);
 
   const toggleTaskEssential = (taskId: string) => {
     setJob((current) => ({
@@ -121,14 +165,196 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
     }));
   };
 
+  const bundle = buildAssessmentBundle(job, profile, defaultLibrary, roleCatalog);
+  const standards = buildStandardsEvaluation(bundle);
+  const caseMeta = CASE_STATE_META[caseRecord.state];
+
+  const transitionCase = (transitionId: string) => {
+    const transition = getTransitionsForRole(caseRecord.state, role).find(
+      (item) => item.id === transitionId
+    );
+
+    if (!transition) {
+      return;
+    }
+
+    const guard = evaluateTransitionGuard(transition.id, bundle, standards, caseRecord);
+    if (!guard.allowed) {
+      return;
+    }
+
+    const timestamp = new Date().toISOString();
+    setCaseRecord((current) => ({
+      ...current,
+      state: transition.to,
+      updatedAt: timestamp,
+      revisionCount:
+        transition.to === "NEEDS_REVISION" ? current.revisionCount + 1 : current.revisionCount,
+      managerReviewCompleted:
+        transition.to === "MANAGER_REVIEW" ||
+        transition.to === "UNDER_ASSESSMENT" ||
+        transition.to === "NEEDS_REVISION"
+          ? false
+          : current.managerReviewCompleted,
+      timeline: [
+        ...current.timeline,
+        {
+          id: `timeline-${Date.now()}`,
+          at: timestamp,
+          actorRole: role,
+          action: transition.label,
+          note: transition.description,
+          fromState: current.state,
+          toState: transition.to
+        }
+      ]
+    }));
+  };
+
+  const completeStageAction = (actionId: string) => {
+    const action = getStageActionForRole(caseRecord.state, role);
+
+    if (!action || action.id !== actionId) {
+      return;
+    }
+
+    const guard = evaluateStageActionGuard(action.id, bundle, standards, caseRecord);
+    if (!guard.allowed) {
+      return;
+    }
+
+    const timestamp = new Date().toISOString();
+    setCaseRecord((current) => ({
+      ...current,
+      updatedAt: timestamp,
+      managerReviewCompleted:
+        action.id === "complete-manager-review" ? true : current.managerReviewCompleted,
+      timeline: [
+        ...current.timeline,
+        {
+          id: `timeline-${Date.now()}`,
+          at: timestamp,
+          actorRole: role,
+          action: "Manager review completed",
+          note: "تم تأكيد واقعية المهام وessential tasks قبل إرسال الحالة إلى الامتثال.",
+          fromState: current.state,
+          toState: current.state
+        }
+      ]
+    }));
+  };
+
+  const caseWorkflow = useMemo<CaseWorkflowSnapshot>(() => {
+    const roleConfig = getRoleConfig(role);
+    const currentOwnerLabel =
+      caseMeta.ownerRole === "closed" ? "Closed" : getRoleConfig(caseMeta.ownerRole).label;
+
+    const stageAction = getStageActionForRole(caseRecord.state, role);
+    const stageActionItem = stageAction
+      ? (() => {
+          const guard = evaluateStageActionGuard(
+            stageAction.id,
+            bundle,
+            standards,
+            caseRecord
+          );
+
+          return {
+            id: stageAction.id,
+            label: stageAction.label,
+            description: stageAction.description,
+            disabled: !guard.allowed || caseRecord.managerReviewCompleted,
+            reasons:
+              caseRecord.managerReviewCompleted
+                ? ["Manager review completed."]
+                : guard.blockingReasons,
+            kind: "stage-action" as const,
+            tone: "primary" as const
+          };
+        })()
+      : null;
+
+    const transitionActions = getTransitionsForRole(caseRecord.state, role).map((transition) => {
+      const guard = evaluateTransitionGuard(transition.id, bundle, standards, caseRecord);
+
+      return {
+        id: transition.id,
+        label: transition.label,
+        description: transition.description,
+        disabled: !guard.allowed,
+        reasons: guard.blockingReasons,
+        kind: "transition" as const,
+        tone:
+          transition.kind === "primary"
+            ? ("primary" as const)
+            : transition.kind === "danger"
+              ? ("danger" as const)
+              : ("secondary" as const)
+      };
+    });
+
+    const primaryTransition = getPrimaryTransition(caseRecord.state, role);
+    const primaryTransitionItem = primaryTransition
+      ? transitionActions.find((item) => item.id === primaryTransition.id)
+      : null;
+
+    let primaryAction: CaseActionItem = {
+      id: "view-role-home",
+      label: roleConfig.primaryAction.label,
+      description: "هذا الدور لا يملك إجراء انتقال مباشر في المرحلة الحالية.",
+      disabled: false,
+      reasons: [],
+      kind: "link",
+      tone: "neutral",
+      href: roleConfig.primaryAction.href
+    };
+
+    if (stageActionItem && !caseRecord.managerReviewCompleted) {
+      primaryAction = stageActionItem;
+    } else if (primaryTransitionItem) {
+      primaryAction = primaryTransitionItem;
+    } else if (role === "executive-viewer") {
+      primaryAction = {
+        id: "view-report",
+        label: "اعرض التقرير",
+        description: "هذا الدور يطّلع فقط على القرار والمحفظة.",
+        disabled: false,
+        reasons: [],
+        kind: "link",
+        tone: "neutral",
+        href: "/readiness-report"
+      };
+    } else if (caseMeta.ownerRole !== "closed" && caseMeta.ownerRole !== role) {
+      primaryAction = {
+        id: "wait-current-owner",
+        label: "اعرض الحالة الحالية",
+        description: `الحالة الآن عند ${currentOwnerLabel}.`,
+        disabled: false,
+        reasons: [],
+        kind: "link",
+        tone: "neutral",
+        href: roleConfig.primaryAction.href
+      };
+    }
+
+    return {
+      currentStateLabel: caseMeta.label,
+      nextStageLabel: caseMeta.nextLabel,
+      currentOwnerLabel,
+      primaryAction,
+      transitionActions: [
+        ...(stageActionItem && !caseRecord.managerReviewCompleted ? [stageActionItem] : []),
+        ...transitionActions
+      ]
+    };
+  }, [bundle, caseMeta, caseRecord, role, standards]);
+
   const resetDemo = () => {
     setJob(cloneJob());
     setProfile(cloneProfile());
+    setCaseRecord(cloneCaseRecord());
     window.localStorage.removeItem(STORAGE_KEY);
   };
-
-  const bundle = buildAssessmentBundle(job, profile, defaultLibrary, roleCatalog);
-  const standards = buildStandardsEvaluation(bundle);
 
   return (
     <AssessmentContext.Provider
@@ -139,11 +365,15 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
         roleCatalog,
         bundle,
         standards,
+        caseRecord,
+        caseWorkflow,
         selectRoleTemplate,
         toggleTaskEssential,
         toggleTaskAdaptable,
         setEnvironmentField,
         updateDimensionScore,
+        transitionCase,
+        completeStageAction,
         resetDemo
       }}
     >
