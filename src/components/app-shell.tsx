@@ -25,6 +25,15 @@ interface AppShellProps {
   pageId?: AppPageId;
 }
 
+const portalNameMap = {
+  "case-initiator": "Case Initiation Portal",
+  assessor: "Assessment Portal",
+  "hiring-manager": "Manager Portal",
+  "compliance-reviewer": "Compliance Portal",
+  "executive-viewer": "Executive Portal",
+  "platform-admin": "Admin Portal"
+} as const;
+
 export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShellProps) => {
   const { bundle, caseWorkflow } = useAssessment();
   const { role, roleLabel, canAccess } = useRoleSession();
@@ -32,22 +41,25 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
   const roleConfig = getRoleConfig(role);
   const topSignals = bundle.report.signals.slice(0, 2);
   const canViewPage = pageId ? canAccess(pageId) : true;
+  const portalLabel = portalNameMap[role];
 
   return (
     <div className="min-h-screen bg-cinematic text-slate-100">
-      <div className="mx-auto flex min-h-screen w-full max-w-[1400px] flex-col px-4 py-5 sm:px-6 lg:px-8">
-        <header className="sticky top-0 z-20 mb-8 rounded-[24px] border border-white/10 bg-[#0b1017]/88 px-5 py-4 shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1480px] flex-col px-4 py-5 sm:px-6 lg:px-8">
+        <header className="sticky top-0 z-20 mb-8 rounded-[30px] border border-white/10 bg-[#0d1117]/86 px-5 py-4 shadow-header backdrop-blur-xl">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-4">
               <Link
                 href="/home"
-                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-lg font-semibold text-white"
+                className="flex h-12 w-12 items-center justify-center rounded-[18px] border border-white/10 bg-white/[0.04] text-lg font-semibold text-white transition hover:bg-white/[0.07]"
               >
                 م
               </Link>
               <div>
-                <div className="text-xs uppercase tracking-[0.28em] text-slate-500">Meyar</div>
-                <div className="mt-1 text-sm text-slate-300">Decision &amp; Compliance Standard Engine</div>
+                <div className="portal-label">Meyar</div>
+                <div className="mt-1 text-sm text-slate-300">
+                  Decision &amp; Compliance Standard Engine
+                </div>
               </div>
             </div>
 
@@ -55,12 +67,9 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
               <RoleSwitcher />
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2.5">
               <StatusPill label={roleLabel} tone="neutral" />
-              <StatusPill
-                label={bundle.report.recommendation}
-                tone={statusTone(bundle.report.status)}
-              />
+              <StatusPill label={bundle.report.recommendation} tone={statusTone(bundle.report.status)} />
               <StatusPill label={caseWorkflow.currentStateLabel} tone="neutral" />
               {actions}
             </div>
@@ -76,7 +85,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                   className={`whitespace-nowrap rounded-full px-4 py-2 text-sm transition ${
                     active
                       ? "bg-white text-slate-950"
-                      : "border border-white/10 bg-white/[0.03] text-slate-300"
+                      : "border border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.06]"
                   }`}
                 >
                   {item.label}
@@ -89,19 +98,19 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
         <main className="flex-1">
           <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
-              <div className="mb-2 text-[11px] uppercase tracking-[0.24em] text-slate-500">Operational View</div>
-              <h1 className="text-3xl font-semibold leading-tight text-white sm:text-4xl">{title}</h1>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-400 sm:text-base">{subtitle}</p>
+              <div className="portal-label">{portalLabel}</div>
+              <h1 className="page-title mt-3">{title}</h1>
+              <p className="mt-3 max-w-2xl text-sm leading-7 body-muted sm:text-base">{subtitle}</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-slate-300">
+              <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
                 الجاهزية {bundle.report.finalReadiness}%
               </div>
-              <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-slate-300">
+              <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
                 الثقة {bundle.report.confidence}%
               </div>
-              <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-slate-300">
-                المرحلة {caseWorkflow.currentStateLabel}
+              <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
+                التالي {caseWorkflow.nextStageLabel}
               </div>
             </div>
           </div>
@@ -119,41 +128,43 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
 
                 <DecisionTimeline />
 
-                <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-                  <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Snapshot</div>
-                  <div className="mt-3 text-lg font-semibold text-white">{bundle.report.recommendation}</div>
+                <div className="surface-card-soft p-5">
+                  <div className="portal-label">Decision Snapshot</div>
+                  <div className="mt-3 text-xl font-semibold tracking-[-0.02em] text-white">
+                    {bundle.report.recommendation}
+                  </div>
                   <div className="mt-4 space-y-3">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-slate-400">قبل التهيئة</span>
+                      <span className="body-muted">قبل التهيئة</span>
                       <span className="font-medium text-white">{bundle.report.baselineReadiness}%</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-slate-400">بعد التهيئة</span>
+                      <span className="body-muted">بعد التهيئة</span>
                       <span className="font-medium text-white">{bundle.report.finalReadiness}%</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-slate-400">التكلفة</span>
+                      <span className="body-muted">التكلفة</span>
                       <span className="font-medium text-white">
                         {bundle.report.totalCostRangeSar.midpoint.toLocaleString("ar-SA")} ر.س
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-slate-400">المسؤول الحالي</span>
+                      <span className="body-muted">المسؤول الحالي</span>
                       <span className="font-medium text-white">{caseWorkflow.currentOwnerLabel}</span>
                     </div>
                   </div>
-                  <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-slate-300">
+                  <div className="mt-4 rounded-[20px] border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-slate-300">
                     المرحلة التالية {caseWorkflow.nextStageLabel}
                   </div>
                 </div>
 
-                <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-                  <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Signals</div>
+                <div className="surface-card-soft p-5">
+                  <div className="portal-label">Signals</div>
                   <div className="mt-4 space-y-3">
                     {topSignals.map((signal) => {
                       const tone = bandToneForSignal(signal.score, signal.direction);
                       return (
-                        <div key={signal.id} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                        <div key={signal.id} className="surface-card-muted p-4">
                           <div className="flex items-center justify-between gap-3">
                             <div className="text-sm text-white">{signal.label}</div>
                             <div
@@ -168,7 +179,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                               {signal.score}%
                             </div>
                           </div>
-                          <div className="mt-2 text-xs leading-5 text-slate-400">{signal.rationale}</div>
+                          <div className="mt-2 text-xs leading-5 body-muted">{signal.rationale}</div>
                         </div>
                       );
                     })}

@@ -4,6 +4,12 @@
 
 :root {
   color-scheme: dark;
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --surface-muted: rgba(255, 255, 255, 0.03);
+  --surface-soft: rgba(255, 255, 255, 0.045);
+  --surface-elevated: rgba(255, 255, 255, 0.06);
+  --text-muted: #93a0b4;
+  --text-soft: #aab5c5;
 }
 
 html {
@@ -13,9 +19,10 @@ html {
 body {
   font-family: var(--font-body), sans-serif;
   background:
-    radial-gradient(circle at top, rgba(255, 255, 255, 0.05), transparent 28%),
-    linear-gradient(180deg, #0a0d12 0%, #0b1017 100%);
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.035), transparent 24%),
+    linear-gradient(180deg, #080a0d 0%, #0c1015 100%);
   color: #f8fafc;
+  letter-spacing: -0.01em;
 }
 
 h1,
@@ -51,6 +58,44 @@ h6 {
 
 .text-balance {
   text-wrap: balance;
+}
+
+@layer components {
+  .surface-card {
+    @apply rounded-[28px] border border-white/10 bg-white/[0.035] shadow-panel;
+  }
+
+  .surface-card-soft {
+    @apply rounded-[24px] border border-white/10 bg-white/[0.028];
+  }
+
+  .surface-card-muted {
+    @apply rounded-[20px] border border-white/10 bg-white/[0.02];
+  }
+
+  .portal-label {
+    @apply text-[11px] font-medium uppercase tracking-[0.24em] text-slate-500;
+  }
+
+  .page-title {
+    @apply text-[34px] font-semibold leading-tight text-white sm:text-[42px];
+  }
+
+  .section-title {
+    @apply text-lg font-semibold text-white sm:text-xl;
+  }
+
+  .body-muted {
+    color: var(--text-muted);
+  }
+
+  .body-soft {
+    color: var(--text-soft);
+  }
+
+  .table-shell {
+    @apply overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.02];
+  }
 }
 
 @media print {

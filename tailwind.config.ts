@@ -5,24 +5,26 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#08111f",
-        panel: "#0c172a",
-        panelSoft: "#111f36",
-        line: "#22324f",
-        accent: "#2ec5ce",
-        accentSoft: "#143f4b",
-        gold: "#d5b36a",
-        success: "#4bb78f",
-        warning: "#e8b349",
-        danger: "#ef6a6a"
+        ink: "#080a0d",
+        panel: "#11151b",
+        panelSoft: "#161b23",
+        line: "#232a36",
+        accent: "#98aee9",
+        accentSoft: "#1b2232",
+        gold: "#c7b28a",
+        success: "#6cb49b",
+        warning: "#d5ab63",
+        danger: "#da7e7b",
+        mist: "#a7b1c2"
       },
       boxShadow: {
-        panel: "0 18px 60px rgba(0, 0, 0, 0.28)",
-        glow: "0 0 0 1px rgba(46, 197, 206, 0.12), 0 14px 50px rgba(0, 0, 0, 0.3)"
+        panel: "0 18px 48px rgba(0, 0, 0, 0.22)",
+        header: "0 12px 30px rgba(0, 0, 0, 0.18)",
+        glow: "0 0 0 1px rgba(152, 174, 233, 0.08), 0 10px 30px rgba(0, 0, 0, 0.16)"
       },
       backgroundImage: {
         cinematic:
-          "radial-gradient(circle at top left, rgba(46, 197, 206, 0.16), transparent 34%), radial-gradient(circle at top right, rgba(213, 179, 106, 0.12), transparent 28%), linear-gradient(180deg, rgba(8, 17, 31, 0.98), rgba(4, 10, 20, 1))"
+          "radial-gradient(circle at top left, rgba(152, 174, 233, 0.08), transparent 26%), radial-gradient(circle at top right, rgba(199, 178, 138, 0.05), transparent 22%), linear-gradient(180deg, #080a0d 0%, #0c1015 100%)"
       }
     }
   },

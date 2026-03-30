@@ -6,12 +6,13 @@ import { useAssessment } from "@/store/assessment-context";
 
 const buttonToneMap = {
   primary: "bg-white text-slate-950 hover:bg-slate-200",
-  secondary: "border border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/5",
+  secondary: "border border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/[0.06]",
   danger: "bg-rose-500/90 text-white hover:bg-rose-400",
-  neutral: "border border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/5"
+  neutral: "border border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/[0.06]"
 } as const;
 
-const disabledClasses = "cursor-not-allowed border border-white/10 bg-white/[0.02] text-slate-500";
+const disabledClasses =
+  "cursor-not-allowed border border-white/10 bg-white/[0.02] text-slate-500";
 
 const ActionButton = ({
   label,
@@ -32,7 +33,7 @@ const ActionButton = ({
 
   if (href) {
     return (
-      <Link href={href} className={className}>
+      <Link href={href} className={disabled ? `${className} pointer-events-none` : className}>
         {label}
       </Link>
     );
@@ -65,10 +66,10 @@ export const NextActionPanel = () => {
   };
 
   return (
-    <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-      <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Next Action</div>
-      <div className="mt-3 text-lg font-semibold text-white">{primaryAction.label}</div>
-      <div className="mt-2 text-sm leading-6 text-slate-400">{primaryAction.description}</div>
+    <div className="surface-card-soft p-5">
+      <div className="portal-label">Next Action</div>
+      <div className="mt-3 text-xl font-semibold tracking-[-0.02em] text-white">{primaryAction.label}</div>
+      <div className="mt-2 text-sm leading-6 body-muted">{primaryAction.description}</div>
 
       <div className="mt-4">
         <ActionButton
@@ -83,14 +84,14 @@ export const NextActionPanel = () => {
       </div>
 
       {primaryAction.disabled && primaryAction.reasons.length > 0 ? (
-        <div className="mt-3 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+        <div className="mt-3 rounded-[18px] border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
           {primaryAction.reasons[0]}
         </div>
       ) : null}
 
       {secondaryActions.length > 0 ? (
         <div className="mt-5 space-y-3">
-          <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">Transition Buttons</div>
+          <div className="portal-label">Transition Buttons</div>
           <div className="space-y-3">
             {secondaryActions.map((action) => (
               <div key={action.id} className="space-y-2">
@@ -101,7 +102,7 @@ export const NextActionPanel = () => {
                   onClick={() => handleAction(action.id, action.kind)}
                 />
                 {action.disabled && action.reasons.length > 0 ? (
-                  <div className="text-xs text-slate-500">{action.reasons[0]}</div>
+                  <div className="text-xs body-muted">{action.reasons[0]}</div>
                 ) : null}
               </div>
             ))}

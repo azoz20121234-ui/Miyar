@@ -23,10 +23,10 @@ export const RoleSwitcher = () => {
               setRole(item);
               router.push(getFirstAllowedHref(item));
             }}
-            className={`rounded-full px-3 py-2 text-sm transition ${
+            className={`rounded-full px-3.5 py-2 text-sm transition ${
               active
-                ? "border border-white bg-white text-slate-950"
-                : "border border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/5"
+                ? "border border-white bg-white text-slate-950 shadow-[0_8px_20px_rgba(255,255,255,0.06)]"
+                : "border border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.06]"
             }`}
           >
             {config.shortLabel}
