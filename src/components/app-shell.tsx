@@ -43,6 +43,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
   const topSignals = bundle.report.signals.slice(0, 2);
   const canViewPage = pageId ? canAccess(pageId) : true;
   const portalLabel = portalNameMap[role];
+  const isHomePage = pageId === "home";
 
   return (
     <div className="min-h-screen bg-cinematic text-slate-100">
@@ -57,7 +58,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                 م
               </Link>
               <div>
-                <div className="portal-label">Meyar Core</div>
+                <div className="portal-label">نواة Meyar</div>
                 <div className="mt-1 text-sm text-slate-300">
                   مساحة القرار المؤسسية الداخلية
                 </div>
@@ -99,7 +100,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
         <main className="flex-1">
           <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
-              <div className="portal-label">Meyar Core • {portalLabel}</div>
+              <div className="portal-label">نواة Meyar • {portalLabel}</div>
               <h1 className="page-title mt-3">{title}</h1>
               <p className="mt-3 max-w-2xl text-sm leading-7 body-muted sm:text-base">{subtitle}</p>
             </div>
@@ -116,7 +117,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
             </div>
           </div>
 
-          <CaseStatusBar />
+          {!isHomePage ? <CaseStatusBar /> : null}
 
           {externalHandoff ? (
             <section className="surface-card-soft mb-6 p-5">
@@ -127,7 +128,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                     مرشح خارجي • {externalHandoff.job.title}
                   </div>
                   <div className="mt-2 text-sm text-slate-400">
-                    تم استلام حزمة تمهيدية من الطبقة الخارجية وإدخالها في مسودة Meyar Core.
+                    تم الاستلام من البوابة الخارجية وإدخاله في مسودة نواة Meyar.
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -148,76 +149,78 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
             </section>
           ) : null}
 
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
+          <div className={isHomePage ? "" : "grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]"}>
             <div>{canViewPage ? children : <AccessRestricted pageId={pageId as AppPageId} />}</div>
 
-            <aside className="hidden xl:block">
-              <div className="sticky top-28 space-y-4">
-                <RoleSidebar />
+            {!isHomePage ? (
+              <aside className="hidden xl:block">
+                <div className="sticky top-28 space-y-4">
+                  <RoleSidebar />
 
-                <NextActionPanel />
+                  <NextActionPanel />
 
-                <DecisionTimeline />
+                  <DecisionTimeline />
 
-                <div className="surface-card-soft p-5">
-                  <div className="portal-label">ملخص القرار</div>
-                  <div className="mt-3 text-xl font-semibold tracking-[-0.02em] text-white">
-                    {bundle.report.recommendation}
+                  <div className="surface-card-soft p-5">
+                    <div className="portal-label">ملخص القرار</div>
+                    <div className="mt-3 text-xl font-semibold tracking-[-0.02em] text-white">
+                      {bundle.report.recommendation}
+                    </div>
+                    <div className="mt-4 space-y-3">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="body-muted">قبل التهيئة</span>
+                        <span className="font-medium text-white">{bundle.report.baselineReadiness}%</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="body-muted">بعد التهيئة</span>
+                        <span className="font-medium text-white">{bundle.report.finalReadiness}%</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="body-muted">التكلفة</span>
+                        <span className="font-medium text-white">
+                          {bundle.report.totalCostRangeSar.midpoint.toLocaleString("ar-SA")} ر.س
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="body-muted">المالك الحالي</span>
+                        <span className="font-medium text-white">{caseWorkflow.currentOwnerLabel}</span>
+                      </div>
+                    </div>
+                    <div className="mt-4 rounded-[20px] border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-slate-300">
+                      المرحلة التالية {caseWorkflow.nextStageLabel}
+                    </div>
                   </div>
-                  <div className="mt-4 space-y-3">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="body-muted">قبل التهيئة</span>
-                      <span className="font-medium text-white">{bundle.report.baselineReadiness}%</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="body-muted">بعد التهيئة</span>
-                      <span className="font-medium text-white">{bundle.report.finalReadiness}%</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="body-muted">التكلفة</span>
-                      <span className="font-medium text-white">
-                        {bundle.report.totalCostRangeSar.midpoint.toLocaleString("ar-SA")} ر.س
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="body-muted">المسؤول الحالي</span>
-                      <span className="font-medium text-white">{caseWorkflow.currentOwnerLabel}</span>
-                    </div>
-                  </div>
-                  <div className="mt-4 rounded-[20px] border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-slate-300">
-                    المرحلة التالية {caseWorkflow.nextStageLabel}
-                  </div>
-                </div>
 
-                <div className="surface-card-soft p-5">
-                  <div className="portal-label">الإشارات</div>
-                  <div className="mt-4 space-y-3">
-                    {topSignals.map((signal) => {
-                      const tone = bandToneForSignal(signal.score, signal.direction);
-                      return (
-                        <div key={signal.id} className="surface-card-muted p-4">
-                          <div className="flex items-center justify-between gap-3">
-                            <div className="text-sm text-white">{signal.label}</div>
-                            <div
-                              className={`rounded-full px-3 py-1 text-xs ${
-                                tone === "success"
-                                  ? "bg-emerald-400/15 text-emerald-300"
-                                  : tone === "warning"
-                                    ? "bg-amber-400/15 text-amber-200"
-                                    : "bg-rose-400/15 text-rose-200"
-                              }`}
-                            >
-                              {signal.score}%
+                  <div className="surface-card-soft p-5">
+                    <div className="portal-label">الإشارات</div>
+                    <div className="mt-4 space-y-3">
+                      {topSignals.map((signal) => {
+                        const tone = bandToneForSignal(signal.score, signal.direction);
+                        return (
+                          <div key={signal.id} className="surface-card-muted p-4">
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="text-sm text-white">{signal.label}</div>
+                              <div
+                                className={`rounded-full px-3 py-1 text-xs ${
+                                  tone === "success"
+                                    ? "bg-emerald-400/15 text-emerald-300"
+                                    : tone === "warning"
+                                      ? "bg-amber-400/15 text-amber-200"
+                                      : "bg-rose-400/15 text-rose-200"
+                                }`}
+                              >
+                                {signal.score}%
+                              </div>
                             </div>
+                            <div className="mt-2 text-xs leading-5 body-muted">{signal.rationale}</div>
                           </div>
-                          <div className="mt-2 text-xs leading-5 body-muted">{signal.rationale}</div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </aside>
+              </aside>
+            ) : null}
           </div>
         </main>
       </div>

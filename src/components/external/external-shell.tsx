@@ -26,8 +26,8 @@ export const ExternalShell = ({
 
   return (
     <div className="min-h-screen bg-cinematic text-slate-100">
-      <div className="mx-auto max-w-[1180px] px-4 py-5 sm:px-6 lg:px-8">
-        <header className="mb-10 flex flex-col gap-4 rounded-[28px] border border-white/10 bg-[#0b1017]/84 px-5 py-4 backdrop-blur-xl lg:flex-row lg:items-center lg:justify-between">
+      <div className="mx-auto max-w-[1080px] px-4 py-6 sm:px-6 lg:px-8">
+        <header className="mb-8 flex flex-col gap-4 rounded-[28px] border border-white/10 bg-[#0d1219]/82 px-5 py-4 backdrop-blur-xl lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-4">
             <Link
               href="/external"
@@ -36,8 +36,8 @@ export const ExternalShell = ({
               م
             </Link>
             <div>
-              <div className="portal-label">Meyar External</div>
-              <div className="mt-1 text-sm text-slate-300">طبقة الإدخال والمتابعة الخارجية</div>
+              <div className="portal-label">البوابات الخارجية</div>
+              <div className="mt-1 text-sm text-slate-300">إدخال تمهيدي قبل التقييم</div>
             </div>
           </div>
 
@@ -67,7 +67,7 @@ export const ExternalShell = ({
           <section className="space-y-6">
             <div className="surface-card p-7 sm:p-9">
               <div className="portal-label">{flowLabel}</div>
-              <h1 className="mt-3 text-4xl font-semibold leading-tight text-white sm:text-[46px]">
+              <h1 className="mt-3 text-4xl font-semibold leading-tight text-white sm:text-[48px]">
                 {title}
               </h1>
               <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-400 sm:text-base">
@@ -76,7 +76,13 @@ export const ExternalShell = ({
             </div>
 
             <div className="surface-card-soft p-5">
-              <div className="flex flex-wrap gap-2">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div className="portal-label">تقدم الخطوات</div>
+                <div className="text-sm text-slate-300">
+                  الخطوة {activeStep + 1} من {steps.length}
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2.5">
                 {steps.map((step, index) => {
                   const active = index === activeStep;
                   const complete = index < activeStep;
@@ -84,7 +90,7 @@ export const ExternalShell = ({
                   return (
                     <div
                       key={step}
-                      className={`rounded-full px-4 py-2 text-sm transition ${
+                      className={`rounded-full px-4 py-2.5 text-sm transition ${
                         active
                           ? "bg-white text-slate-950"
                           : complete
@@ -108,7 +114,7 @@ export const ExternalShell = ({
                 <div className="portal-label">الإيقاع</div>
                 <div className="mt-3 text-xl font-semibold text-white">خطوة واحدة في كل شاشة</div>
                 <div className="mt-2 text-sm leading-7 text-slate-400">
-                  إدخال مختصر، زر رئيسي واحد، وتسليم واضح إلى Meyar Core عند الجاهزية.
+                  إدخال مختصر، زر رئيسي واحد، وتسليم واضح إلى نواة Meyar عند الجاهزية.
                 </div>
               </div>
 

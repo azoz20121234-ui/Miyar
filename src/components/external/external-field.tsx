@@ -27,14 +27,14 @@ type ExternalFieldProps =
   | ExternalSelectProps;
 
 const controlClassName =
-  "mt-3 w-full rounded-[20px] border border-white/10 bg-white/[0.03] px-4 py-4 text-base text-white outline-none transition placeholder:text-slate-500 focus:border-white/20 focus:bg-white/[0.05]";
+  "mt-3 w-full rounded-[22px] border border-white/10 bg-white/[0.03] px-4 py-4 text-base text-white outline-none transition placeholder:text-slate-500 focus:border-white/20 focus:bg-white/[0.05]";
 
 export const ExternalField = (props: ExternalFieldProps) => {
   const { label, hint } = props;
 
   return (
     <label className="block">
-      <div className="text-sm font-medium text-white">{label}</div>
+      <div className="text-sm font-semibold text-white">{label}</div>
       {hint ? <div className="mt-1 text-xs leading-6 text-slate-500">{hint}</div> : null}
 
       {props.as === "textarea" ? (

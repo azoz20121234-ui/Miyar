@@ -10,9 +10,9 @@ import { joinExternalList } from "@/lib/external-handoff";
 import { useExternalIntake } from "@/store/external-intake-context";
 
 const candidateSteps = [
-  { id: "capabilities", label: "ماذا تستطيع أن تفعل؟" },
-  { id: "environment", label: "ما البيئة المناسبة لك؟" },
-  { id: "evidence", label: "ارفع الأدلة" },
+  { id: "capabilities", label: "ما الذي يمكنك تنفيذه؟" },
+  { id: "environment", label: "ما البيئة الأنسب لنجاحك؟" },
+  { id: "evidence", label: "الأدلة المتاحة" },
   { id: "summary", label: "ملخص الجاهزية" }
 ] as const;
 
@@ -52,18 +52,50 @@ export default function ExternalCandidatePage() {
     return true;
   }, [candidate.preferences.length, candidate.strengths.length, step]);
 
+  const completionItems = [
+    {
+      label: "ملف القدرات",
+      status: candidate.strengths.length > 0 ? "مكتمل" : "يحتاج استكمال",
+      tone:
+        candidate.strengths.length > 0
+          ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-200"
+          : "border-amber-500/20 bg-amber-500/10 text-amber-100"
+    },
+    {
+      label: "البيئة المناسبة",
+      status: candidate.preferences.length > 0 ? "مكتمل" : "يحتاج استكمال",
+      tone:
+        candidate.preferences.length > 0
+          ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-200"
+          : "border-amber-500/20 bg-amber-500/10 text-amber-100"
+    },
+    {
+      label: "الأدلة",
+      status: candidate.evidence.length > 0 ? "مكتمل" : "اختياري",
+      tone:
+        candidate.evidence.length > 0
+          ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-200"
+          : "border-white/10 bg-white/[0.04] text-slate-300"
+    },
+    {
+      label: "الخطوة التالية",
+      status: "جاهز للتقييم",
+      tone: "border-white/10 bg-white/[0.04] text-slate-200"
+    }
+  ];
+
   return (
     <ExternalShell
       flowLabel="بوابة المرشح"
-      title="ملف المرشح الخارجي"
-      subtitle="خطوة واحدة في كل شاشة لبناء صورة تشغيلية أولية قبل بدء القرار."
+      title="ملف القدرات"
+      subtitle="أدخل صورة تمهيدية مختصرة تساعد فريق التقييم على فهم القدرات والبيئة المناسبة."
       steps={candidateSteps.map((item) => item.label)}
       activeStep={activeIndex}
     >
       {step === "capabilities" ? (
         <ExternalFlowCard
-          title="ماذا تستطيع أن تفعل؟"
-          subtitle="اكتب نقاط القوة الحالية والقيود التي تريد أخذها في الاعتبار."
+          title="ما الذي يمكنك تنفيذه؟"
+          subtitle="اذكر نقاط القوة الحالية وما يحتاج مراعاة عند التنفيذ."
           footer={
             <button
               type="button"
@@ -81,14 +113,14 @@ export default function ExternalCandidatePage() {
         >
           <ExternalField
             as="textarea"
-            label="نقاط القوة"
+            label="ما الذي تنفذه بثبات؟"
             hint="سطر واحد لكل نقطة."
             value={joinExternalList(candidate.strengths)}
             onChange={(event) => setCandidateList("strengths", event.target.value)}
           />
           <ExternalField
             as="textarea"
-            label="القيود الحالية"
+            label="ما الذي يحتاج مراعاة؟"
             hint="سطر واحد لكل نقطة."
             value={joinExternalList(candidate.limitations)}
             onChange={(event) => setCandidateList("limitations", event.target.value)}
@@ -98,8 +130,8 @@ export default function ExternalCandidatePage() {
 
       {step === "environment" ? (
         <ExternalFlowCard
-          title="ما البيئة المناسبة لك؟"
-          subtitle="اكتب التفضيلات أو الظروف التي تجعل الأداء أكثر استقرارًا."
+          title="ما البيئة الأنسب لنجاحك؟"
+          subtitle="اذكر الظروف أو التفضيلات التي تساعد على أداء أكثر استقرارًا."
           footer={
             <button
               type="button"
@@ -117,7 +149,7 @@ export default function ExternalCandidatePage() {
         >
           <ExternalField
             as="textarea"
-            label="البيئة والتفضيلات المناسبة"
+            label="البيئة المناسبة"
             hint="مثال: تواصل كتابي أولًا، بيئة هادئة، واجهات واضحة."
             value={joinExternalList(candidate.preferences)}
             onChange={(event) => setCandidateList("preferences", event.target.value)}
@@ -127,8 +159,8 @@ export default function ExternalCandidatePage() {
 
       {step === "evidence" ? (
         <ExternalFlowCard
-          title="ارفع الأدلة (اختياري)"
-          subtitle="أضف أمثلة قصيرة أو أدلة تدعم الصورة التشغيلية."
+          title="الأدلة المتاحة"
+          subtitle="أضف أمثلة أو أدلة مختصرة تدعم ملف القدرات. هذه الخطوة اختيارية."
           footer={
             <button
               type="button"
@@ -152,42 +184,59 @@ export default function ExternalCandidatePage() {
       {step === "summary" ? (
         <ExternalFlowCard
           title="ملخص الجاهزية"
-          subtitle="هذه هي الصورة التي ستنتقل إلى صفحة الإرسال قبل بدء التقييم."
+          subtitle="هذه هي الصورة التي سنرسلها إلى صفحة الإرسال قبل بدء التقييم."
           footer={
             <Link
               href="/external/submit"
               className="block w-full rounded-[22px] bg-white px-6 py-4 text-center text-base font-semibold text-slate-950 transition hover:bg-slate-200"
             >
-              التالي
+              اذهب إلى الإرسال
             </Link>
           }
         >
-          <div className="rounded-[24px] border border-white/10 bg-white/[0.03] px-5 py-5">
-            <div className="text-[11px] tracking-[0.16em] text-slate-500">جاهزية المرشح</div>
+          <div className="rounded-[24px] border border-white/10 bg-white/[0.04] px-5 py-5">
+            <div className="text-[11px] tracking-[0.16em] text-slate-500">الجاهزية</div>
             <div className="mt-3 text-4xl font-semibold text-white">{candidate.capabilityScore}%</div>
+            <div className="mt-2 text-sm text-slate-400">ملف تمهيدي جاهز للمراجعة الأولية.</div>
           </div>
 
-          <div className="space-y-3">
-            {[
-              { label: "نقاط القوة", items: candidate.strengths },
-              { label: "القيود الحالية", items: candidate.limitations },
-              { label: "البيئة المناسبة", items: candidate.preferences },
-              { label: "الأدلة", items: candidate.evidence.length ? candidate.evidence : ["لا يوجد"] }
-            ].map((group) => (
-              <div key={group.label} className="surface-card-muted px-4 py-4">
-                <div className="text-xs text-slate-500">{group.label}</div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {group.items.map((item) => (
-                    <span
-                      key={`${group.label}-${item}`}
-                      className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-slate-200"
-                    >
-                      {item}
-                    </span>
-                  ))}
+          <div className="grid gap-3 sm:grid-cols-2">
+            {completionItems.map((item) => (
+              <div key={item.label} className="surface-card-muted px-4 py-4">
+                <div className="text-xs text-slate-500">{item.label}</div>
+                <div className={`mt-3 inline-flex rounded-full border px-3 py-1.5 text-xs ${item.tone}`}>
+                  {item.status}
                 </div>
               </div>
             ))}
+          </div>
+
+          <div className="surface-card-muted px-4 py-4">
+            <div className="text-xs text-slate-500">ما الذي سنرسله للتقييم</div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {[...candidate.strengths.slice(0, 3), ...candidate.preferences.slice(0, 2)].map((item) => (
+                <span
+                  key={`send-${item}`}
+                  className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-slate-200"
+                >
+                  {item}
+                </span>
+              ))}
+              {candidate.strengths.length === 0 && candidate.preferences.length === 0 ? (
+                <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-xs text-amber-100">
+                  يحتاج استكمال
+                </span>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="surface-card-muted px-4 py-4">
+            <div className="text-xs text-slate-500">ما هو ناقص</div>
+            <div className="mt-2 text-sm leading-6 text-slate-300">
+              {candidate.evidence.length > 0
+                ? "لا يوجد عنصر عاجل. يمكنك متابعة الإرسال الآن."
+                : "يمكن إضافة أدلة لاحقًا. الملف جاهز للتقييم المبدئي."}
+            </div>
           </div>
         </ExternalFlowCard>
       ) : null}

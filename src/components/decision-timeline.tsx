@@ -10,12 +10,14 @@ const formatter = new Intl.DateTimeFormat("ar-SA", {
 
 export const DecisionTimeline = () => {
   const { caseRecord } = useAssessment();
+  const timelineItems = [...caseRecord.timeline].reverse().slice(0, 4);
 
   return (
     <div className="surface-card-soft p-5">
       <div className="portal-label">الخط الزمني للقرار</div>
-      <div className="mt-4 space-y-4">
-        {[...caseRecord.timeline].reverse().map((item) => (
+      <div className="mt-2 text-sm text-slate-400">أحدث التحركات فقط.</div>
+      <div className="mt-4 space-y-3">
+        {timelineItems.map((item) => (
           <div key={item.id} className="flex gap-3">
             <div className="mt-1 h-3 w-3 rounded-full bg-white/35" />
             <div className="surface-card-muted min-w-0 flex-1 p-4">

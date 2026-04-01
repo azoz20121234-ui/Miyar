@@ -10,10 +10,11 @@ import { complexityLabelMap, joinExternalList } from "@/lib/external-handoff";
 import { useExternalIntake } from "@/store/external-intake-context";
 
 const employerSteps = [
-  { id: "description", label: "وصف الوظيفة" },
+  { id: "description", label: "تعريف الوظيفة" },
   { id: "critical", label: "المهام الأساسية" },
-  { id: "adaptable", label: "المهام القابلة للتعديل" },
-  { id: "risks", label: "المتطلبات والمخاطر" }
+  { id: "adaptable", label: "ما يمكن تكييفه" },
+  { id: "risks", label: "المتطلبات والمخاطر" },
+  { id: "summary", label: "ملخص الوظيفة" }
 ] as const;
 
 type EmployerStep = (typeof employerSteps)[number]["id"];
@@ -52,18 +53,37 @@ export default function ExternalEmployerPage() {
     return true;
   }, [job.criticalTasks.length, job.title, step]);
 
+  const completionItems = [
+    {
+      label: "المسمى",
+      value: job.title || "يحتاج استكمال"
+    },
+    {
+      label: "المهام الأساسية",
+      value: job.criticalTasks.length ? `${job.criticalTasks.length} مهام` : "يحتاج استكمال"
+    },
+    {
+      label: "المهام القابلة للتكييف",
+      value: job.adaptableTasks.length ? `${job.adaptableTasks.length} مهام` : "لا يوجد"
+    },
+    {
+      label: "التعقيد",
+      value: complexityLabelMap[job.complexity]
+    }
+  ];
+
   return (
     <ExternalShell
       flowLabel="بوابة جهة العمل"
-      title="ملف الوظيفة الخارجي"
-      subtitle="خطوات قصيرة لتعريف الوظيفة قبل إرسالها إلى Meyar Core."
+      title="ملف الوظيفة"
+      subtitle="صف الوظيفة كما تُمارس فعليًا قبل إرسالها إلى فريق التقييم."
       steps={employerSteps.map((item) => item.label)}
       activeStep={activeIndex}
     >
       {step === "description" ? (
         <ExternalFlowCard
-          title="وصف الوظيفة"
-          subtitle="حدد المسمى ومستوى التعقيد فقط قبل الانتقال إلى المهام."
+          title="عرّف الوظيفة كما تُمارس فعليًا"
+          subtitle="ابدأ بالمسمى ومستوى التعقيد فقط."
           footer={
             <button
               type="button"
@@ -101,8 +121,8 @@ export default function ExternalEmployerPage() {
 
       {step === "critical" ? (
         <ExternalFlowCard
-          title="المهام الأساسية"
-          subtitle="اكتب المهام التي لا يمكن حذفها من الدور."
+          title="ما المهام الأساسية؟"
+          subtitle="اذكر المهام التي لا يمكن حذفها من الدور."
           footer={
             <button
               type="button"
@@ -130,8 +150,8 @@ export default function ExternalEmployerPage() {
 
       {step === "adaptable" ? (
         <ExternalFlowCard
-          title="المهام القابلة للتعديل"
-          subtitle="اكتب المهام التي يمكن تكييفها أو إعادة توزيعها."
+          title="ما الذي يمكن تكييفه؟"
+          subtitle="اذكر المهام التي يمكن تعديلها أو إعادة توزيعها."
           footer={
             <button
               type="button"
@@ -144,7 +164,7 @@ export default function ExternalEmployerPage() {
         >
           <ExternalField
             as="textarea"
-            label="المهام القابلة للتعديل"
+            label="المهام القابلة للتكييف"
             hint="سطر واحد لكل مهمة."
             value={joinExternalList(job.adaptableTasks)}
             onChange={(event) => setJobList("adaptableTasks", event.target.value)}
@@ -154,15 +174,16 @@ export default function ExternalEmployerPage() {
 
       {step === "risks" ? (
         <ExternalFlowCard
-          title="المتطلبات والمخاطر"
-          subtitle="اكتب النقاط التي تحتاج تهيئة أو مراجعة قبل بدء التقييم."
+          title="ما المتطلبات والمخاطر؟"
+          subtitle="اذكر ما يحتاج تهيئة أو مراجعة قبل بدء التقييم."
           footer={
-            <Link
-              href="/external/submit"
-              className="block w-full rounded-[22px] bg-white px-6 py-4 text-center text-base font-semibold text-slate-950 transition hover:bg-slate-200"
+            <button
+              type="button"
+              onClick={() => nextStep && setStep(nextStep)}
+              className="w-full rounded-[22px] bg-white px-6 py-4 text-base font-semibold text-slate-950 transition hover:bg-slate-200"
             >
               التالي
-            </Link>
+            </button>
           }
         >
           <ExternalField
@@ -174,8 +195,74 @@ export default function ExternalEmployerPage() {
           />
 
           <div className="surface-card-muted px-4 py-4">
-            <div className="text-xs text-slate-500">تعقيد الوظيفة</div>
+            <div className="text-xs text-slate-500">مستوى التعقيد</div>
             <div className="mt-2 text-sm text-white">{complexityLabelMap[job.complexity]}</div>
+          </div>
+        </ExternalFlowCard>
+      ) : null}
+
+      {step === "summary" ? (
+        <ExternalFlowCard
+          title="ملخص الوظيفة"
+          subtitle="هذه هي الصورة التي سنرسلها إلى صفحة الإرسال."
+          footer={
+            <Link
+              href="/external/submit"
+              className="block w-full rounded-[22px] bg-white px-6 py-4 text-center text-base font-semibold text-slate-950 transition hover:bg-slate-200"
+            >
+              اذهب إلى الإرسال
+            </Link>
+          }
+        >
+          <div className="grid gap-3 sm:grid-cols-2">
+            {completionItems.map((item) => (
+              <div key={item.label} className="surface-card-muted px-4 py-4">
+                <div className="text-xs text-slate-500">{item.label}</div>
+                <div className="mt-2 text-sm font-medium text-white">{item.value}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="surface-card-muted px-4 py-4">
+            <div className="text-xs text-slate-500">المهام الأساسية</div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {(job.criticalTasks.length ? job.criticalTasks : ["يحتاج استكمال"]).map((item) => (
+                <span
+                  key={`critical-${item}`}
+                  className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-slate-200"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="surface-card-muted px-4 py-4">
+            <div className="text-xs text-slate-500">المهام القابلة للتكييف</div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {(job.adaptableTasks.length ? job.adaptableTasks : ["لا يوجد"]).map((item) => (
+                <span
+                  key={`adaptable-${item}`}
+                  className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-slate-200"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="surface-card-muted px-4 py-4">
+            <div className="text-xs text-slate-500">المخاطر الرئيسية</div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {(job.risks.length ? job.risks : ["لا يوجد"]).map((item) => (
+                <span
+                  key={`risk-${item}`}
+                  className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-slate-200"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
           </div>
         </ExternalFlowCard>
       ) : null}
