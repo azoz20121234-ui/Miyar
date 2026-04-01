@@ -1,5 +1,5 @@
 import { ExternalEntryGateway } from "@/components/external/external-entry-gateway";
 
-export default function LandingPage() {
+export default function ExternalGatewayPage() {
   return <ExternalEntryGateway />;
 }

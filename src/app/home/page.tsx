@@ -17,6 +17,7 @@ export default function RoleHomePage() {
     bundle,
     explainability,
     caseWorkflow,
+    externalHandoff,
     transitionCase,
     completeStageAction
   } = useAssessment();
@@ -66,6 +67,11 @@ export default function RoleHomePage() {
         <section className="surface-card-soft p-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
+              {externalHandoff ? (
+                <div className="mb-3 inline-flex items-center rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs text-emerald-200">
+                  📥 تم إنشاء الحالة من بوابة خارجية
+                </div>
+              ) : null}
               <div className="portal-label">حالة القرار</div>
               <div className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-white sm:text-[40px]">
                 {bundle.report.recommendation}

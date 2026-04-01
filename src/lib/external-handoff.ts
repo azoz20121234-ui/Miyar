@@ -1,149 +1,130 @@
-export interface CandidateIntake {
-  start: {
-    fullName: string;
-    city: string;
-    targetRole: string;
-  };
-  capabilities: {
-    digitalNavigation: string;
-    writtenCommunication: string;
-    documentHandling: string;
-    keyboardUse: string;
-  };
-  evidence: {
-    workSample: string;
-    toolsUsed: string;
-    supportEvidence: string;
-  };
-  preferences: {
-    workMode: string;
-    supportTools: string;
-    scheduleNotes: string;
-    contactPreference: string;
-  };
-}
+export type ExternalJobComplexity = "low" | "medium" | "high";
+export type ExpectedAccommodationLevel = "low" | "medium" | "high";
 
-export interface EmployerIntake {
-  start: {
-    companyName: string;
-    ownerName: string;
-    roleTitle: string;
-  };
-  jobBreakdown: {
-    rolePurpose: string;
-    coreTasks: string;
-    tools: string;
-  };
-  requirements: {
-    mustHave: string;
-    communicationPattern: string;
-    workMode: string;
-  };
-  risks: {
-    operationalRisks: string;
-    reviewPoints: string;
-    blockers: string;
-  };
-  accommodations: {
-    currentSupport: string;
-    openAdjustments: string;
-    budgetNotes: string;
-  };
-}
-
-export interface ExternalHandoffPayload {
-  candidateName: string;
-  candidateCity: string;
-  candidateTargetRole: string;
-  primaryCapabilities: string[];
-  completedEvidence: string[];
+export interface ExternalCandidate {
+  capabilityScore: number;
+  strengths: string[];
+  limitations: string[];
   preferences: string[];
-  jobTitle: string;
-  employerName: string;
-  caseOwnerName: string;
-  jobPurpose: string;
-  coreTasks: string[];
-  workTools: string[];
-  jobRequirements: string[];
-  proposedAccommodations: string[];
-  initialReadiness: number;
-  initialReadinessLabel: string;
+  evidence: string[];
 }
 
-const compactList = (value: string) =>
+export interface ExternalJob {
+  title: string;
+  complexity: ExternalJobComplexity;
+  criticalTasks: string[];
+  adaptableTasks: string[];
+  risks: string[];
+}
+
+export interface ExternalHandoffInput {
+  candidate: ExternalCandidate;
+  job: ExternalJob;
+}
+
+export interface ExternalHandoffRecord extends ExternalHandoffInput {
+  createdAt: string;
+  createdFromExternal: true;
+  expectedAccommodationLevel: ExpectedAccommodationLevel;
+}
+
+const clamp = (value: number, min: number, max: number) =>
+  Math.max(min, Math.min(max, value));
+
+export const splitExternalList = (value: string) =>
   value
     .split(/\n|،|,/)
     .map((item) => item.trim())
     .filter(Boolean);
 
-const uniqueList = (items: string[]) => Array.from(new Set(items));
+export const joinExternalList = (items: string[]) => items.join("\n");
 
-export const buildExternalHandoff = (
-  candidate: CandidateIntake,
-  employer: EmployerIntake
-): ExternalHandoffPayload => {
-  const primaryCapabilities = uniqueList([
-    candidate.capabilities.digitalNavigation,
-    candidate.capabilities.writtenCommunication,
-    candidate.capabilities.documentHandling,
-    candidate.capabilities.keyboardUse
-  ]).slice(0, 4);
+export const calculateCandidateCapabilityScore = (
+  candidate: Pick<ExternalCandidate, "strengths" | "limitations" | "preferences" | "evidence">
+) => {
+  const strengthsLift = Math.min(24, candidate.strengths.length * 6);
+  const preferencesLift = Math.min(12, candidate.preferences.length * 3);
+  const evidenceLift = Math.min(8, candidate.evidence.length * 2);
+  const limitationsPenalty = Math.min(20, candidate.limitations.length * 5);
 
-  const completedEvidence = uniqueList([
-    candidate.evidence.workSample,
-    candidate.evidence.toolsUsed,
-    candidate.evidence.supportEvidence
-  ]).slice(0, 3);
+  return clamp(58 + strengthsLift + preferencesLift + evidenceLift - limitationsPenalty, 35, 94);
+};
 
-  const preferences = uniqueList([
-    candidate.preferences.workMode,
-    candidate.preferences.supportTools,
-    candidate.preferences.scheduleNotes,
-    candidate.preferences.contactPreference
-  ]).slice(0, 4);
+export const complexityLabelMap: Record<ExternalJobComplexity, string> = {
+  low: "منخفض",
+  medium: "متوسط",
+  high: "مرتفع"
+};
 
-  const coreTasks = uniqueList(compactList(employer.jobBreakdown.coreTasks)).slice(0, 5);
-  const workTools = uniqueList(compactList(employer.jobBreakdown.tools)).slice(0, 5);
-  const jobRequirements = uniqueList([
-    ...compactList(employer.requirements.mustHave),
-    employer.requirements.communicationPattern,
-    employer.requirements.workMode
-  ]).slice(0, 5);
+export const accommodationLevelLabelMap: Record<ExpectedAccommodationLevel, string> = {
+  low: "منخفض",
+  medium: "متوسط",
+  high: "مرتفع"
+};
 
-  const proposedAccommodations = uniqueList([
-    ...compactList(candidate.preferences.supportTools),
-    ...compactList(employer.accommodations.openAdjustments),
-    ...compactList(employer.accommodations.currentSupport)
-  ]).slice(0, 5);
+export const calculateExpectedAccommodationLevel = (
+  candidate: ExternalCandidate,
+  job: ExternalJob
+): ExpectedAccommodationLevel => {
+  let score =
+    job.complexity === "high" ? 3 : job.complexity === "medium" ? 2 : 1;
 
-  const evidenceScore = Math.min(12, completedEvidence.length * 4);
-  const accommodationScore = Math.min(10, proposedAccommodations.length * 2);
-  const taskScore = Math.min(10, coreTasks.length * 2);
-  const readiness = Math.max(58, Math.min(82, 56 + evidenceScore + accommodationScore + taskScore));
+  if (job.risks.length >= 3) score += 1;
+  if (candidate.capabilityScore <= 64) score += 1;
+  if (candidate.capabilityScore >= 80) score -= 1;
 
-  const initialReadinessLabel =
-    readiness >= 76
-      ? "جاهزية أولية قوية"
-      : readiness >= 68
-        ? "جاهزية أولية جيدة"
-        : "جاهزية أولية تحتاج استكمال";
+  if (score >= 4) return "high";
+  if (score >= 2) return "medium";
+  return "low";
+};
 
-  return {
-    candidateName: candidate.start.fullName,
-    candidateCity: candidate.start.city,
-    candidateTargetRole: candidate.start.targetRole,
-    primaryCapabilities,
-    completedEvidence,
-    preferences,
-    jobTitle: employer.start.roleTitle,
-    employerName: employer.start.companyName,
-    caseOwnerName: employer.start.ownerName,
-    jobPurpose: employer.jobBreakdown.rolePurpose,
-    coreTasks,
-    workTools,
-    jobRequirements,
-    proposedAccommodations,
-    initialReadiness: readiness,
-    initialReadinessLabel
-  };
+export const buildExternalHandoffRecord = (
+  input: ExternalHandoffInput
+): ExternalHandoffRecord => ({
+  candidate: {
+    ...input.candidate,
+    capabilityScore: calculateCandidateCapabilityScore(input.candidate)
+  },
+  job: input.job,
+  createdAt: new Date().toISOString(),
+  createdFromExternal: true,
+  expectedAccommodationLevel: calculateExpectedAccommodationLevel(
+    {
+      ...input.candidate,
+      capabilityScore: calculateCandidateCapabilityScore(input.candidate)
+    },
+    input.job
+  )
+});
+
+export const hasExternalHandoffData = (
+  handoff: ExternalHandoffRecord | null | undefined
+): handoff is ExternalHandoffRecord =>
+  Boolean(
+    handoff &&
+      handoff.createdFromExternal &&
+      handoff.candidate &&
+      handoff.job &&
+      handoff.job.title.trim().length > 0
+  );
+
+export const isExternalHandoffInput = (
+  value: unknown
+): value is ExternalHandoffInput => {
+  if (!value || typeof value !== "object") return false;
+
+  const record = value as ExternalHandoffInput;
+
+  return Boolean(
+    record.candidate &&
+      record.job &&
+      Array.isArray(record.candidate.strengths) &&
+      Array.isArray(record.candidate.limitations) &&
+      Array.isArray(record.candidate.preferences) &&
+      Array.isArray(record.candidate.evidence) &&
+      typeof record.job.title === "string" &&
+      Array.isArray(record.job.criticalTasks) &&
+      Array.isArray(record.job.adaptableTasks) &&
+      Array.isArray(record.job.risks)
+  );
 };

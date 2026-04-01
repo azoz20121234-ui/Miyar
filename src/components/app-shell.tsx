@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
+import { accommodationLevelLabelMap, complexityLabelMap } from "@/lib/external-handoff";
 import { bandToneForSignal, statusTone } from "@/lib/scoring";
 import { AppPageId, getRoleConfig } from "@/lib/role-model";
 import { useAssessment } from "@/store/assessment-context";
@@ -123,7 +124,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                 <div>
                   <div className="portal-label">استلام خارجي</div>
                   <div className="mt-2 text-lg font-semibold text-white">
-                    {externalHandoff.candidateName} • {externalHandoff.jobTitle}
+                    مرشح خارجي • {externalHandoff.job.title}
                   </div>
                   <div className="mt-2 text-sm text-slate-400">
                     تم استلام حزمة تمهيدية من الطبقة الخارجية وإدخالها في مسودة Meyar Core.
@@ -131,13 +132,16 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-slate-200">
-                    {externalHandoff.initialReadiness}% جاهزية أولية
+                    {externalHandoff.candidate.capabilityScore}% جاهزية أولية
                   </div>
                   <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-slate-200">
-                    {externalHandoff.completedEvidence.length} أدلة
+                    {externalHandoff.candidate.evidence.length} أدلة
                   </div>
                   <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-slate-200">
-                    {externalHandoff.proposedAccommodations.length} تكييفات مقترحة
+                    تعقيد {complexityLabelMap[externalHandoff.job.complexity]}
+                  </div>
+                  <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-slate-200">
+                    تكييف {accommodationLevelLabelMap[externalHandoff.expectedAccommodationLevel]}
                   </div>
                 </div>
               </div>

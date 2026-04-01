@@ -4,123 +4,102 @@ import { useRouter } from "next/navigation";
 
 import { ExternalFlowCard } from "@/components/external/external-flow-card";
 import { ExternalShell } from "@/components/external/external-shell";
-import { buildExternalHandoff } from "@/lib/external-handoff";
-import { useAssessment } from "@/store/assessment-context";
+import {
+  accommodationLevelLabelMap,
+  buildExternalHandoffRecord,
+  complexityLabelMap
+} from "@/lib/external-handoff";
+import { applyExternalHandoff } from "@/store/assessment-context";
 import { useRoleSession } from "@/store/role-session-context";
 import { useExternalIntake } from "@/store/external-intake-context";
 
-const steps = ["بيانات المرشح", "بيانات الجهة", "بدء التقييم"];
+const steps = ["المرشح", "الوظيفة", "بدء القرار"];
 
 export default function ExternalSubmitPage() {
   const router = useRouter();
   const { setRole } = useRoleSession();
-  const { candidate, employer } = useExternalIntake();
-  const { applyExternalHandoff } = useAssessment();
-  const handoff = buildExternalHandoff(candidate, employer);
+  const { candidate, job } = useExternalIntake();
+  const handoffPreview = buildExternalHandoffRecord({ candidate, job });
 
   const handleStartAssessment = () => {
-    applyExternalHandoff(handoff);
+    applyExternalHandoff({ candidate, job });
     setRole("case-initiator");
     router.push("/portal/new-case");
   };
 
   return (
     <ExternalShell
-      flowLabel="الربط والإرسال"
-      title="اربط الطرفين قبل بدء التقييم"
-      subtitle="راجع الطرفين سريعًا ثم حوّل الحالة إلى المسار الداخلي لبدء التقييم."
+      flowLabel="الإرسال"
+      title="ابدأ التقييم"
+      subtitle="راجع الصورة المختصرة ثم انقلها إلى Meyar Core."
       steps={steps}
       activeStep={2}
-      aside={
-        <div className="surface-card-soft p-5">
-          <div className="portal-label">جاهزية الربط</div>
-          <div className="mt-3 space-y-3 text-sm">
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-slate-400">المرشح</span>
-              <span className="text-white">{candidate.start.fullName || "غير مكتمل"}</span>
-            </div>
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-slate-400">الوظيفة</span>
-              <span className="text-white">{employer.start.roleTitle || "غير مكتمل"}</span>
-            </div>
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-slate-400">المسار التالي</span>
-              <span className="text-white">بدء التقييم الداخلي</span>
-            </div>
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-slate-400">الجاهزية الأولية</span>
-              <span className="text-white">{handoff.initialReadiness}%</span>
-            </div>
-          </div>
-        </div>
-      }
     >
       <ExternalFlowCard
-        title="مطابقة أولية"
-        subtitle="هذه الصفحة لا تصدر قرارًا. هي فقط تربط إدخال المرشح بإدخال الجهة قبل نقل الحالة إلى محرك القرار الداخلي."
+        title="ملخص جاهز للنقل"
+        subtitle="هذه الصفحة تعرض ما سيدخل إلى Meyar Core دون كشف أي منطق داخلي."
         footer={
           <button
             type="button"
             onClick={handleStartAssessment}
             className="w-full rounded-[22px] bg-white px-6 py-4 text-base font-semibold text-slate-950 transition hover:bg-slate-200"
           >
-            بدء التقييم
+            ابدأ التقييم
           </button>
         }
       >
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="surface-card-muted px-5 py-5">
+            <div className="text-xs text-slate-500">جاهزية المرشح</div>
+            <div className="mt-3 text-3xl font-semibold text-white">
+              {candidate.capabilityScore}%
+            </div>
+          </div>
+
+          <div className="surface-card-muted px-5 py-5">
+            <div className="text-xs text-slate-500">تعقيد الوظيفة</div>
+            <div className="mt-3 text-3xl font-semibold text-white">
+              {complexityLabelMap[job.complexity]}
+            </div>
+          </div>
+
+          <div className="surface-card-muted px-5 py-5">
+            <div className="text-xs text-slate-500">مستوى التكييف المتوقع</div>
+            <div className="mt-3 text-3xl font-semibold text-white">
+              {accommodationLevelLabelMap[handoffPreview.expectedAccommodationLevel]}
+            </div>
+          </div>
+        </div>
+
         <div className="space-y-4">
-          <section className="surface-card-muted px-5 py-5">
+          <div className="surface-card-muted px-5 py-5">
             <div className="portal-label">المرشح</div>
-            <div className="mt-4 space-y-3 text-sm">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-slate-400">الاسم</span>
-                <span className="text-white">{candidate.start.fullName}</span>
-              </div>
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-slate-400">الدور المستهدف</span>
-                <span className="text-white">{candidate.start.targetRole}</span>
-              </div>
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-slate-400">الأدوات المفضلة</span>
-                <span className="text-right text-white">
-                  {handoff.proposedAccommodations.join("، ")}
+            <div className="mt-3 flex flex-wrap gap-2">
+              {candidate.strengths.slice(0, 4).map((item) => (
+                <span
+                  key={item}
+                  className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-slate-200"
+                >
+                  {item}
                 </span>
-              </div>
+              ))}
             </div>
-          </section>
+          </div>
 
-          <section className="surface-card-muted px-5 py-5">
-            <div className="portal-label">الجهة</div>
-            <div className="mt-4 space-y-3 text-sm">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-slate-400">الجهة</span>
-                <span className="text-white">{employer.start.companyName}</span>
-              </div>
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-slate-400">الوظيفة</span>
-                <span className="text-white">{employer.start.roleTitle}</span>
-              </div>
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-slate-400">المهام</span>
-                <span className="text-right text-white">{handoff.coreTasks.join("، ")}</span>
-              </div>
+          <div className="surface-card-muted px-5 py-5">
+            <div className="portal-label">الوظيفة</div>
+            <div className="mt-3 text-sm text-white">{job.title}</div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {job.criticalTasks.slice(0, 4).map((item) => (
+                <span
+                  key={item}
+                  className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-slate-200"
+                >
+                  {item}
+                </span>
+              ))}
             </div>
-          </section>
-
-          <section className="surface-card-muted px-5 py-5">
-            <div className="portal-label">ما سينتقل داخليًا</div>
-            <div className="mt-4 space-y-3 text-sm">
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white">
-                {handoff.candidateName} • {handoff.candidateTargetRole}
-              </div>
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white">
-                {handoff.completedEvidence.length} أدلة مكتملة • {handoff.initialReadinessLabel}
-              </div>
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white">
-                {handoff.jobTitle} • {handoff.proposedAccommodations.length} تكييفات مقترحة
-              </div>
-            </div>
-          </section>
+          </div>
         </div>
       </ExternalFlowCard>
     </ExternalShell>

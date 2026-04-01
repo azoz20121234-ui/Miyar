@@ -13,7 +13,15 @@ import { defaultLibrary, demoCapabilityProfile, demoJob } from "@/data/demo-case
 import { evaluateStageActionGuard, evaluateTransitionGuard } from "@/lib/case-guards";
 import { createInitialCaseRecord, CASE_STATE_META, type CaseRecord } from "@/lib/case-state";
 import { buildDecisionExplainability } from "@/lib/decision-explainer";
-import { ExternalHandoffPayload } from "@/lib/external-handoff";
+import {
+  accommodationLevelLabelMap,
+  buildExternalHandoffRecord,
+  complexityLabelMap,
+  ExternalHandoffInput,
+  ExternalHandoffRecord,
+  hasExternalHandoffData,
+  isExternalHandoffInput
+} from "@/lib/external-handoff";
 import {
   getPrimaryTransition,
   getStageActionForRole,
@@ -63,7 +71,8 @@ interface AssessmentContextValue {
   explainability: DecisionExplainability;
   caseRecord: CaseRecord;
   caseWorkflow: CaseWorkflowSnapshot;
-  externalHandoff: ExternalHandoffPayload | null;
+  externalHandoff: ExternalHandoffRecord | null;
+  isHydrated: boolean;
   selectRoleTemplate: (jobId: string) => void;
   toggleTaskEssential: (taskId: string) => void;
   toggleTaskAdaptable: (taskId: string) => void;
@@ -74,7 +83,6 @@ interface AssessmentContextValue {
     value: Job["environment"][K]
   ) => void;
   updateDimensionScore: (dimensionId: string, delta: number) => void;
-  applyExternalHandoff: (handoff: ExternalHandoffPayload) => void;
   clearExternalHandoff: () => void;
   transitionCase: (transitionId: string) => void;
   completeStageAction: (actionId: string) => void;
@@ -82,6 +90,8 @@ interface AssessmentContextValue {
 }
 
 const STORAGE_KEY = "miyar-demo-assessment";
+const PENDING_HANDOFF_KEY = "meyar-pending-external-handoff";
+const APPLY_HANDOFF_EVENT = "meyar-apply-external-handoff";
 
 const AssessmentContext = createContext<AssessmentContextValue | null>(null);
 
@@ -94,33 +104,139 @@ const cloneProfile = (): CapabilityProfile =>
 const cloneCaseRecord = (): CaseRecord =>
   JSON.parse(JSON.stringify(createInitialCaseRecord())) as CaseRecord;
 
+export const applyExternalHandoff = (payload: ExternalHandoffInput) => {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.sessionStorage.setItem(PENDING_HANDOFF_KEY, JSON.stringify(payload));
+  window.dispatchEvent(new CustomEvent<ExternalHandoffInput>(APPLY_HANDOFF_EVENT, { detail: payload }));
+};
+
 export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
   const { role } = useRoleSession();
   const [job, setJob] = useState<Job>(cloneJob);
   const [profile, setProfile] = useState<CapabilityProfile>(cloneProfile);
   const [caseRecord, setCaseRecord] = useState<CaseRecord>(cloneCaseRecord);
-  const [externalHandoff, setExternalHandoff] = useState<ExternalHandoffPayload | null>(null);
+  const [externalHandoff, setExternalHandoff] = useState<ExternalHandoffRecord | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  const ingestExternalHandoff = (payload: ExternalHandoffInput) => {
+    const handoff = buildExternalHandoffRecord(payload);
+    const timestamp = handoff.createdAt;
+    const complexityLabel = complexityLabelMap[handoff.job.complexity];
+    const accommodationLabel =
+      accommodationLevelLabelMap[handoff.expectedAccommodationLevel];
+
+    setExternalHandoff(handoff);
+    setJob((current) => ({
+      ...current,
+      title: handoff.job.title,
+      summary: `وظيفة واردة من بوابة خارجية بتعقيد ${complexityLabel}.`,
+      outcomes: [
+        `جاهزية المرشح الأولية ${handoff.candidate.capabilityScore}%`,
+        `تعقيد الوظيفة ${complexityLabel}`,
+        `التكييف المتوقع ${accommodationLabel}`
+      ],
+      environment: {
+        ...current.environment,
+        risks: handoff.job.risks.length
+          ? Array.from(new Set([...current.environment.risks, ...handoff.job.risks]))
+          : current.environment.risks
+      }
+    }));
+
+    setProfile((current) => ({
+      ...current,
+      candidateAlias: "مرشح من البوابة الخارجية",
+      headline: `ملف مرشح تمهيدي بجاهزية ${handoff.candidate.capabilityScore}% قبل التقييم الداخلي.`,
+      assessmentConfidence: Math.max(60, Math.min(92, handoff.candidate.capabilityScore + 6)),
+      preferredModes: handoff.candidate.preferences.length
+        ? handoff.candidate.preferences
+        : current.preferredModes,
+      workConditions: handoff.candidate.preferences.length
+        ? handoff.candidate.preferences
+        : current.workConditions,
+      operationalStrengths: handoff.candidate.strengths.length
+        ? handoff.candidate.strengths
+        : current.operationalStrengths,
+      constraints: handoff.candidate.limitations.length
+        ? handoff.candidate.limitations
+        : current.constraints
+    }));
+
+    setCaseRecord((current) => ({
+      ...current,
+      state: "DRAFT",
+      updatedAt: timestamp,
+      timeline: [
+        ...current.timeline,
+        {
+          id: `timeline-handoff-${Date.now()}`,
+          at: timestamp,
+          actorRole: "case-initiator",
+          action: "تم إنشاء الحالة من بوابة خارجية",
+          note: `تم استلام مرشح خارجي ووظيفة ${handoff.job.title} وتحويلهما إلى Meyar Core.`,
+          fromState: current.state,
+          toState: "DRAFT"
+        }
+      ]
+    }));
+  };
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (!stored) {
-      return;
+
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored) as {
+          job?: Job;
+          profile?: CapabilityProfile;
+          caseRecord?: CaseRecord;
+          externalHandoff?: unknown;
+        };
+
+        setJob(parsed.job ?? cloneJob());
+        setProfile(parsed.profile ?? cloneProfile());
+        setCaseRecord(parsed.caseRecord ?? cloneCaseRecord());
+        setExternalHandoff(
+          hasExternalHandoffData(parsed.externalHandoff as ExternalHandoffRecord)
+            ? (parsed.externalHandoff as ExternalHandoffRecord)
+            : null
+        );
+      } catch {
+        window.localStorage.removeItem(STORAGE_KEY);
+      }
     }
 
-    try {
-      const parsed = JSON.parse(stored) as {
-        job: Job;
-        profile: CapabilityProfile;
-        caseRecord?: CaseRecord;
-        externalHandoff?: ExternalHandoffPayload | null;
-      };
-      setJob(parsed.job ?? cloneJob());
-      setProfile(parsed.profile ?? cloneProfile());
-      setCaseRecord(parsed.caseRecord ?? cloneCaseRecord());
-      setExternalHandoff(parsed.externalHandoff ?? null);
-    } catch {
-      window.localStorage.removeItem(STORAGE_KEY);
+    const pending = window.sessionStorage.getItem(PENDING_HANDOFF_KEY);
+    if (pending) {
+      try {
+        const parsedPending = JSON.parse(pending) as unknown;
+        if (isExternalHandoffInput(parsedPending)) {
+          ingestExternalHandoff(parsedPending);
+        }
+      } finally {
+        window.sessionStorage.removeItem(PENDING_HANDOFF_KEY);
+      }
     }
+
+    const handleExternalHandoff = (event: Event) => {
+      const detail = (event as CustomEvent<ExternalHandoffInput>).detail;
+      if (!isExternalHandoffInput(detail)) {
+        return;
+      }
+
+      ingestExternalHandoff(detail);
+      window.sessionStorage.removeItem(PENDING_HANDOFF_KEY);
+    };
+
+    window.addEventListener(APPLY_HANDOFF_EVENT, handleExternalHandoff as EventListener);
+    setIsHydrated(true);
+
+    return () => {
+      window.removeEventListener(APPLY_HANDOFF_EVENT, handleExternalHandoff as EventListener);
+    };
   }, []);
 
   useEffect(() => {
@@ -179,72 +295,6 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
             }
           : dimension
       )
-    }));
-  };
-
-  const applyExternalHandoff = (handoff: ExternalHandoffPayload) => {
-    const timestamp = new Date().toISOString();
-
-    setExternalHandoff(handoff);
-    setJob((current) => ({
-      ...current,
-      title: handoff.jobTitle,
-      summary: handoff.jobPurpose,
-      coreSkills: handoff.jobRequirements.length ? handoff.jobRequirements : current.coreSkills,
-      tools: handoff.workTools.length
-        ? Array.from(new Set([...current.tools, ...handoff.workTools]))
-        : current.tools,
-      outcomes: [
-        `مرشح مرتبط: ${handoff.candidateName}`,
-        `جاهزية أولية: ${handoff.initialReadiness}%`,
-        `جهة العمل: ${handoff.employerName}`
-      ],
-      environment: {
-        ...current.environment,
-        communicationPattern: handoff.preferences.some((item) => item.includes("كتابي"))
-          ? "written-first"
-          : current.environment.communicationPattern,
-        tools: handoff.workTools.length
-          ? Array.from(new Set([...current.environment.tools, ...handoff.workTools]))
-          : current.environment.tools,
-        risks: handoff.coreTasks.length
-          ? Array.from(new Set([...current.environment.risks, ...handoff.coreTasks.slice(0, 3)]))
-          : current.environment.risks
-      }
-    }));
-
-    setProfile((current) => ({
-      ...current,
-      candidateAlias: handoff.candidateName,
-      headline: `ملف تشغيلي مبدئي مبني على إدخال خارجي لدور ${handoff.candidateTargetRole}.`,
-      assessmentConfidence: Math.max(62, Math.min(91, handoff.initialReadiness + 8)),
-      preferredModes: handoff.preferences.length ? handoff.preferences : current.preferredModes,
-      toolsMastery: handoff.proposedAccommodations.length
-        ? handoff.proposedAccommodations
-        : current.toolsMastery,
-      workConditions: handoff.preferences.length ? handoff.preferences : current.workConditions,
-      operationalStrengths: handoff.primaryCapabilities.length
-        ? handoff.primaryCapabilities
-        : current.operationalStrengths,
-      constraints: current.constraints
-    }));
-
-    setCaseRecord((current) => ({
-      ...current,
-      state: "DRAFT",
-      updatedAt: timestamp,
-      timeline: [
-        ...current.timeline,
-        {
-          id: `timeline-handoff-${Date.now()}`,
-          at: timestamp,
-          actorRole: "case-initiator",
-          action: "تم استلام إدخال خارجي",
-          note: `تم ربط المرشح ${handoff.candidateName} بوظيفة ${handoff.jobTitle} ونقل الحزمة التمهيدية إلى Meyar Core.`,
-          fromState: current.state,
-          toState: "DRAFT"
-        }
-      ]
     }));
   };
 
@@ -458,12 +508,12 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
         caseRecord,
         caseWorkflow,
         externalHandoff,
+        isHydrated,
         selectRoleTemplate,
         toggleTaskEssential,
         toggleTaskAdaptable,
         setEnvironmentField,
         updateDimensionScore,
-        applyExternalHandoff,
         clearExternalHandoff,
         transitionCase,
         completeStageAction,

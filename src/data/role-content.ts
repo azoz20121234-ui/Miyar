@@ -1,5 +1,9 @@
 import { pipelineCases } from "@/data/dashboard";
-import { ExternalHandoffPayload } from "@/lib/external-handoff";
+import {
+  accommodationLevelLabelMap,
+  complexityLabelMap,
+  ExternalHandoffRecord
+} from "@/lib/external-handoff";
 import { CaseStandardsEvaluation } from "@/lib/standards-types";
 import { getRoleConfig, type AppRole, type PortalSlug } from "@/lib/role-model";
 import { AssessmentBundle } from "@/models/types";
@@ -224,7 +228,7 @@ export const getPortalPageContent = (
   role: AppRole,
   bundle: AssessmentBundle,
   standards: CaseStandardsEvaluation,
-  externalHandoff?: ExternalHandoffPayload | null
+  externalHandoff?: ExternalHandoffRecord | null
 ): PortalPageContent => {
   const roleLabel = getRoleConfig(role).shortLabel;
 
@@ -257,9 +261,23 @@ export const getPortalPageContent = (
         cta: { label: "انتقل إلى تحليل الوظيفة", href: "/job-analysis" },
         metrics: externalHandoff
           ? [
-              { label: "جاهزية أولية", value: `${externalHandoff.initialReadiness}%`, hint: externalHandoff.initialReadinessLabel, tone: "success" },
-              { label: "أدلة مكتملة", value: `${externalHandoff.completedEvidence.length}`, hint: "وصلت من الطبقة الخارجية" },
-              { label: "تكييفات مقترحة", value: `${externalHandoff.proposedAccommodations.length}`, hint: "جاهزة للمراجعة", tone: "warning" }
+              {
+                label: "جاهزية أولية",
+                value: `${externalHandoff.candidate.capabilityScore}%`,
+                hint: "قادمة من بوابة المرشح",
+                tone: "success"
+              },
+              {
+                label: "تعقيد الوظيفة",
+                value: complexityLabelMap[externalHandoff.job.complexity],
+                hint: "قادم من جهة العمل"
+              },
+              {
+                label: "التكييف المتوقع",
+                value: accommodationLevelLabelMap[externalHandoff.expectedAccommodationLevel],
+                hint: "تمهيدي قبل التقييم",
+                tone: "warning"
+              }
             ]
           : [
               { label: "قوالب الوظائف", value: `${bundle.roleCatalog.length}`, hint: "متاحة" },
@@ -268,8 +286,16 @@ export const getPortalPageContent = (
             ],
         actions: externalHandoff
           ? [
-              { title: "راجع الحزمة المستلمة", meta: `${externalHandoff.candidateName} • ${externalHandoff.jobTitle}`, status: "تم الاستلام" },
-              { title: "تحقق من الوظيفة والمرشح", meta: `${externalHandoff.completedEvidence.length} أدلة • ${externalHandoff.coreTasks.length} مهام`, status: "قبل التحليل" },
+              {
+                title: "راجع الحزمة المستلمة",
+                meta: `مرشح خارجي • ${externalHandoff.job.title}`,
+                status: "تم الاستلام"
+              },
+              {
+                title: "تحقق من الوظيفة والمرشح",
+                meta: `${externalHandoff.candidate.evidence.length} أدلة • ${externalHandoff.job.criticalTasks.length} مهام أساسية`,
+                status: "قبل التحليل"
+              },
               { title: "انتقل إلى تحليل الوظيفة", meta: "الخطوة التالية داخل Meyar Core", status: "التالي" }
             ]
           : [
@@ -281,25 +307,26 @@ export const getPortalPageContent = (
           ? [
               {
                 primary: "المرشح",
-                secondary: `${externalHandoff.candidateName} • ${externalHandoff.candidateTargetRole}`,
+                secondary: `${externalHandoff.candidate.capabilityScore}% جاهزية • ${externalHandoff.candidate.strengths.slice(0, 2).join(" • ") || "قدرات تمهيدية"}`,
                 status: "مدخل خارجي",
                 owner: "الطبقة الخارجية"
               },
               {
                 primary: "الوظيفة",
-                secondary: `${externalHandoff.jobTitle} • ${externalHandoff.employerName}`,
+                secondary: `${externalHandoff.job.title} • تعقيد ${complexityLabelMap[externalHandoff.job.complexity]}`,
                 status: "مدخل خارجي",
                 owner: "الطبقة الخارجية"
               },
               {
                 primary: "الأدلة",
-                secondary: externalHandoff.completedEvidence.join(" • "),
-                status: "مكتملة",
+                secondary:
+                  externalHandoff.candidate.evidence.join(" • ") || "لا توجد أدلة مرفوعة",
+                status: externalHandoff.candidate.evidence.length ? "مكتملة" : "بانتظار استكمال",
                 owner: "المرشح"
               },
               {
                 primary: "التكييفات",
-                secondary: externalHandoff.proposedAccommodations.join(" • "),
+                secondary: `متوقع ${accommodationLevelLabelMap[externalHandoff.expectedAccommodationLevel]} قبل المطابقة الداخلية`,
                 status: "تمهيدية",
                 owner: "جهة العمل"
               }

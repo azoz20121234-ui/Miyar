@@ -9,82 +9,61 @@ import {
   useState
 } from "react";
 
-import { CandidateIntake, EmployerIntake } from "@/lib/external-handoff";
+import {
+  calculateCandidateCapabilityScore,
+  ExternalCandidate,
+  ExternalJob,
+  ExternalJobComplexity,
+  splitExternalList
+} from "@/lib/external-handoff";
+
+type CandidateListField = "strengths" | "limitations" | "preferences" | "evidence";
+type JobListField = "criticalTasks" | "adaptableTasks" | "risks";
 
 interface ExternalIntakeContextValue {
-  candidate: CandidateIntake;
-  employer: EmployerIntake;
-  updateCandidate: <K extends keyof CandidateIntake>(
-    section: K,
-    value: Partial<CandidateIntake[K]>
-  ) => void;
-  updateEmployer: <K extends keyof EmployerIntake>(
-    section: K,
-    value: Partial<EmployerIntake[K]>
-  ) => void;
+  candidate: ExternalCandidate;
+  job: ExternalJob;
+  hasCandidateData: boolean;
+  hasJobData: boolean;
+  setCandidateList: (field: CandidateListField, value: string) => void;
+  setJobField: (field: "title" | "complexity", value: string) => void;
+  setJobList: (field: JobListField, value: string) => void;
   resetExternalIntake: () => void;
 }
 
 const STORAGE_KEY = "meyar-external-intake";
 
-const defaultCandidate: CandidateIntake = {
-  start: {
-    fullName: "مرشح بصري",
-    city: "الرياض",
-    targetRole: "دعم إداري / إدخال بيانات"
-  },
-  capabilities: {
-    digitalNavigation: "أستخدم لوحة المفاتيح وأتنقل داخل الأنظمة النصية بثبات.",
-    writtenCommunication: "أتعامل مع البريد والردود الكتابية بشكل يومي.",
-    documentHandling: "أراجع الملفات القابلة للقراءة النصية بشكل أفضل من الملفات المصوّرة.",
-    keyboardUse: "سرعتي جيدة في الإدخال والتنقل بالاختصارات."
-  },
-  evidence: {
-    workSample: "لدي خبرة في إدخال البيانات ومتابعة الجداول والبريد.",
-    toolsUsed: "قارئ شاشة، تكبير شاشة، Outlook، Excel، أنظمة داخلية.",
-    supportEvidence: "أدائي يستقر أكثر عندما تكون الواجهات قابلة للقراءة والتنقل بالاختصارات."
-  },
-  preferences: {
-    workMode: "مكتبي أو هجين ضمن مهام كتابية وأنظمة واضحة.",
-    supportTools: "قارئ شاشة، تكبير شاشة، ومسار عمل يعتمد على لوحة المفاتيح.",
-    scheduleNotes: "أفضل مهام متقطعة وواضحة الأولوية مع مراجعات قصيرة.",
-    contactPreference: "التواصل الكتابي أولًا، والاجتماعات عند الحاجة."
-  }
-};
+const withCandidateScore = (
+  candidate: Omit<ExternalCandidate, "capabilityScore"> | ExternalCandidate
+): ExternalCandidate => ({
+  ...candidate,
+  capabilityScore: calculateCandidateCapabilityScore(candidate)
+});
 
-const defaultEmployer: EmployerIntake = {
-  start: {
-    companyName: "شركة خدمات رقمية سعودية",
-    ownerName: "مسؤول التوظيف",
-    roleTitle: "دعم إداري / إدخال بيانات"
-  },
-  jobBreakdown: {
-    rolePurpose: "تنفيذ أعمال الدعم الإداري وإدخال البيانات والمتابعة داخل الأنظمة.",
-    coreTasks: "إدخال بيانات، متابعة البريد، تحديث الجداول، مراجعة ملفات، ردود كتابية.",
-    tools: "البريد، الجداول، نظام داخلي، ملفات PDF، Teams."
-  },
-  requirements: {
-    mustHave: "دقة إدخال، قراءة واجهات، كتابة واضحة، التزام بالمتابعة.",
-    communicationPattern: "تواصل كتابي أساسي مع اجتماعات محدودة.",
-    workMode: "مكتب مع أنظمة داخلية ومهام رقمية."
-  },
-  risks: {
-    operationalRisks: "بطء مراجعة الملفات المصوّرة، صعوبة التنقل في الواجهات المعقدة.",
-    reviewPoints: "واقعية المهام، حجم الملفات، قابلية الاختصارات، وضوح القوالب.",
-    blockers: "الملفات غير القابلة للقراءة، تنقل مرهق داخل الشاشات، غياب تكييف واضح."
-  },
-  accommodations: {
-    currentSupport: "لا يوجد مسار ثابت بعد للتكييف داخل الوظيفة الحالية.",
-    openAdjustments: "قارئ شاشة، تكبير شاشة، workflow بلوحة المفاتيح، قوالب واضحة.",
-    budgetNotes: "نحتاج تقديرًا سريعًا للتكلفة والزمن قبل بدء الحالة."
-  }
+const defaultCandidate: ExternalCandidate = withCandidateScore({
+  strengths: [
+    "تنفيذ المهام الكتابية الرقمية بدقة",
+    "العمل عبر لوحة المفاتيح بشكل مستقر",
+    "الالتزام بخطوات واضحة ومتكررة"
+  ],
+  limitations: ["الواجهات شديدة الكثافة", "الملفات المصورة غير القابلة للقراءة"],
+  preferences: ["بيئة مكتبية هادئة", "تواصل كتابي أولًا", "مسار عمل واضح"],
+  evidence: ["خبرة في إدخال البيانات", "استخدام قارئ شاشة وتكبير شاشة"]
+});
+
+const defaultJob: ExternalJob = {
+  title: "دعم إداري / إدخال بيانات",
+  complexity: "medium",
+  criticalTasks: ["إدخال البيانات", "مراجعة الجداول", "متابعة البريد"],
+  adaptableTasks: ["تنسيق الملفات", "تجهيز القوالب", "المتابعات الثانوية"],
+  risks: ["واجهات معقدة", "ملفات غير قابلة للقراءة", "ضغط متوسط في التحديث اليومي"]
 };
 
 const ExternalIntakeContext = createContext<ExternalIntakeContextValue | null>(null);
 
 export const ExternalIntakeProvider = ({ children }: { children: ReactNode }) => {
-  const [candidate, setCandidate] = useState<CandidateIntake>(defaultCandidate);
-  const [employer, setEmployer] = useState<EmployerIntake>(defaultEmployer);
+  const [candidate, setCandidate] = useState<ExternalCandidate>(defaultCandidate);
+  const [job, setJob] = useState<ExternalJob>(defaultJob);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
@@ -92,50 +71,61 @@ export const ExternalIntakeProvider = ({ children }: { children: ReactNode }) =>
 
     try {
       const parsed = JSON.parse(stored) as {
-        candidate?: CandidateIntake;
-        employer?: EmployerIntake;
+        candidate?: ExternalCandidate;
+        job?: ExternalJob;
       };
 
-      if (parsed.candidate) setCandidate(parsed.candidate);
-      if (parsed.employer) setEmployer(parsed.employer);
+      if (parsed.candidate) {
+        setCandidate(withCandidateScore(parsed.candidate));
+      }
+
+      if (parsed.job) {
+        setJob(parsed.job);
+      }
     } catch {
       window.localStorage.removeItem(STORAGE_KEY);
     }
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ candidate, employer }));
-  }, [candidate, employer]);
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ candidate, job }));
+  }, [candidate, job]);
 
   const value = useMemo<ExternalIntakeContextValue>(
     () => ({
       candidate,
-      employer,
-      updateCandidate: (section, payload) => {
-        setCandidate((current) => ({
+      job,
+      hasCandidateData:
+        candidate.strengths.length > 0 || candidate.preferences.length > 0 || candidate.evidence.length > 0,
+      hasJobData: job.title.trim().length > 0 && job.criticalTasks.length > 0,
+      setCandidateList: (field, value) => {
+        setCandidate((current) =>
+          withCandidateScore({
+            ...current,
+            [field]: splitExternalList(value)
+          })
+        );
+      },
+      setJobField: (field, value) => {
+        setJob((current) => ({
           ...current,
-          [section]: {
-            ...current[section],
-            ...payload
-          }
+          [field]:
+            field === "complexity" ? (value as ExternalJobComplexity) : value
         }));
       },
-      updateEmployer: (section, payload) => {
-        setEmployer((current) => ({
+      setJobList: (field, value) => {
+        setJob((current) => ({
           ...current,
-          [section]: {
-            ...current[section],
-            ...payload
-          }
+          [field]: splitExternalList(value)
         }));
       },
       resetExternalIntake: () => {
         setCandidate(defaultCandidate);
-        setEmployer(defaultEmployer);
+        setJob(defaultJob);
         window.localStorage.removeItem(STORAGE_KEY);
       }
     }),
-    [candidate, employer]
+    [candidate, job]
   );
 
   return (
