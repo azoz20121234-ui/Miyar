@@ -80,7 +80,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
 
             <div className="flex flex-wrap items-center gap-2.5">
               <Link
-                href="/home#meyar-role-switcher"
+                href="/external"
                 className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-slate-200 transition hover:bg-white/[0.06]"
               >
                 العودة إلى الأدوار
@@ -110,6 +110,12 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                   className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-200 transition hover:bg-white/[0.06]"
                 >
                   لوحة الدور
+                </Link>
+                <Link
+                  href="/external"
+                  className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-200 transition hover:bg-white/[0.06]"
+                >
+                  العودة إلى الأدوار
                 </Link>
                 <div className="overflow-x-auto">
                   <RoleSwitcher />
