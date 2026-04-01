@@ -45,6 +45,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
   const portalLabel = portalNameMap[role];
   const isReportPage = pageId === "readiness-report";
   const isHomePage = pageId === "home";
+  const hideRoleBadge = isReportPage || isHomePage;
   const isPortalPage = pageId?.startsWith("portal:") ?? false;
   const isFocusedSurface =
     isHomePage ||
@@ -102,7 +103,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
               >
                 العودة إلى الأدوار
               </Link>
-              {!isReportPage ? <StatusPill label={roleLabel} tone="neutral" /> : null}
+              {!hideRoleBadge ? <StatusPill label={roleLabel} tone="neutral" /> : null}
               {!isFocusedSurface ? (
                 <>
                   <StatusPill

@@ -16,7 +16,6 @@ import { stripInternalCodePrefix } from "@/lib/display-copy";
 import { INTERNAL_ROLE_REFERENCE } from "@/lib/experience-roles";
 import { estimatedDecisionROIBandLabel } from "@/lib/financial-model";
 import { getRoleConfig } from "@/lib/role-model";
-import { formatCurrency } from "@/lib/scoring";
 import { useAssessment } from "@/store/assessment-context";
 import { useRoleSession } from "@/store/role-session-context";
 
@@ -27,7 +26,6 @@ export default function RoleHomePage() {
     financialImpact,
     caseWorkflow,
     caseRecord,
-    externalHandoff,
     job,
     transitionCase,
     completeStageAction
@@ -51,20 +49,12 @@ export default function RoleHomePage() {
   })();
   const primaryBlock = visibleBlocks[0];
   const displayTitle = job.title || `الحالة #${caseRecord.id}`;
-  const financialSignalTone =
-    financialImpact.financialSignalTone === "positive"
-      ? "success"
-      : financialImpact.financialSignalTone === "watch"
-        ? "warning"
-        : financialImpact.financialSignalTone === "risk"
-          ? "danger"
-          : "neutral";
   const decisionExplanation = generateDecisionExplanation({
     bundle,
     explainability,
     caseWorkflow,
     financialImpact
-  });
+  }).slice(0, 2);
   const nextActionReason = generateNextActionReason({
     bundle,
     explainability,
@@ -119,22 +109,6 @@ export default function RoleHomePage() {
     "case-initiator": "منطقة بدء الحالة",
     "platform-admin": "منطقة إدارة المنصة"
   } as const;
-  const supportCards = [
-    {
-      title: "الأدلة",
-      items:
-        externalHandoff?.candidate.evidence.length
-          ? externalHandoff.candidate.evidence.slice(0, 3)
-          : ["لا توجد أدلة مرفقة بعد"]
-    },
-    {
-      title: "التكييفات",
-      items:
-        bundle.plan.items.length > 0
-          ? bundle.plan.items.slice(0, 3).map((item) => item.name)
-          : ["لا توجد تكييفات حاسمة حتى الآن"]
-    }
-  ];
 
   return (
     <AppShell
@@ -145,122 +119,73 @@ export default function RoleHomePage() {
       <div className="mx-auto max-w-5xl space-y-6">
         <section className="decision-surface">
           <div className="border-b border-white/8 px-6 py-4 sm:px-8">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <div className="min-w-0">
-                <div className="portal-label">سطح القرار</div>
-                <div className="mt-2 text-sm text-slate-300">{displayTitle}</div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <StatusPill label={`المرحلة الحالية ${caseWorkflow.currentStateLabel}`} tone="neutral" />
-                <StatusPill label={financialImpact.financialSignalLabel} tone={financialSignalTone} />
-                {externalHandoff ? (
-                  <div className="inline-flex items-center rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs text-emerald-200">
-                    تم الإنشاء من بوابة خارجية
-                  </div>
-                ) : null}
-              </div>
+            <div className="min-w-0">
+              <div className="portal-label">سطح القرار</div>
+              <div className="mt-2 text-sm text-slate-300">{displayTitle}</div>
             </div>
           </div>
 
-          <div className="grid gap-6 px-6 py-6 sm:px-8 sm:py-8 xl:grid-cols-[minmax(0,1.25fr)_360px]">
-            <div className="space-y-6">
-              <div className="max-w-2xl">
-                <div className="portal-label">القرار الحالي</div>
-                <div className="mt-4 text-4xl font-semibold tracking-[-0.04em] text-white sm:text-[56px] sm:leading-[1.02]">
-                  {bundle.report.recommendation}
-                </div>
-                <div className="mt-4 max-w-xl text-sm leading-7 text-slate-300">
-                  هذا هو الحكم التشغيلي الحالي بناءً على المعطيات المكتملة حتى الآن.
-                </div>
-              </div>
-
-              <AIInsightCard title="لماذا هذا القرار؟" lines={decisionExplanation} />
-
-              <div className="decision-panel px-5 py-5">
-                <div className="text-[11px] tracking-[0.16em] text-slate-500">الإجراء التالي</div>
-                <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                  {primaryAction.kind === "link" && primaryAction.href ? (
-                    <Link
-                      href={primaryAction.href}
-                      className={`decision-cta px-5 py-3 text-sm font-semibold ${
-                        primaryAction.disabled ? "pointer-events-none cursor-not-allowed opacity-45" : ""
-                      }`}
-                      aria-disabled={primaryAction.disabled}
-                    >
-                      {primaryAction.label}
-                    </Link>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={handlePrimaryAction}
-                      disabled={primaryAction.disabled}
-                      className={`decision-cta px-5 py-3 text-sm font-semibold ${
-                        primaryAction.disabled ? "pointer-events-none cursor-not-allowed opacity-45" : ""
-                      }`}
-                    >
-                      {primaryAction.label}
-                    </button>
-                  )}
-
-                  <a href="#role-zone" className="text-sm text-slate-300 transition hover:text-white">
-                    اعرض سياق الدور
-                  </a>
-                </div>
-                <div className="mt-4 text-sm leading-7 text-slate-300">{nextActionReason}</div>
+          <div className="space-y-5 px-6 py-6 sm:px-8 sm:py-8">
+            <div className="max-w-3xl">
+              <div className="portal-label">القرار الحالي</div>
+              <div className="mt-4 text-4xl font-semibold tracking-[-0.04em] text-white sm:text-[58px] sm:leading-[1.02]">
+                {bundle.report.recommendation}
               </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="decision-panel px-5 py-5">
-                <div className="text-[11px] tracking-[0.16em] text-slate-500">أعلى مانع</div>
-                <div className="mt-3 text-xl font-semibold text-white">
-                  {stripInternalCodePrefix(primaryBlock?.title) || "لا يوجد مانع مباشر"}
-                </div>
-                <div className="mt-3 text-sm leading-7 text-slate-300">
-                  {primaryBlock?.requiredAction ?? "المسار جاهز للتحرك الآن."}
-                </div>
-              </div>
+            <AIInsightCard title="لماذا هذا القرار؟" lines={decisionExplanation} />
 
-              <div className="decision-panel px-5 py-5">
+            <div className="decision-panel px-5 py-5">
+              <div className="text-[11px] tracking-[0.16em] text-slate-500">أعلى مانع</div>
+              <div className="mt-3 text-xl font-semibold text-white">
+                {stripInternalCodePrefix(primaryBlock?.title) || "لا يوجد مانع مباشر"}
+              </div>
+              <div className="mt-2 text-sm leading-7 text-slate-300">
+                {primaryBlock?.requiredAction ?? "المسار جاهز للتحرك الآن."}
+              </div>
+            </div>
+
+            <div className="decision-panel px-5 py-5">
+              <div className="text-[11px] tracking-[0.16em] text-slate-500">الإجراء التالي</div>
+              <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                {primaryAction.kind === "link" && primaryAction.href ? (
+                  <Link
+                    href={primaryAction.href}
+                    className={`decision-cta px-5 py-3 text-sm font-semibold ${
+                      primaryAction.disabled ? "pointer-events-none cursor-not-allowed opacity-45" : ""
+                    }`}
+                    aria-disabled={primaryAction.disabled}
+                  >
+                    {primaryAction.label}
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handlePrimaryAction}
+                    disabled={primaryAction.disabled}
+                    className={`decision-cta px-5 py-3 text-sm font-semibold ${
+                      primaryAction.disabled ? "pointer-events-none cursor-not-allowed opacity-45" : ""
+                    }`}
+                  >
+                    {primaryAction.label}
+                  </button>
+                )}
+              </div>
+              <div className="mt-3 text-sm leading-7 text-slate-300">{nextActionReason}</div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="decision-stat px-4 py-4">
                 <div className="text-[11px] tracking-[0.16em] text-slate-500">المرحلة التالية</div>
-                <div className="mt-3 text-xl font-semibold text-white">{caseWorkflow.nextStageLabel}</div>
-                <div className="mt-3 text-sm text-slate-300">
-                  بعد إغلاق الإجراء الحالي، تنتقل الحالة إلى هذه المرحلة.
-                </div>
+                <div className="mt-2 text-lg font-semibold text-white">{caseWorkflow.nextStageLabel}</div>
               </div>
-            </div>
-          </div>
-
-          <div className="border-t border-white/8 px-6 py-5 sm:px-8">
-            <div className="portal-label">تقدير مالي أولي</div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <div className="decision-surface-stat px-4 py-4">
-                <div className="text-xs text-slate-400">تكلفة التكييف</div>
-                <div className="mt-2 text-sm font-semibold text-white">
-                  {formatCurrency(financialImpact.directAccommodationCost)}
-                </div>
-              </div>
-              <div className="decision-surface-stat px-4 py-4">
-                <div className="text-xs text-slate-400">تكلفة القرار الخاطئ</div>
-                <div className="mt-2 text-sm font-semibold text-white">
-                  {formatCurrency(financialImpact.wrongDecisionCost)}
-                </div>
-              </div>
-              <div className="decision-surface-stat px-4 py-4">
-                <div className="text-xs text-slate-400">وفرة المخاطر</div>
-                <div className="mt-2 text-sm font-semibold text-white">
-                  {formatCurrency(financialImpact.estimatedRiskAvoidanceValue)}
-                </div>
-              </div>
-              <div className="decision-surface-stat px-4 py-4">
-                <div className="text-xs text-slate-400">العائد التقديري</div>
-                <div className="mt-2 text-sm font-semibold text-white">
+              <div className="decision-stat px-4 py-4">
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">الأثر المالي</div>
+                <div className="mt-2 text-lg font-semibold text-white">{financialImpact.financialSignalLabel}</div>
+                <div className="mt-1 text-xs text-slate-400">
                   {estimatedDecisionROIBandLabel(financialImpact.estimatedDecisionROIBand)}
                 </div>
               </div>
-            </div>
-            <div className="mt-3 text-xs leading-6 text-slate-400">
-              تقدير مالي أولي مبني على افتراضات تشغيلية قابلة للتعديل.
             </div>
           </div>
         </section>
@@ -360,30 +285,6 @@ export default function RoleHomePage() {
         </SectionCard>
 
         <DecisionTimeline />
-
-        <SectionCard
-          eyebrow="سياق داعم"
-          title="ما الذي يدعم القرار؟"
-          description="تفاصيل مختصرة تظهر فقط بعد حسم القرار والإجراء."
-        >
-          <div className="grid gap-4 md:grid-cols-2">
-            {supportCards.map((card) => (
-              <div key={card.title} className="summary-card px-4 py-4">
-                <div className="text-sm font-semibold text-white">{card.title}</div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {card.items.map((item) => (
-                    <span
-                      key={`${card.title}-${item}`}
-                      className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-slate-200"
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </SectionCard>
       </div>
     </AppShell>
   );
