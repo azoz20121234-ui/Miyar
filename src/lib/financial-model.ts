@@ -36,15 +36,21 @@ const formatSar = (value: number) =>
   }).format(value);
 
 const retentionImpactLabelMap: Record<RetentionImpactLevel, string> = {
-  low: "منخفض",
-  medium: "متوسط",
-  high: "مرتفع"
+  low: "يحتاج متابعة",
+  medium: "مستقر مبدئيًا",
+  high: "يدعم الاستمرارية"
+};
+
+const retentionImpactNarrativeMap: Record<RetentionImpactLevel, string> = {
+  low: "يتطلب متابعة بعد التنفيذ",
+  medium: "يبدو مستقرًا مبدئيًا",
+  high: "يدعم الاستقرار بعد التنفيذ"
 };
 
 const estimatedDecisionROILabelMap: Record<EstimatedDecisionROIBand, string> = {
-  low: "منخفض",
-  medium: "متوسط",
-  high: "مرتفع"
+  low: "حساس",
+  medium: "واعد",
+  high: "مجدٍ اقتصاديًا"
 };
 
 const signalToneMap: Record<FinancialSignalLevel, FinancialSurfaceTone> = {
@@ -287,7 +293,7 @@ export const buildFinancialImpactModel = ({
           : "الأثر المالي حساس حاليًا ويحتاج إحكام الأدلة أو خفض كلفة التنفيذ، دون أن يغيّر الحكم الصادر من Meyar Core.",
     executionScenario: `تنفيذ التكييف الآن يقيد الكلفة المباشرة عند ${formatSar(
       directAccommodationCost
-    )} مع أثر استمرارية ${retentionImpactLabelMap[retentionImpactLevel]}.`,
+    )} مع مسار استمرارية ${retentionImpactNarrativeMap[retentionImpactLevel]}.`,
     delayScenario:
       estimatedDelayDays > 0
         ? `كل تأخير متوقع بنحو ${estimatedDelayDays} أيام يرفع العبء التشغيلي إلى ${formatSar(delayCost)} تقريبًا.`

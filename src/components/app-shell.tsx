@@ -86,8 +86,15 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                 العودة إلى الأدوار
               </Link>
               <StatusPill label={roleLabel} tone="neutral" />
-              <StatusPill label={bundle.report.recommendation} tone={statusTone(bundle.report.status)} />
-              <StatusPill label={caseWorkflow.currentStateLabel} tone="neutral" />
+              {!isFocusedSurface ? (
+                <>
+                  <StatusPill
+                    label={bundle.report.recommendation}
+                    tone={statusTone(bundle.report.status)}
+                  />
+                  <StatusPill label={caseWorkflow.currentStateLabel} tone="neutral" />
+                </>
+              ) : null}
               {actions}
             </div>
           </div>

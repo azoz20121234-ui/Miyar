@@ -84,6 +84,7 @@ export default function ExternalEmployerPage() {
         <ExternalFlowCard
           title="عرّف الوظيفة كما تُمارس فعليًا"
           subtitle="ابدأ بالمسمى ومستوى التعقيد فقط."
+          notice="هذا التعريف سيُستخدم لتحليل الوظيفة تشغيليًا وتقليل مخاطر التوظيف."
           footer={
             <button
               type="button"
@@ -123,6 +124,7 @@ export default function ExternalEmployerPage() {
         <ExternalFlowCard
           title="ما المهام الأساسية؟"
           subtitle="اذكر المهام التي لا يمكن حذفها من الدور."
+          notice="هذا التعريف سيُستخدم لتحليل الوظيفة تشغيليًا وتقليل مخاطر التوظيف."
           footer={
             <button
               type="button"
@@ -152,6 +154,7 @@ export default function ExternalEmployerPage() {
         <ExternalFlowCard
           title="ما الذي يمكن تكييفه؟"
           subtitle="اذكر المهام التي يمكن تعديلها أو إعادة توزيعها."
+          notice="هذا التعريف سيُستخدم لتحليل الوظيفة تشغيليًا وتقليل مخاطر التوظيف."
           footer={
             <button
               type="button"
@@ -176,6 +179,7 @@ export default function ExternalEmployerPage() {
         <ExternalFlowCard
           title="ما المتطلبات والمخاطر؟"
           subtitle="اذكر ما يحتاج تهيئة أو مراجعة قبل بدء التقييم."
+          notice="هذا التعريف سيُستخدم لتحليل الوظيفة تشغيليًا وتقليل مخاطر التوظيف."
           footer={
             <button
               type="button"
@@ -205,6 +209,7 @@ export default function ExternalEmployerPage() {
         <ExternalFlowCard
           title="ملخص الوظيفة"
           subtitle="هذه هي الصورة التي سنرسلها إلى صفحة الإرسال."
+          notice="سيتم استخدام هذا التعريف لإنتاج توصية تشغيلية قابلة للتنفيذ."
           footer={
             <Link
               href="/external/submit"

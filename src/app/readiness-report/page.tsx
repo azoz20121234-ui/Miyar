@@ -172,7 +172,7 @@ export default function ReadinessReportPage() {
                 },
                 {
                   label: "العائد التقديري",
-                  value: `${estimatedDecisionROIBandLabel(financialImpact.estimatedDecisionROIBand)} • ${financialImpact.estimatedDecisionROI}%`,
+                  value: estimatedDecisionROIBandLabel(financialImpact.estimatedDecisionROIBand),
                   hint: `أثر الاستمرارية ${retentionImpactLevelLabel(financialImpact.retentionImpactLevel)}`,
                   tone:
                     financialImpact.estimatedDecisionROIBand === "high"

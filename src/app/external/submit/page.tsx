@@ -85,8 +85,11 @@ export default function ExternalSubmitPage() {
               </div>
             ) : null}
 
+            <div className="rounded-[20px] border border-cyan-400/15 bg-cyan-400/10 px-4 py-4 text-sm leading-6 text-cyan-100">
+              القرار جاهز للدخول إلى التقييم الداخلي بناءً على المعطيات الحالية.
+            </div>
             <div className="rounded-[20px] border border-white/10 bg-white/[0.03] px-4 py-4 text-sm leading-6 text-slate-300">
-              لن تظهر تفاصيلك الداخلية للعامة. سيتم إرسال ملخص تمهيدي فقط إلى فريق التقييم.
+              سيتم إرسال ملخص تمهيدي فقط، ولن يتم كشف التفاصيل التشغيلية الكاملة.
             </div>
             <button
               type="button"

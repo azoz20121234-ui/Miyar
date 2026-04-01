@@ -96,6 +96,7 @@ export default function ExternalCandidatePage() {
         <ExternalFlowCard
           title="ما الذي يمكنك تنفيذه؟"
           subtitle="اذكر نقاط القوة الحالية وما يحتاج مراعاة عند التنفيذ."
+          notice="سيتم تحويل هذه المعلومات إلى ملف قدرات يدعم القرار."
           footer={
             <button
               type="button"
@@ -132,6 +133,7 @@ export default function ExternalCandidatePage() {
         <ExternalFlowCard
           title="ما البيئة الأنسب لنجاحك؟"
           subtitle="اذكر الظروف أو التفضيلات التي تساعد على أداء أكثر استقرارًا."
+          notice="سيتم تحويل هذه المعلومات إلى ملف قدرات يدعم القرار."
           footer={
             <button
               type="button"
@@ -161,6 +163,7 @@ export default function ExternalCandidatePage() {
         <ExternalFlowCard
           title="الأدلة المتاحة"
           subtitle="أضف أمثلة أو أدلة مختصرة تدعم ملف القدرات. هذه الخطوة اختيارية."
+          notice="سيتم تحويل هذه المعلومات إلى ملف قدرات يدعم القرار."
           footer={
             <button
               type="button"
@@ -185,6 +188,7 @@ export default function ExternalCandidatePage() {
         <ExternalFlowCard
           title="ملخص الجاهزية"
           subtitle="هذه هي الصورة التي سنرسلها إلى صفحة الإرسال قبل بدء التقييم."
+          notice="هذا الملخص سيستخدم مباشرة في تقييم جاهزيتك الوظيفية."
           footer={
             <Link
               href="/external/submit"

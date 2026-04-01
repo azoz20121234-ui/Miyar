@@ -5,7 +5,6 @@ import Link from "next/link";
 import { ActionCard } from "@/components/action-card";
 import { AppShell } from "@/components/app-shell";
 import { DecisionTimeline } from "@/components/decision-timeline";
-import { FinancialImpactCard } from "@/components/financial-impact-card";
 import { SectionCard } from "@/components/section-card";
 import { StatusPill } from "@/components/status-pill";
 import { INTERNAL_ROLE_REFERENCE } from "@/lib/experience-roles";
@@ -125,7 +124,7 @@ export default function RoleHomePage() {
     >
       <div className="mx-auto max-w-5xl space-y-6">
         <section className="surface-card-soft p-6">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="max-w-2xl">
               {externalHandoff ? (
                 <div className="mb-3 inline-flex items-center rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs text-emerald-200">
@@ -139,7 +138,7 @@ export default function RoleHomePage() {
               <div className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-white sm:text-[42px]">
                 {bundle.report.recommendation}
               </div>
-              <div className="mt-3 text-sm leading-7 body-muted">
+              <div className="mt-3 text-sm body-muted">
                 الحالة #{caseRecord.id} • المرحلة الحالية {caseWorkflow.currentStateLabel} • المالك الحالي{" "}
                 {caseWorkflow.currentOwnerLabel}
               </div>
@@ -147,95 +146,76 @@ export default function RoleHomePage() {
 
             <div className="flex flex-wrap gap-2">
               <StatusPill label={bundle.report.recommendation} tone={statusTone(bundle.report.status)} />
-              <StatusPill
-                label={`${explainability.approvalBlocks.length} موانع`}
-                tone={explainability.approvalBlocks.length > 0 ? "warning" : "success"}
-              />
               <StatusPill label={`المرحلة التالية ${caseWorkflow.nextStageLabel}`} tone="neutral" />
             </div>
           </div>
 
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            <div className="surface-card-muted px-4 py-3">
-              <div className="text-[11px] tracking-[0.16em] text-slate-500">أعلى مانع</div>
-              <div className="mt-2 text-lg font-semibold text-white">
-                {primaryBlock?.title ?? "لا يوجد"}
+          <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="surface-card-muted px-4 py-4">
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">أعلى مانع</div>
+                <div className="mt-2 text-lg font-semibold text-white">
+                  {primaryBlock?.title ?? "لا يوجد مانع مباشر"}
+                </div>
+                <div className="mt-2 text-xs body-muted">
+                  {primaryBlock?.requiredAction ?? "المسار جاهز للتحرك الآن."}
+                </div>
               </div>
-              <div className="mt-1 text-xs body-muted">
-                {primaryBlock?.ownerLabel ?? "المسار جاهز دون مانع مباشر"}
+
+              <div className="surface-card-muted px-4 py-4">
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">الإجراء التالي</div>
+                <div className="mt-2 text-lg font-semibold text-white">{primaryAction.label}</div>
+                <div className="mt-2 text-xs body-muted">{caseWorkflow.currentOwnerLabel}</div>
+              </div>
+
+              <div className="surface-card-muted px-4 py-4">
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">المرحلة التالية</div>
+                <div className="mt-2 text-lg font-semibold text-white">{caseWorkflow.nextStageLabel}</div>
+                <div className="mt-2 text-xs body-muted">
+                  فجوة {explainability.threshold.currentGap}% إلى حد الاعتماد
+                </div>
               </div>
             </div>
-            <div className="surface-card-muted px-4 py-3">
-              <div className="text-[11px] tracking-[0.16em] text-slate-500">الإجراء التالي</div>
-              <div className="mt-2 text-lg font-semibold text-white">{primaryAction.label}</div>
-              <div className="mt-1 text-xs body-muted">{caseWorkflow.currentOwnerLabel}</div>
-            </div>
-            <div className="surface-card-muted px-4 py-3">
-              <div className="text-[11px] tracking-[0.16em] text-slate-500">المرحلة التالية</div>
-              <div className="mt-2 text-lg font-semibold text-white">{caseWorkflow.nextStageLabel}</div>
-              <div className="mt-1 text-xs body-muted">
-                فجوة {explainability.threshold.currentGap}% إلى حد الاعتماد
+
+            <div className="rounded-[26px] border border-cyan-400/12 bg-[linear-gradient(180deg,rgba(10,18,30,0.96)_0%,rgba(9,14,24,0.98)_100%)] px-5 py-5 shadow-[0_24px_60px_-42px_rgba(14,165,233,0.35)]">
+              <div className="flex items-center justify-between gap-3">
+                <div className="portal-label">تقدير مالي أولي</div>
+                <StatusPill label={financialImpact.financialSignalLabel} tone="neutral" />
+              </div>
+
+              <div className="mt-4 space-y-3">
+                <div className="flex items-center justify-between gap-4 rounded-[18px] border border-white/8 bg-white/[0.03] px-4 py-3">
+                  <span className="text-xs text-slate-400">تكلفة التكييف</span>
+                  <span className="text-sm font-semibold text-white">
+                    {formatCurrency(financialImpact.directAccommodationCost)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-4 rounded-[18px] border border-white/8 bg-white/[0.03] px-4 py-3">
+                  <span className="text-xs text-slate-400">تكلفة القرار الخاطئ</span>
+                  <span className="text-sm font-semibold text-white">
+                    {formatCurrency(financialImpact.wrongDecisionCost)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-4 rounded-[18px] border border-white/8 bg-white/[0.03] px-4 py-3">
+                  <span className="text-xs text-slate-400">وفرة المخاطر</span>
+                  <span className="text-sm font-semibold text-white">
+                    {formatCurrency(financialImpact.estimatedRiskAvoidanceValue)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-4 rounded-[18px] border border-white/8 bg-white/[0.03] px-4 py-3">
+                  <span className="text-xs text-slate-400">العائد التقديري</span>
+                  <span className="text-sm font-semibold text-white">
+                    {estimatedDecisionROIBandLabel(financialImpact.estimatedDecisionROIBand)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-[18px] border border-white/8 bg-white/[0.03] px-4 py-3 text-xs leading-6 text-slate-300">
+                أثر الاستمرارية {retentionImpactLevelLabel(financialImpact.retentionImpactLevel)}
               </div>
             </div>
           </div>
         </section>
-
-        <FinancialImpactCard
-          title="الأثر المالي للقرار"
-          summary="ليس فقط ماذا قررنا، بل لماذا يبدو القرار منطقيًا ماليًا مقارنة بالتأخير أو القرار غير المناسب."
-          signalLabel={financialImpact.financialSignalLabel}
-          signalTone={financialImpact.financialSignalTone}
-          items={[
-            {
-              label: "تكلفة التكييف",
-              value: formatCurrency(financialImpact.directAccommodationCost),
-              hint: "الكلفة المباشرة قبل التنفيذ",
-              tone: "neutral"
-            },
-            {
-              label: "تكلفة القرار الخاطئ",
-              value: formatCurrency(financialImpact.wrongDecisionCost),
-              hint: "إعادة توظيف + فقدان إنتاجية + إعادة تقييم",
-              tone: "risk"
-            },
-            {
-              label: "تكلفة التأخير",
-              value: formatCurrency(financialImpact.delayCost),
-              hint: `${financialImpact.estimatedDelayDays} أيام تأخير تقديرية`,
-              tone: "watch"
-            },
-            {
-              label: "الهدر المتجنب",
-              value: formatCurrency(financialImpact.avoidedGhostHiringCost),
-              hint: "قيمة تجنب التوظيف الشكلي أو غير المنتج",
-              tone: "positive"
-            },
-            {
-              label: "العائد التقديري",
-              value: `${estimatedDecisionROIBandLabel(financialImpact.estimatedDecisionROIBand)} • ${financialImpact.estimatedDecisionROI}%`,
-              hint: "مقارنة بالقيمة المتجنبة مقابل تكلفة التنفيذ",
-              tone:
-                financialImpact.estimatedDecisionROIBand === "high"
-                  ? "positive"
-                  : financialImpact.estimatedDecisionROIBand === "medium"
-                    ? "watch"
-                    : "risk"
-            },
-            {
-              label: "أثر الاستمرارية",
-              value: retentionImpactLevelLabel(financialImpact.retentionImpactLevel),
-              hint: "تقدير عملي بعد التكييف",
-              tone:
-                financialImpact.retentionImpactLevel === "high"
-                  ? "positive"
-                  : financialImpact.retentionImpactLevel === "medium"
-                    ? "watch"
-                    : "risk"
-            }
-          ]}
-          conclusion={financialImpact.executiveConclusion}
-          footnote={financialImpact.assumptionsNote}
-        />
 
         <SectionCard
           eyebrow={isAdmin ? "مساحة الإدارة" : "منطقة العمل"}
