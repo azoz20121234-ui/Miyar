@@ -39,7 +39,7 @@ export const ReportActions = () => {
         onClick={exportJson}
         className="rounded-full border border-accent/30 bg-accent/10 px-4 py-2 text-sm text-accent transition hover:bg-accent/20"
       >
-        تنزيل JSON
+        تنزيل البيانات
       </button>
     </div>
   );

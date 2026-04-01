@@ -43,6 +43,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
   const topSignals = bundle.report.signals.slice(0, 2);
   const canViewPage = pageId ? canAccess(pageId) : true;
   const portalLabel = portalNameMap[role];
+  const isReportPage = pageId === "readiness-report";
   const isHomePage = pageId === "home";
   const isPortalPage = pageId?.startsWith("portal:") ?? false;
   const isFocusedSurface =
@@ -77,9 +78,13 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                 م
               </Link>
               <div>
-                <div className="portal-label">نواة Meyar</div>
+                <div className="portal-label">
+                  {isReportPage ? "وثيقة قرار تنفيذية" : "نواة Meyar"}
+                </div>
                 <div className="mt-1 text-sm text-slate-300">
-                  مساحة القرار المؤسسية الداخلية
+                  {isReportPage
+                    ? "نسخة موجزة للعرض على لجنة أو إدارة"
+                    : "مساحة القرار المؤسسية الداخلية"}
                 </div>
               </div>
             </div>
@@ -97,7 +102,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
               >
                 العودة إلى الأدوار
               </Link>
-              <StatusPill label={roleLabel} tone="neutral" />
+              {!isReportPage ? <StatusPill label={roleLabel} tone="neutral" /> : null}
               {!isFocusedSurface ? (
                 <>
                   <StatusPill

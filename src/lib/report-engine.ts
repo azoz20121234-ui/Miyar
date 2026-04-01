@@ -211,35 +211,35 @@ const buildSignals = (
   const signalSpecs = [
     {
       id: "role-clarity",
-      label: "Role Clarity Signal",
+      label: "وضوح الدور",
       score: roleClarity,
       direction: "higher-better" as const,
       rationale: "هل الدور مفكك إلى مهام حقيقية واضحة وليست وظيفة شكلية أو عامة؟"
     },
     {
       id: "real-task-alignment",
-      label: "Real-Task Alignment Signal",
+      label: "الارتباط بالمهام الفعلية",
       score: realTaskAlignment,
       direction: "higher-better" as const,
       rationale: "يقيس التوافق مع المهام الفعلية داخل الدور، لا مع المسمى فقط."
     },
     {
       id: "accommodation-sufficiency",
-      label: "Accommodation Sufficiency Signal",
+      label: "كفاية التكييف",
       score: accommodationSufficiency,
       direction: "higher-better" as const,
       rationale: "هل الخطة المقترحة تكفي فعلاً لتقليل العوائق لا مجرد الإشارة إليها؟"
     },
     {
       id: "fake-role-risk",
-      label: "Fake-Role Risk Signal",
+      label: "خطر الوظيفة الشكلية",
       score: fakeRoleRisk,
       direction: "lower-better" as const,
       rationale: "كلما انخفضت هذه الإشارة كان الدور أوضح وأقرب إلى مهمة حقيقية قابلة للاستمرار."
     },
     {
       id: "sustainability-likelihood",
-      label: "Sustainability Likelihood Signal",
+      label: "احتمال الاستمرارية",
       score: sustainabilityLikelihood,
       direction: "higher-better" as const,
       rationale: "تقدير احتمالية الاستمرارية بعد التهيئة ضمن بيئة الشركة الحالية."

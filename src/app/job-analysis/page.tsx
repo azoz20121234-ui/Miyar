@@ -3,6 +3,7 @@
 import { AppShell } from "@/components/app-shell";
 import { SectionCard } from "@/components/section-card";
 import { StatusPill } from "@/components/status-pill";
+import { humanRedistributionPotential, humanTaskFrequency } from "@/lib/display-copy";
 import { changeVolumeLabel } from "@/lib/scoring";
 import { useAssessment } from "@/store/assessment-context";
 
@@ -133,7 +134,7 @@ export default function JobAnalysisPage() {
                   <div className="max-w-3xl">
                     <div className="flex flex-wrap gap-2">
                       <StatusPill label="أساسية" tone="success" />
-                      <StatusPill label={task.frequency} tone="neutral" />
+                      <StatusPill label={humanTaskFrequency(task.frequency)} tone="neutral" />
                       <StatusPill label={task.workTool} tone="neutral" />
                     </div>
                     <div className="mt-3 text-lg font-semibold text-white">{task.title}</div>
@@ -178,7 +179,7 @@ export default function JobAnalysisPage() {
                   <div className="max-w-3xl">
                     <div className="flex flex-wrap gap-2">
                       <StatusPill label={task.taskTier === "essential" ? "أساسية قابلة للتكييف" : "قابلة للتكييف"} tone="warning" />
-                      <StatusPill label={`إعادة التوزيع ${task.redistributionPotential}`} tone="neutral" />
+                      <StatusPill label={`إعادة التوزيع ${humanRedistributionPotential(task.redistributionPotential)}`} tone="neutral" />
                     </div>
                     <div className="mt-3 text-lg font-semibold text-white">{task.title}</div>
                     <div className="mt-2 text-sm leading-7 text-slate-400">{task.notes}</div>

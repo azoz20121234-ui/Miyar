@@ -178,7 +178,16 @@ export const PAGE_PERMISSION_MAP: Record<
   },
   "readiness-report": {
     label: "التقرير التنفيذي",
-    requiredAny: ["recommendation:review", "compliance:review", "reports:view", "templates:manage"]
+    requiredAny: [
+      "cases:view:initiated",
+      "cases:view:assigned",
+      "job:review",
+      "profile:edit",
+      "recommendation:review",
+      "compliance:review",
+      "reports:view",
+      "templates:manage"
+    ]
   },
   dashboard: {
     label: "اللوحة التنفيذية",
