@@ -32,17 +32,23 @@ const riskTone = (risk: "low" | "medium" | "high") => {
   return "danger";
 };
 
+const riskLabel = (risk: "low" | "medium" | "high") => {
+  if (risk === "low") return "منخفضة";
+  if (risk === "medium") return "متوسطة";
+  return "مرتفعة";
+};
+
 const ScenarioCard = ({ scenario }: { scenario: DecisionShiftScenario }) => (
   <ActionCard
-    eyebrow="Scenario"
+    eyebrow="سيناريو"
     title={scenario.projectedDecision}
     problem={scenario.title}
-    reason={scenario.summary}
-    impact={`Readiness ${scenario.projectedReadiness}% • Confidence +${scenario.confidenceDelta}%`}
-    meta={`Residual ${scenario.residualRisk}`}
+    context={scenario.summary}
+    impact={`جاهزية ${scenario.projectedReadiness}% • ثقة +${scenario.confidenceDelta}%`}
+    meta={`المخاطر المتبقية ${riskLabel(scenario.residualRisk)}`}
     status={
       <StatusPill
-        label={scenario.closableNow ? "Decision shift" : "Partial shift"}
+        label={scenario.closableNow ? "تحول القرار" : "تحول جزئي"}
         tone={scenario.closableNow ? "success" : "warning"}
       />
     }
@@ -83,13 +89,13 @@ export default function ReadinessReportPage() {
   return (
     <AppShell
       pageId="readiness-report"
-      title="Executive Decision Brief"
-      subtitle="Brief تنفيذي سريع القراءة يبرز القرار الحالي، أسبابِه، موانعه، وخطوات تغييره."
+      title="الموجز التنفيذي للقرار"
+      subtitle="موجز سريع القراءة يبرز القرار الحالي، أسبابه، موانعه، وما الذي يغيّره."
       actions={<ReportActions />}
     >
       <div className="mx-auto max-w-5xl space-y-6">
         <DecisionCard
-          eyebrow="Decision"
+          eyebrow="القرار"
           title={bundle.report.recommendation}
           summary={`الحالة في ${caseWorkflow.currentStateLabel} ويقودها ${caseWorkflow.currentOwnerLabel}.`}
           value={`${bundle.report.finalReadiness}%`}
@@ -98,19 +104,19 @@ export default function ReadinessReportPage() {
           footer={
             <div className="grid gap-3 sm:grid-cols-4">
               <div className="surface-card-muted px-4 py-3">
-                <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Stage</div>
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">المرحلة</div>
                 <div className="mt-2 text-sm font-medium text-white">{caseWorkflow.currentStateLabel}</div>
               </div>
               <div className="surface-card-muted px-4 py-3">
-                <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Blockers</div>
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">الموانع</div>
                 <div className="mt-2 text-sm font-medium text-white">{explainability.approvalBlocks.length}</div>
               </div>
               <div className="surface-card-muted px-4 py-3">
-                <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Threshold gap</div>
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">فجوة الحد</div>
                 <div className="mt-2 text-sm font-medium text-white">{explainability.threshold.currentGap}%</div>
               </div>
               <div className="surface-card-muted px-4 py-3">
-                <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Estimated cost</div>
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">التكلفة التقديرية</div>
                 <div className="mt-2 text-sm font-medium text-white">{formatCurrencyRange(bundle.report.totalCostRangeSar)}</div>
               </div>
             </div>
@@ -119,20 +125,31 @@ export default function ReadinessReportPage() {
 
         {!isExecutive ? (
           <SectionCard
-            eyebrow="Why"
-            title="Why this decision"
+            eyebrow="لماذا"
+            title="لماذا صدر هذا القرار"
             description="أقوى ما رفع القرار وأقوى ما خفضه."
           >
             <div className="space-y-4">
               {[...positiveDrivers, ...negativeDrivers].map((driver) => (
                 <ActionCard
                   key={driver.id}
-                  eyebrow={driver.direction === "positive" ? "Positive" : "Negative"}
+                  eyebrow={driver.direction === "positive" ? "عامل رافع" : "عامل خافض"}
                   title={driver.title}
                   problem={driver.title}
-                  reason={driver.summary}
-                  impact={`${driver.direction === "positive" ? "+" : "-"}${Math.abs(driver.impact)} impact`}
-                  status={<StatusPill label={driver.level} tone={driverTone(driver.level)} />}
+                  context={driver.summary}
+                  impact={`${driver.direction === "positive" ? "+" : "-"}${Math.abs(driver.impact)} نقطة تأثير`}
+                  status={
+                    <StatusPill
+                      label={
+                        driver.level === "blocker"
+                          ? "مانع"
+                          : driver.level === "major"
+                            ? "رئيسي"
+                            : "ثانوي"
+                      }
+                      tone={driverTone(driver.level)}
+                    />
+                  }
                 />
               ))}
             </div>
@@ -140,22 +157,22 @@ export default function ReadinessReportPage() {
         ) : null}
 
         <SectionCard
-          eyebrow="Blockers"
-          title="What blocks approval"
+          eyebrow="الموانع"
+          title="ما الذي يمنع الاعتماد"
           description="العناصر الأوضح التي تمنع القرار أو تؤخره الآن."
         >
           <div className="space-y-4">
             {blocks.map((block) => (
               <ActionCard
                 key={block.id}
-                eyebrow="Blocker"
+                eyebrow="مانع"
                 title={block.title}
                 problem={block.title}
-                reason={block.requiredAction}
+                context={block.requiredAction}
                 impact={`المسؤول ${block.ownerLabel}`}
                 status={
                   <StatusPill
-                    label={block.blocker ? "Blocker" : "Review"}
+                    label={block.blocker ? "مانع" : "مراجعة"}
                     tone={block.blocker ? "danger" : "warning"}
                   />
                 }
@@ -165,23 +182,29 @@ export default function ReadinessReportPage() {
         </SectionCard>
 
         <SectionCard
-          eyebrow="Actions"
-          title="What must happen next"
+          eyebrow="الإجراءات"
+          title="ما الذي يجب أن يحدث الآن"
           description="أهم 3 إجراءات قبل تحريك القرار."
         >
           <div className="space-y-4">
             {explainability.nextActions.slice(0, 3).map((action) => (
               <ActionCard
                 key={action.id}
-                eyebrow="Action"
+                eyebrow="إجراء"
                 title={action.title}
                 problem={action.title}
-                reason={action.requiredAction}
+                context={action.requiredAction}
                 impact={action.expectedImpact}
                 meta={action.ownerLabel}
                 status={
                   <StatusPill
-                    label={action.urgency}
+                    label={
+                      action.urgency === "now"
+                        ? "فوري"
+                        : action.urgency === "next"
+                          ? "التالي"
+                          : "مخطط"
+                    }
                     tone={
                       action.urgency === "now"
                         ? "danger"
@@ -197,8 +220,8 @@ export default function ReadinessReportPage() {
         </SectionCard>
 
         <SectionCard
-          eyebrow="Scenario"
-          title="If we act now"
+          eyebrow="السيناريوهات"
+          title="إذا تحركنا الآن"
           description="السيناريوهات الأقرب لتغيير القرار من الوضع الحالي."
         >
           <div className="space-y-4">
@@ -209,8 +232,8 @@ export default function ReadinessReportPage() {
         </SectionCard>
 
         <SectionCard
-          eyebrow="Final Statement"
-          title="Final statement"
+          eyebrow="البيان التنفيذي"
+          title="التوصية النهائية"
           description="صياغة تنفيذية قصيرة قابلة للعرض."
         >
           <div className="flex flex-wrap gap-3">
@@ -229,20 +252,33 @@ export default function ReadinessReportPage() {
                         : "border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.06]"
                     }`}
                   >
-                    {value}
+                    {value === "conservative"
+                      ? "محافظ"
+                      : value === "balanced"
+                        ? "متوازن"
+                        : "تمكيني"}
                   </button>
                 );
               }
             )}
           </div>
 
-          <div className="mt-5 surface-card p-6">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="text-lg font-semibold text-white">{activeRecommendation.title}</div>
-              <StatusPill label={activeRecommendation.summary} tone="neutral" />
-              <StatusPill label={`${bundle.report.confidence}% confidence`} tone="neutral" />
-              <StatusPill label={bundle.report.residualRiskLevel} tone={riskTone(bundle.report.residualRiskLevel)} />
-            </div>
+            <div className="mt-5 surface-card p-6">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="text-lg font-semibold text-white">{activeRecommendation.title}</div>
+                <StatusPill label={activeRecommendation.summary} tone="neutral" />
+                <StatusPill label={`ثقة ${bundle.report.confidence}%`} tone="neutral" />
+                <StatusPill
+                  label={
+                    bundle.report.residualRiskLevel === "low"
+                      ? "مخاطر منخفضة"
+                      : bundle.report.residualRiskLevel === "medium"
+                        ? "مخاطر متوسطة"
+                        : "مخاطر مرتفعة"
+                  }
+                  tone={riskTone(bundle.report.residualRiskLevel)}
+                />
+              </div>
             <div className="mt-5 text-xl leading-10 text-white">
               {activeRecommendation.printableText}
             </div>
@@ -251,18 +287,18 @@ export default function ReadinessReportPage() {
 
         {isAdmin ? (
           <SectionCard
-            eyebrow="Trace"
-            title="Approval trace"
+            eyebrow="الأثر"
+            title="أثر الاعتماد"
             description="مسار مختصر لشروط الاعتماد."
           >
             <div className="table-shell">
               <table className="min-w-full divide-y divide-white/10 text-sm">
                 <thead className="bg-white/[0.03] text-slate-500">
                   <tr>
-                    <th className="px-4 py-3 text-right">Requirement</th>
-                    <th className="px-4 py-3 text-right">Status</th>
-                    <th className="px-4 py-3 text-right">Owner</th>
-                    <th className="px-4 py-3 text-right">Action</th>
+                    <th className="px-4 py-3 text-right">المتطلب</th>
+                    <th className="px-4 py-3 text-right">الحالة</th>
+                    <th className="px-4 py-3 text-right">المالك</th>
+                    <th className="px-4 py-3 text-right">الإجراء</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/10">
@@ -271,7 +307,7 @@ export default function ReadinessReportPage() {
                       <td className="px-4 py-4 text-white">{requirement.label}</td>
                       <td className="px-4 py-4">
                         <StatusPill
-                          label={requirement.passed ? "Passed" : "Blocked"}
+                          label={requirement.passed ? "مستوفى" : "معلّق"}
                           tone={requirement.passed ? "success" : "danger"}
                         />
                       </td>

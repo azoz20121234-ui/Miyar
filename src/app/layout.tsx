@@ -19,9 +19,9 @@ const headingFont = Tajawal({
 });
 
 export const metadata: Metadata = {
-  title: "Meyar — Decision & Compliance Standard Engine",
+  title: "Meyar — محرك القرار والامتثال المعياري",
   description:
-    "Arabic RTL platform for role-based decision review, standards checks, operational capability assessment, and pre-employment compliance readiness."
+    "منصة عربية RTL لمراجعة القرار حسب الدور، وفحص المعايير، وتقييم القدرات التشغيلية، وجاهزية ما قبل التوظيف."
 };
 
 export default function RootLayout({

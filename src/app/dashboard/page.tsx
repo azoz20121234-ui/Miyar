@@ -38,13 +38,13 @@ export default function DashboardPage() {
             tone="neutral"
           />
           <MetricCard
-            label="Standards Completion"
+            label="اكتمال المعايير"
             value={`${standards.overview.completionRate}%`}
             hint="اكتمال checks للحالة الحالية."
             tone="success"
           />
           <MetricCard
-            label="Blockers"
+            label="الموانع"
             value={`${standards.blockers.length}`}
             hint="ما يمنع الاعتماد الآن."
             tone={standards.blockers.length > 0 ? "warning" : "success"}
@@ -52,26 +52,26 @@ export default function DashboardPage() {
         </section>
 
         <SectionCard
-          eyebrow="Standards Snapshot"
+          eyebrow="لقطة المعايير"
           title="ملخص المعايير"
-          description="Built on references + case-linked checks."
+          description="مبني على مراجع واضحة وفحوصات مرتبطة بالحالة."
         >
           <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
-                <div className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Checks</div>
+                <div className="text-[11px] tracking-[0.18em] text-slate-500">الفحوصات</div>
                 <div className="mt-2 text-2xl font-semibold text-white">{standards.overview.totalChecks}</div>
-                <div className="mt-1 text-sm text-slate-400">إجمالي checks</div>
+                <div className="mt-1 text-sm text-slate-400">إجمالي الفحوصات</div>
               </div>
               <div className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
-                <div className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Evidence Pending</div>
+                <div className="text-[11px] tracking-[0.18em] text-slate-500">الأدلة المعلّقة</div>
                 <div className="mt-2 text-2xl font-semibold text-white">
                   {standards.counts["missing-evidence"] + standards.counts["needs-review"]}
                 </div>
                 <div className="mt-1 text-sm text-slate-400">تحتاج إغلاق</div>
               </div>
               <div className="rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
-                <div className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Decision</div>
+                <div className="text-[11px] tracking-[0.18em] text-slate-500">القرار</div>
                 <div className="mt-2 text-2xl font-semibold text-white">
                   {statusLabel(bundle.report.status)}
                 </div>
@@ -85,7 +85,7 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-between gap-3">
                     <div className="text-white">{item.title}</div>
                     <div className="rounded-full border border-rose-500/20 bg-rose-500/12 px-3 py-1 text-xs text-rose-200">
-                      Blocker
+                      مانع
                     </div>
                   </div>
                   <div className="mt-2 text-sm text-slate-400">{item.rationale}</div>
@@ -97,7 +97,7 @@ export default function DashboardPage() {
 
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <SectionCard
-            eyebrow="Portfolio View"
+            eyebrow="عرض المحفظة"
             title="توزيع الجاهزية"
             description="قراءة سريعة لحجم الحالات التي يمكن اعتمادها مقابل الحالات التي تحتاج تهيئة أوسع."
           >
@@ -129,7 +129,7 @@ export default function DashboardPage() {
           </SectionCard>
 
           <SectionCard
-            eyebrow="Signals"
+            eyebrow="الإشارات"
             title="إشارات الجاهزية الحالية"
             description="ما الذي يجب أن تراه الإدارة أو لجنة الامتثال بوضوح في الحالة النشطة؟"
           >
@@ -161,7 +161,7 @@ export default function DashboardPage() {
         </section>
 
         <SectionCard
-          eyebrow="Role Comparison"
+          eyebrow="مقارنة الأدوار"
           title="مقارنة الأدوار ضمن الملف الحالي"
           description="يعرض كيف يتغير القرار عند تبديل الدور مع ثبات ملف القدرات نفسه."
         >

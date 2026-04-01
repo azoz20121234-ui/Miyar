@@ -11,11 +11,11 @@ export type StandardsOwnerRole = Extract<
 >;
 
 export type StandardsAlignmentType =
-  | "Built on"
-  | "Aligned with"
-  | "Structured against";
+  | "مبني على"
+  | "متسق مع"
+  | "منظّم وفق";
 
-export type StandardsLibraryStatus = "Active" | "Evidence pending";
+export type StandardsLibraryStatus = "نشط" | "أدلة معلّقة";
 
 export type EvidenceType =
   | "platform-review"

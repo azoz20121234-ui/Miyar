@@ -19,8 +19,8 @@ export const StandardsLibraryView = ({
 }: StandardsLibraryViewProps) => (
   <AppShell
     pageId="portal:standards"
-    title="Standards Library"
-    subtitle="Catalog تشغيلي قصير للمعايير المبني عليها Meyar وربطها بمسؤوليات المراجعة."
+    title="مكتبة المعايير"
+    subtitle="كتالوج تشغيلي مختصر للمعايير التي بُنيت عليها Meyar وربطها بمسؤوليات المراجعة."
     actions={
       <Link
         href="/portal/standards-check"
@@ -38,9 +38,9 @@ export const StandardsLibraryView = ({
           hint="عناصر الكتالوج"
         />
         <MetricCard
-          label="Checks"
+          label="الفحوصات"
           value={`${standards.overview.totalChecks}`}
-          hint="إجمالي checks"
+          hint="إجمالي الفحوصات"
         />
         <MetricCard
           label="الاكتمال"
@@ -49,7 +49,7 @@ export const StandardsLibraryView = ({
           tone={standards.overview.completionRate >= 70 ? "success" : "warning"}
         />
         <MetricCard
-          label="Blockers"
+          label="الموانع"
           value={`${standards.overview.blockers}`}
           hint="قبل الاعتماد"
           tone={standards.overview.blockers > 0 ? "danger" : "success"}
@@ -57,25 +57,25 @@ export const StandardsLibraryView = ({
         <MetricCard
           label="آخر تحديث"
           value={standards.overview.lastUpdated}
-          hint="catalog snapshot"
+          hint="لقطة الكتالوج"
         />
       </section>
 
       <SectionCard
-        eyebrow="Library"
-        title="Standards Library"
-        description="Built on references + structured internal controls."
+        eyebrow="المكتبة"
+        title="مكتبة المعايير"
+        description="مبنية على مراجع واضحة وضوابط داخلية منظّمة."
       >
         <div className="overflow-hidden rounded-[20px] border border-white/10">
           <table className="min-w-full divide-y divide-white/10 text-sm">
             <thead className="bg-white/[0.03] text-slate-500">
               <tr>
-                <th className="px-4 py-3 text-right">Code</th>
-                <th className="px-4 py-3 text-right">Title</th>
-                <th className="px-4 py-3 text-right">Category</th>
-                <th className="px-4 py-3 text-right">Level</th>
-                <th className="px-4 py-3 text-right">Owner</th>
-                <th className="px-4 py-3 text-right">Status</th>
+                <th className="px-4 py-3 text-right">الرمز</th>
+                <th className="px-4 py-3 text-right">العنوان</th>
+                <th className="px-4 py-3 text-right">الفئة</th>
+                <th className="px-4 py-3 text-right">المستوى</th>
+                <th className="px-4 py-3 text-right">المالك</th>
+                <th className="px-4 py-3 text-right">الحالة</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/10 bg-transparent">
@@ -85,7 +85,7 @@ export const StandardsLibraryView = ({
                   <td className="px-4 py-4">
                     <div className="text-white">{row.title}</div>
                     <div className="mt-1 text-xs text-slate-500">
-                      {row.type} • {row.checksCount} checks
+                      {row.type} • {row.checksCount} فحوصات
                     </div>
                   </td>
                   <td className="px-4 py-4 text-slate-300">{row.category}</td>
@@ -96,7 +96,7 @@ export const StandardsLibraryView = ({
                   <td className="px-4 py-4">
                     <StatusPill
                       label={row.status}
-                      tone={row.status === "Active" ? standardsTone("active") : "warning"}
+                      tone={row.status === "نشط" ? standardsTone("active") : "warning"}
                     />
                   </td>
                 </tr>

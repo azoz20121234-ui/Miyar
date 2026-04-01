@@ -54,8 +54,8 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
     linkedArtifacts: ["platform.review.keyboard"],
     evaluate: () =>
       reviewPending(
-        "Evidence pending",
-        "Framework موجود لكن لا يوجد بعد trace موثق لمسار لوحة المفاتيح داخل المنصة."
+        "الأدلة معلّقة",
+        "الإطار موجود لكن لا يوجد بعد أثر موثق لمسار لوحة المفاتيح داخل المنصة."
       )
   },
   "platform-semantic-review": {
@@ -63,8 +63,8 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
     linkedArtifacts: ["platform.review.semantics"],
     evaluate: () =>
       reviewPending(
-        "Evidence pending",
-        "تم إنشاء خانة الإثبات فقط. مراجعة labels والدلالات لم تُربط بعد بسجل فحص فعلي."
+        "الأدلة معلّقة",
+        "تم إنشاء خانة الإثبات فقط. مراجعة التسميات والدلالات لم تُربط بعد بسجل فحص فعلي."
       )
   },
   "platform-accessibility-owner": {
@@ -72,8 +72,8 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
     linkedArtifacts: ["platform.review.owner"],
     evaluate: () =>
       missingEvidence(
-        "Owner field missing",
-        "يوجد owner role على مستوى الكتالوج، لكن لا يوجد owner مسجل بعد كسجل متابعة accessibility.",
+        "حقل المالك مفقود",
+        "يوجد دور مالك على مستوى الكتالوج، لكن لا يوجد مالك مسجل بعد كسجل متابعة للإتاحة.",
         false
       )
   },
@@ -82,8 +82,8 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
     linkedArtifacts: ["platform.review.content"],
     evaluate: () =>
       reviewPending(
-        "Evidence pending",
-        "المنصة مهيأة لربط المراجعة، لكن مراجعة ترتيب القراءة والمحتوى العربي ما زالت pending."
+        "الأدلة معلّقة",
+        "المنصة مهيأة لربط المراجعة، لكن مراجعة ترتيب القراءة والمحتوى العربي ما زالت معلّقة."
       )
   },
   "platform-compatibility-review": {
@@ -91,7 +91,7 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
     linkedArtifacts: ["platform.review.compatibility"],
     evaluate: () =>
       reviewPending(
-        "Evidence pending",
+        "الأدلة معلّقة",
         "لا يوجد بعد سجل يثبت اختبار التوافق مع أدوات الوصول عبر المتصفحات الأساسية."
       )
   },
@@ -100,8 +100,8 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
     linkedArtifacts: ["platform.review.audit-trace"],
     evaluate: () =>
       missingEvidence(
-        "Audit trace placeholder only",
-        "تم تجهيز placeholder للتدقيق لاحقًا، لكن لا يوجد audit backend أو سجل فحص فعلي الآن."
+        "خانة أثر التدقيق فقط",
+        "تم تجهيز خانة للتدقيق لاحقًا، لكن لا يوجد مسار تدقيق خلفي أو سجل فحص فعلي الآن."
       )
   },
   "job-outcomes-documented": {
@@ -114,7 +114,7 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
             "الوظيفة معرفة بنتائج تشغيلية واضحة وليست مسمى فقط."
           )
         : missingEvidence(
-            "Outcomes incomplete",
+            "النتائج غير مكتملة",
             "الوظيفة تحتاج نتائج تشغيلية أوضح قبل الاعتماد."
           )
   },
@@ -128,7 +128,7 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
             "أدوات العمل وبيئة التشغيل والمخاطر الأساسية موثقة داخل الحالة."
           )
         : missingEvidence(
-            "Environment note missing",
+            "ملاحظة البيئة مفقودة",
             "البيئة أو الأدوات أو المخاطر التشغيلية غير مكتملة.",
             true
           )
@@ -144,7 +144,7 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
             "تم تثبيت المهام الأساسية بما يكفي لدعم قرار تشغيلي واضح."
           )
         : missingEvidence(
-            "Essential tasks incomplete",
+            "المهام الأساسية غير مكتملة",
             "عدد المهام الأساسية المحددة غير كافٍ لدعم القرار.",
             true
           );
@@ -161,7 +161,7 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
             "الحالة تميز بين ما يمكن تعديله وما يجب تثبيته كما هو."
           )
         : reviewPending(
-            "Adaptable scope pending",
+            "نطاق التعديل معلّق",
             "لا يوجد بعد نطاق كافٍ للمهام القابلة للتعديل ضمن هذه الحالة."
           );
     }
@@ -180,8 +180,8 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
             "ملف القدرات مبني على evidence تشغيلي مباشر عبر جميع الأبعاد."
           )
         : missingEvidence(
-            "Capability evidence incomplete",
-            "بعض أبعاد القدرات ما زالت بدون evidence كافٍ أو بثقة منخفضة.",
+            "أدلة القدرات غير مكتملة",
+            "بعض أبعاد القدرات ما زالت بدون دليل كافٍ أو بثقة منخفضة.",
             true
           );
     }
@@ -197,7 +197,7 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
             "الحالة توضّح الظروف المناسبة للأداء والاستمرارية."
           )
         : missingEvidence(
-            "Work conditions missing",
+            "ظروف العمل مفقودة",
             "الظروف التشغيلية المناسبة للأداء غير مكتملة."
           )
   },
@@ -211,7 +211,7 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
             "كل عائق مرتبط بمهام أو أدوات متأثرة داخل الحالة."
           )
         : missingEvidence(
-            "Barrier linkage missing",
+            "ربط العوائق مفقود",
             "هناك عوائق غير مربوطة بمهام فعلية داخل الحالة.",
             true
           )
@@ -225,12 +225,12 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
           barrier.whyDetected.trim().length > 0 && barrier.evidence.length > 0
       )
         ? passed(
-            "Barrier rationale present",
+            "مبررات العوائق موجودة",
             "العوائق موثقة بتفسير واضح وإثباتات تشغيلية مباشرة."
           )
         : reviewPending(
-            "Barrier evidence pending",
-            "بعض العوائق تحتاج صياغة evidence أوضح قبل الاعتماد."
+            "أدلة العوائق معلّقة",
+            "بعض العوائق تحتاج صياغة دليل أوضح قبل الاعتماد."
           )
   },
   "accommodations-linked": {
@@ -246,7 +246,7 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
             "التكييفات المقترحة مرتبطة بالعائق والمهمة، وليس بنوع الإعاقة فقط."
           )
         : missingEvidence(
-            "Accommodation linkage missing",
+            "ربط التكييف مفقود",
             "بعض التكييفات غير مربوطة بالعائق أو المهمة المستهدفة.",
             true
           )
@@ -266,8 +266,8 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
             "كل تكييف يحتوي نطاق تكلفة وزمن ومتطلبات تنفيذ أولية."
           )
         : missingEvidence(
-            "Cost or time missing",
-            "واحد أو أكثر من التكييفات يحتاج تكلفة أو زمن أو dependencies أوضح.",
+            "التكلفة أو الزمن مفقود",
+            "واحد أو أكثر من التكييفات يحتاج تكلفة أو زمنًا أو متطلبات تنفيذ أوضح.",
             true
           )
   },
@@ -281,7 +281,7 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
             "مستوى المخاطر المتبقي ظاهر داخل التقرير التنفيذي."
           )
         : missingEvidence(
-            "Residual risk missing",
+            "المخاطر المتبقية غير ظاهرة",
             "التقرير لا يوضح المخاطر المتبقية بشكل صريح."
           )
   },
@@ -295,7 +295,7 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
             "الحالة لا تخفي ما تبقى من فجوات بعد الخطة المقترحة."
           )
         : reviewPending(
-            "Residual risk review",
+            "مراجعة المخاطر المتبقية",
             "المخاطر المتبقية تحتاج قراءة مراجعة إضافية داخل مسار الامتثال."
           )
   },
@@ -306,12 +306,12 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
       bundle.report.whyThisDecision.trim().length > 0 &&
       bundle.report.decisionRationale.length >= 3
         ? passed(
-            `${bundle.report.decisionRationale.length} rationale points`,
-            "القرار النهائي مفسر بوضوح من task fit إلى التكييف ثم الجاهزية."
+            `${bundle.report.decisionRationale.length} نقاط تفسير`,
+            "القرار النهائي مفسر بوضوح من ملاءمة المهام إلى التكييف ثم الجاهزية."
           )
         : missingEvidence(
-            "Decision rationale missing",
-            "الحالة تحتاج rationale أوضح قبل إصدار القرار.",
+            "مبررات القرار غير مكتملة",
+            "الحالة تحتاج مبررات أوضح قبل إصدار القرار.",
             true
           )
   },
@@ -325,7 +325,7 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
             "التقرير يظهر أثر التهيئة على الجاهزية بشكل مباشر."
           )
         : missingEvidence(
-            "Readiness delta missing",
+            "أثر الجاهزية غير مكتمل",
             "الحالة لا تعرض أثر التهيئة على الجاهزية بما يكفي."
           )
   },
@@ -339,7 +339,7 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
             "لكل إجراء أساسي owner واضح داخل checklist الحالي."
           )
         : missingEvidence(
-            "Owner missing",
+            "المالك مفقود",
             "توجد عناصر تنفيذية بدون owner مسجل.",
             true
           )
@@ -349,7 +349,7 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
     linkedArtifacts: ["portal.review-chain"],
     evaluate: () =>
       reviewPending(
-        "Formal sign-off pending",
+        "الاعتماد الرسمي معلّق",
         "المنصة تعرض المسار المطلوب لكن لا تحفظ بعد سجلات اعتماد فعلية داخل الـ MVP."
       )
   },
@@ -358,8 +358,8 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
     linkedArtifacts: ["case.owner"],
     evaluate: () =>
       missingEvidence(
-        "Case owner missing",
-        "لا يوجد field محفوظ بعد لمالك الحالة المسؤول عن الإغلاق النهائي.",
+        "مالك الحالة مفقود",
+        "لا يوجد حقل محفوظ بعد لمالك الحالة المسؤول عن الإغلاق النهائي.",
         true
       )
   },
@@ -374,7 +374,7 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
             "تقسيم essential tasks جاهز للمراجعة الإدارية."
           )
         : missingEvidence(
-            "Essential tasks unconfirmed",
+            "المهام الأساسية غير مؤكدة",
             "المهام الأساسية لم تُحسم بعد بشكل كافٍ.",
             true
           );
@@ -385,8 +385,8 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
     linkedArtifacts: ["review.hiring-manager"],
     evaluate: () =>
       missingEvidence(
-        "Hiring Manager review pending",
-        "اعتماد Hiring Manager مطلوب لكنه غير محفوظ بعد كسجل مراجعة فعلي.",
+        "مراجعة مدير التوظيف معلّقة",
+        "اعتماد مدير التوظيف مطلوب لكنه غير محفوظ بعد كسجل مراجعة فعلي.",
         true
       )
   },
@@ -395,8 +395,8 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
     linkedArtifacts: ["review.compliance"],
     evaluate: () =>
       missingEvidence(
-        "Compliance review pending",
-        "مراجعة Compliance Reviewer جزء blocker قبل الاعتماد النهائي وما زالت pending.",
+        "مراجعة الامتثال معلّقة",
+        "مراجعة الامتثال جزء مانع قبل الاعتماد النهائي وما زالت معلّقة.",
         true
       )
   },
@@ -408,11 +408,11 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
       bundle.barriers.length > 0 &&
       bundle.plan.items.length > 0
         ? passed(
-            "Decision trace visible",
+            "أثر القرار ظاهر",
             "يمكن تتبع القرار من العوائق إلى الخطة إلى أثر الجاهزية."
           )
         : missingEvidence(
-            "Decision trace incomplete",
+            "أثر القرار غير مكتمل",
             "سلسلة تفسير القرار غير مكتملة بما يكفي.",
             true
           )
@@ -424,11 +424,11 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
       bundle.profile.dimensions.every((dimension) => dimension.evidence.trim().length > 0) &&
       bundle.barriers.every((barrier) => barrier.evidence.length > 0)
         ? passed(
-            "Evidence bundle present",
-            "الحالة تجمع Evidence القدرات والعوائق وخطة التكييف في حزمة واحدة."
+            "حزمة الأدلة موجودة",
+            "الحالة تجمع أدلة القدرات والعوائق وخطة التكييف في حزمة واحدة."
           )
         : reviewPending(
-            "Evidence bundle review",
+            "مراجعة حزمة الأدلة",
             "بعض أدلة القرار تحتاج استكمالًا قبل اعتماد كامل."
           )
   },
@@ -439,12 +439,12 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
       bundle.plan.items.length > 0 &&
       bundle.report.checklist.every((item) => item.owner.trim().length > 0)
         ? passed(
-            "Cost, time, owner captured",
-            "التكييف المقترح يملك تكلفة وزمن وowner تنفيذي داخل الحزمة الحالية."
+            "التكلفة والزمن والمالك موثقة",
+            "التكييف المقترح يملك تكلفة وزمنًا ومالك تنفيذ داخل الحزمة الحالية."
           )
         : missingEvidence(
-            "Execution accountability incomplete",
-            "التكييفات تحتاج owner أوضح أو بيانات تنفيذ ناقصة.",
+            "مسؤولية التنفيذ غير مكتملة",
+            "التكييفات تحتاج مالكًا أوضح أو بيانات تنفيذ ناقصة.",
             true
           )
   },
@@ -458,7 +458,7 @@ export const standardsMapping: Record<string, StandardsMappingRule> = {
             "نطاق التغيير وزمن التنفيذ ظاهرين قبل المباشرة."
           )
         : missingEvidence(
-            "Implementation scope missing",
+            "نطاق التنفيذ غير ظاهر",
             "نطاق التنفيذ أو زمنه غير واضح داخل الحالة."
           )
   }

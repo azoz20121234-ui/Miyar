@@ -26,12 +26,12 @@ interface AppShellProps {
 }
 
 const portalNameMap = {
-  "case-initiator": "Case Initiation Portal",
-  assessor: "Assessment Portal",
-  "hiring-manager": "Manager Portal",
-  "compliance-reviewer": "Compliance Portal",
-  "executive-viewer": "Executive Portal",
-  "platform-admin": "Admin Portal"
+  "case-initiator": "بوابة بدء الحالة",
+  assessor: "بوابة التقييم",
+  "hiring-manager": "بوابة المدير",
+  "compliance-reviewer": "بوابة الامتثال",
+  "executive-viewer": "البوابة التنفيذية",
+  "platform-admin": "بوابة الإدارة"
 } as const;
 
 export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShellProps) => {
@@ -58,7 +58,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
               <div>
                 <div className="portal-label">Meyar</div>
                 <div className="mt-1 text-sm text-slate-300">
-                  Decision &amp; Compliance Standard Engine
+                  محرك القرار والامتثال المعياري
                 </div>
               </div>
             </div>
@@ -129,7 +129,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                 <DecisionTimeline />
 
                 <div className="surface-card-soft p-5">
-                  <div className="portal-label">Decision Snapshot</div>
+                  <div className="portal-label">ملخص القرار</div>
                   <div className="mt-3 text-xl font-semibold tracking-[-0.02em] text-white">
                     {bundle.report.recommendation}
                   </div>
@@ -159,7 +159,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                 </div>
 
                 <div className="surface-card-soft p-5">
-                  <div className="portal-label">Signals</div>
+                  <div className="portal-label">الإشارات</div>
                   <div className="mt-4 space-y-3">
                     {topSignals.map((signal) => {
                       const tone = bandToneForSignal(signal.score, signal.direction);

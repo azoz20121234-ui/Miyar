@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { AppPageId } from "@/lib/role-model";
+import { APP_ROLES, AppPageId, getRoleConfig } from "@/lib/role-model";
 import { statusTone } from "@/lib/scoring";
 import { useAssessment } from "@/store/assessment-context";
 import { useRoleSession } from "@/store/role-session-context";
@@ -46,7 +46,8 @@ const toneForStatus = (status?: string) => {
     status.includes("جاهز") ||
     status.includes("معتمد") ||
     status.includes("success") ||
-    status.includes("Approve")
+    status.includes("اعتماد") ||
+    status.includes("مستوفى")
   ) {
     return "success";
   }
@@ -54,27 +55,56 @@ const toneForStatus = (status?: string) => {
   if (
     status.includes("مطلوب") ||
     status.includes("warning") ||
-    status.includes("Review") ||
-    status.includes("Request") ||
-    status.includes("مفتوح")
+    status.includes("مراجعة") ||
+    status.includes("طلب") ||
+    status.includes("مفتوح") ||
+    status.includes("متوسط")
   ) {
     return "warning";
   }
 
-  if (status.includes("Reject") || status.includes("رفض") || status.includes("blocker")) {
+  if (
+    status.includes("رفض") ||
+    status.includes("مانع") ||
+    status.includes("خطر") ||
+    status.includes("مرتفع")
+  ) {
     return "danger";
   }
 
   return "neutral";
 };
 
+const statusLabel = (status: string) => {
+  if (status === "passed") return "مستوفى";
+  if (status === "needs-review") return "بانتظار مراجعة";
+  if (status === "missing-evidence") return "دليل ناقص";
+  if (status === "blocker") return "مانع";
+  if (status === "high") return "مرتفع";
+  if (status === "medium") return "متوسط";
+  if (status === "low") return "منخفض";
+  if (status === "critical") return "حرج";
+  if (status === "next") return "التالي";
+  if (status === "planned") return "مخطط";
+  if (status === "active") return "نشط";
+  return status;
+};
+
+const ownerLabel = (owner?: string) => {
+  if (!owner) return "-";
+  if ((APP_ROLES as readonly string[]).includes(owner)) {
+    return getRoleConfig(owner as (typeof APP_ROLES)[number]).label;
+  }
+  return owner;
+};
+
 const portalVariantLabel = {
-  "case-initiator": "Decision Intake",
-  assessor: "Assessment Flow",
-  "hiring-manager": "Reality Review",
-  "compliance-reviewer": "Compliance Decision",
-  "executive-viewer": "Executive View",
-  "platform-admin": "Platform Control"
+  "case-initiator": "إدخال القرار",
+  assessor: "مسار التقييم",
+  "hiring-manager": "مراجعة الواقعية",
+  "compliance-reviewer": "قرار الامتثال",
+  "executive-viewer": "الرؤية التنفيذية",
+  "platform-admin": "التحكم بالمنصة"
 } as const;
 
 const impactForAction = (index: number, nextStageLabel: string, recommendation: string) => {
@@ -93,7 +123,7 @@ const RowsTable = ({
 }) => (
   <SectionCard
     eyebrow={sectionLabel}
-    title="Minimal List"
+    title="القائمة المختصرة"
     description="القائمة الوحيدة داخل هذه البوابة."
     className="scroll-mt-24"
   >
@@ -113,9 +143,9 @@ const RowsTable = ({
               <td className="px-4 py-4 text-white">{row.primary}</td>
               <td className="px-4 py-4 text-slate-300">{row.secondary}</td>
               <td className="px-4 py-4">
-                <StatusPill label={row.status} tone={toneForStatus(row.status)} />
+                <StatusPill label={statusLabel(row.status)} tone={toneForStatus(statusLabel(row.status))} />
               </td>
-              <td className="px-4 py-4 text-slate-400">{row.owner ?? "-"}</td>
+              <td className="px-4 py-4 text-slate-400">{ownerLabel(row.owner)}</td>
             </tr>
           ))}
         </tbody>
@@ -172,14 +202,14 @@ export const RoleHubView = ({
             <div className="flex flex-wrap gap-2">
               <StatusPill label={bundle.report.recommendation} tone={statusTone(bundle.report.status)} />
               <StatusPill label={caseWorkflow.currentStateLabel} tone="neutral" />
-              {topBlocker ? <StatusPill label={`Blocker: ${topBlocker.ownerLabel}`} tone="warning" /> : null}
+              {topBlocker ? <StatusPill label={`مانع: ${topBlocker.ownerLabel}`} tone="warning" /> : null}
             </div>
           </div>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
             {heroMetrics.map((item) => (
               <div key={item.label} className="surface-card-muted px-4 py-3">
-                <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">{item.label}</div>
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">{item.label}</div>
                 <div className="mt-2 text-lg font-semibold text-white">{item.value}</div>
                 <div className="mt-1 text-xs body-muted">{item.hint}</div>
               </div>
@@ -189,7 +219,7 @@ export const RoleHubView = ({
 
         {primaryAction ? (
           <ActionCard
-            eyebrow="Primary Action"
+            eyebrow="الإجراء الرئيسي"
             title={primaryAction.title}
             problem={primaryAction.title}
             reason={primaryAction.meta ?? "هذا الإجراء هو المدخل الرئيسي لتحريك القرار الآن."}
@@ -199,7 +229,7 @@ export const RoleHubView = ({
               primaryAction.status ? (
                 <StatusPill label={primaryAction.status} tone={toneForStatus(primaryAction.status)} />
               ) : (
-                <StatusPill label="Now" tone="success" />
+                <StatusPill label="الآن" tone="success" />
               )
             }
             cta={{ label: cta.label, href: cta.href }}
@@ -211,7 +241,7 @@ export const RoleHubView = ({
           {supportingActions.map((item, index) => (
             <ActionCard
               key={`${item.title}-${index}`}
-              eyebrow="Supporting Action"
+              eyebrow="إجراء مساند"
               title={item.title}
               problem={item.title}
               reason={item.meta ?? "جزء داعم لتقليل التعليق داخل المسار الحالي."}

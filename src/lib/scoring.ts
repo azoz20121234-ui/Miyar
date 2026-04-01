@@ -74,7 +74,7 @@ export const buildAssessmentBundle = (
         readiness: preview.report.finalReadiness,
         status: preview.report.status,
         confidence: preview.report.confidence,
-        topSignal: topSignal?.label ?? "No signal"
+        topSignal: topSignal?.label ?? "لا توجد إشارة"
       };
     })
     .sort((left, right) => right.readiness - left.readiness);

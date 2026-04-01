@@ -13,9 +13,21 @@ type CategoryFilter = "all" | "software" | "process" | "physical";
 
 const categoryLabel: Record<CategoryFilter, string> = {
   all: "الكل",
-  software: "Software",
-  process: "Process / Policy",
-  physical: "Physical / Workspace"
+  software: "برمجي",
+  process: "إجرائي / سياساتي",
+  physical: "مادي / مساحة العمل"
+};
+
+const readinessLabel: Record<string, string> = {
+  ready: "جاهز",
+  conditional: "مشروط",
+  limited: "محدود"
+};
+
+const investmentLabel: Record<string, string> = {
+  "quick-win": "أثر سريع",
+  medium: "متوسط",
+  capital: "رأسمالي"
 };
 
 export default function AccommodationPlanPage() {
@@ -61,7 +73,7 @@ export default function AccommodationPlanPage() {
         </section>
 
         <SectionCard
-          eyebrow="Plan Filters"
+          eyebrow="فلاتر الخطة"
           title="تصنيف الخطة"
           description="فلترة الخطة حسب نوع التكييف لرؤية العبء الفعلي على التقنية أو الإجراءات أو التجهيزات."
         >
@@ -167,7 +179,7 @@ export default function AccommodationPlanPage() {
                         ))}
                       </div>
                       <div className="mt-3 text-xs text-accent">
-                        جاهزية محلية: {item.localReadinessFlag} | فئة الاستثمار: {item.investmentClass}
+                        جاهزية محلية: {readinessLabel[item.localReadinessFlag] ?? item.localReadinessFlag} | فئة الاستثمار: {investmentLabel[item.investmentClass] ?? item.investmentClass}
                       </div>
                     </div>
                   </div>
@@ -178,7 +190,7 @@ export default function AccommodationPlanPage() {
         </SectionCard>
 
         <SectionCard
-          eyebrow="Before / After"
+          eyebrow="قبل / بعد"
           title="أثر الخطة على القرار"
           description="الفرق بين الجاهزية قبل التهيئة وبعدها هو ما يجعل قرار التوظيف قابلاً للتنفيذ أمام اللجنة."
         >

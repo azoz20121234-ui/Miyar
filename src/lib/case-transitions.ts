@@ -22,7 +22,7 @@ export interface CaseStageActionDefinition {
 export const CASE_TRANSITIONS: CaseTransitionDefinition[] = [
   {
     id: "submit-for-review",
-    label: "Submit for Review",
+    label: "إرسال للتقييم",
     from: "DRAFT",
     to: "UNDER_ASSESSMENT",
     allowedRoles: ["case-initiator"],
@@ -31,7 +31,7 @@ export const CASE_TRANSITIONS: CaseTransitionDefinition[] = [
   },
   {
     id: "send-to-manager",
-    label: "Send to Manager",
+    label: "إرسال لمدير التوظيف",
     from: "UNDER_ASSESSMENT",
     to: "MANAGER_REVIEW",
     allowedRoles: ["assessor"],
@@ -40,7 +40,7 @@ export const CASE_TRANSITIONS: CaseTransitionDefinition[] = [
   },
   {
     id: "send-to-compliance",
-    label: "Send to Compliance",
+    label: "إرسال للامتثال",
     from: "MANAGER_REVIEW",
     to: "COMPLIANCE_REVIEW",
     allowedRoles: ["hiring-manager"],
@@ -49,7 +49,7 @@ export const CASE_TRANSITIONS: CaseTransitionDefinition[] = [
   },
   {
     id: "approve-case",
-    label: "Approve",
+    label: "اعتماد",
     from: "COMPLIANCE_REVIEW",
     to: "APPROVED",
     allowedRoles: ["compliance-reviewer"],
@@ -58,7 +58,7 @@ export const CASE_TRANSITIONS: CaseTransitionDefinition[] = [
   },
   {
     id: "reject-case",
-    label: "Reject",
+    label: "رفض",
     from: "COMPLIANCE_REVIEW",
     to: "REJECTED",
     allowedRoles: ["compliance-reviewer"],
@@ -67,7 +67,7 @@ export const CASE_TRANSITIONS: CaseTransitionDefinition[] = [
   },
   {
     id: "draft-to-revision",
-    label: "Request Changes",
+    label: "طلب تعديل",
     from: "DRAFT",
     to: "NEEDS_REVISION",
     allowedRoles: ["case-initiator"],
@@ -76,7 +76,7 @@ export const CASE_TRANSITIONS: CaseTransitionDefinition[] = [
   },
   {
     id: "assessment-to-revision",
-    label: "Request Changes",
+    label: "طلب تعديل",
     from: "UNDER_ASSESSMENT",
     to: "NEEDS_REVISION",
     allowedRoles: ["assessor"],
@@ -85,7 +85,7 @@ export const CASE_TRANSITIONS: CaseTransitionDefinition[] = [
   },
   {
     id: "manager-to-revision",
-    label: "Request Changes",
+    label: "طلب تعديل",
     from: "MANAGER_REVIEW",
     to: "NEEDS_REVISION",
     allowedRoles: ["hiring-manager"],
@@ -94,7 +94,7 @@ export const CASE_TRANSITIONS: CaseTransitionDefinition[] = [
   },
   {
     id: "compliance-to-revision",
-    label: "Request Changes",
+    label: "طلب تعديل",
     from: "COMPLIANCE_REVIEW",
     to: "NEEDS_REVISION",
     allowedRoles: ["compliance-reviewer"],
@@ -103,7 +103,7 @@ export const CASE_TRANSITIONS: CaseTransitionDefinition[] = [
   },
   {
     id: "resubmit-assessment",
-    label: "Resubmit Assessment",
+    label: "إعادة التقييم",
     from: "NEEDS_REVISION",
     to: "UNDER_ASSESSMENT",
     allowedRoles: ["assessor"],
@@ -115,7 +115,7 @@ export const CASE_TRANSITIONS: CaseTransitionDefinition[] = [
 export const CASE_STAGE_ACTIONS: CaseStageActionDefinition[] = [
   {
     id: "complete-manager-review",
-    label: "Review essential tasks before approval",
+    label: "اعتماد المهام الأساسية قبل الإرسال",
     state: "MANAGER_REVIEW",
     allowedRoles: ["hiring-manager"],
     description: "تثبيت مراجعة مدير التوظيف قبل الإرسال إلى الامتثال."

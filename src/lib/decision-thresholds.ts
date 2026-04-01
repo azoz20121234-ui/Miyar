@@ -88,7 +88,7 @@ export const evaluateApprovalProjection = ({
 
   return {
     approvalReady: true,
-    decisionLabel: "Approved",
+    decisionLabel: "معتمد",
     reason: "أغلقت شروط الاعتماد الحرجة وأصبحت الحالة جاهزة للقرار النهائي."
   };
 };

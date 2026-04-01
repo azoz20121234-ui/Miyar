@@ -44,58 +44,58 @@ export const CASE_STATE_META: Record<
   }
 > = {
   DRAFT: {
-    label: "Draft",
+    label: "مسودة",
     shortLabel: "مسودة",
     ownerRole: "case-initiator",
-    nextLabel: "Under Assessment",
+    nextLabel: "قيد التقييم",
     description: "إدخال أولي قبل تحويل الحالة إلى التقييم.",
     tone: "neutral"
   },
   UNDER_ASSESSMENT: {
-    label: "Under Assessment",
+    label: "قيد التقييم",
     shortLabel: "قيد التقييم",
     ownerRole: "assessor",
-    nextLabel: "Manager Review",
+    nextLabel: "مراجعة المدير",
     description: "مرحلة بناء ملف القدرات والعوائق وخطة التكييف.",
     tone: "warning"
   },
   MANAGER_REVIEW: {
-    label: "Manager Review",
+    label: "مراجعة المدير",
     shortLabel: "مراجعة المدير",
     ownerRole: "hiring-manager",
-    nextLabel: "Compliance Review",
-    description: "مرحلة اعتماد واقعية المهام والـ essential tasks.",
+    nextLabel: "مراجعة الامتثال",
+    description: "مرحلة اعتماد واقعية المهام والمهام الأساسية.",
     tone: "warning"
   },
   COMPLIANCE_REVIEW: {
-    label: "Compliance Review",
+    label: "مراجعة الامتثال",
     shortLabel: "مراجعة الامتثال",
     ownerRole: "compliance-reviewer",
-    nextLabel: "Approved / Rejected / Needs Revision",
-    description: "مرحلة القرار النهائي بعد التحقق من الأدلة والـ blockers.",
+    nextLabel: "اعتماد أو رفض أو طلب تعديل",
+    description: "مرحلة القرار النهائي بعد التحقق من الأدلة والموانع.",
     tone: "warning"
   },
   APPROVED: {
-    label: "Approved",
+    label: "معتمد",
     shortLabel: "معتمد",
     ownerRole: "closed",
-    nextLabel: "Closed",
+    nextLabel: "مغلق",
     description: "القرار معتمد والحالة مغلقة تشغيليًا.",
     tone: "success"
   },
   REJECTED: {
-    label: "Rejected",
+    label: "مرفوض",
     shortLabel: "مرفوض",
     ownerRole: "closed",
-    nextLabel: "Closed",
+    nextLabel: "مغلق",
     description: "القرار النهائي هو الرفض وإيقاف المسار الحالي.",
     tone: "danger"
   },
   NEEDS_REVISION: {
-    label: "Needs Revision",
+    label: "تحتاج تعديل",
     shortLabel: "تحتاج تعديل",
     ownerRole: "assessor",
-    nextLabel: "Under Assessment",
+    nextLabel: "قيد التقييم",
     description: "الحالة عادت للتعديل قبل إعادة التقييم.",
     tone: "warning"
   }
@@ -115,7 +115,7 @@ export const createInitialCaseRecord = (): CaseRecord => ({
       id: "timeline-created",
       at: new Date().toISOString(),
       actorRole: "case-initiator",
-      action: "Case created",
+      action: "تم إنشاء الحالة",
       note: "تم إنشاء الحالة وبدء إدخال الوظيفة والمتطلبات الأساسية.",
       toState: "DRAFT"
     }

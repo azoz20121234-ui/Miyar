@@ -15,10 +15,10 @@ interface CaseStandardsViewProps {
 }
 
 const statusLabelMap = {
-  passed: "Passed",
-  "needs-review": "Needs review",
-  "missing-evidence": "Missing evidence",
-  blocker: "Blocker"
+  passed: "مستوفى",
+  "needs-review": "بانتظار مراجعة",
+  "missing-evidence": "دليل ناقص",
+  blocker: "مانع"
 } as const;
 
 const evidenceLabelMap = {
@@ -29,8 +29,8 @@ const evidenceLabelMap = {
 export const CaseStandardsView = ({ standards }: CaseStandardsViewProps) => (
   <AppShell
     pageId="portal:standards-check"
-    title="Case Standards Panel"
-    subtitle="Checks مرتبطة بالحالة الحالية مع owner واضح، evidence، وما يمنع الاعتماد الآن."
+    title="لوحة معايير الحالة"
+    subtitle="فحوصات مرتبطة بالحالة الحالية مع مالك واضح، أدلة، وما يمنع الاعتماد الآن."
     actions={
       <Link
         href="/portal/approval-panel"
@@ -43,25 +43,25 @@ export const CaseStandardsView = ({ standards }: CaseStandardsViewProps) => (
     <div className="space-y-6">
       <section className="grid gap-4 xl:grid-cols-4">
         <MetricCard
-          label="Passed"
+          label="مستوفى"
           value={`${standards.counts.passed}`}
           hint="مكتمل"
           tone="success"
         />
         <MetricCard
-          label="Needs Review"
+          label="بانتظار مراجعة"
           value={`${standards.counts["needs-review"]}`}
           hint="بانتظار مراجعة"
           tone="warning"
         />
         <MetricCard
-          label="Missing Evidence"
+          label="أدلة ناقصة"
           value={`${standards.counts["missing-evidence"]}`}
           hint="إثبات ناقص"
           tone="danger"
         />
         <MetricCard
-          label="Blockers"
+          label="الموانع"
           value={`${standards.counts.blocker}`}
           hint="يمنع الاعتماد"
           tone={standards.counts.blocker > 0 ? "danger" : "success"}
@@ -70,19 +70,19 @@ export const CaseStandardsView = ({ standards }: CaseStandardsViewProps) => (
 
       <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
         <SectionCard
-          eyebrow="Case Checks"
-          title="Case Standards Panel"
-          description="Status + owner + evidence + impact."
+          eyebrow="فحوصات الحالة"
+          title="لوحة معايير الحالة"
+          description="الحالة والمالك والدليل والأثر."
         >
           <div className="overflow-hidden rounded-[20px] border border-white/10">
             <table className="min-w-full divide-y divide-white/10 text-sm">
               <thead className="bg-white/[0.03] text-slate-500">
                 <tr>
-                  <th className="px-4 py-3 text-right">Check</th>
-                  <th className="px-4 py-3 text-right">Status</th>
-                  <th className="px-4 py-3 text-right">Owner</th>
-                  <th className="px-4 py-3 text-right">Evidence</th>
-                  <th className="px-4 py-3 text-right">Impact</th>
+                  <th className="px-4 py-3 text-right">الفحص</th>
+                  <th className="px-4 py-3 text-right">الحالة</th>
+                  <th className="px-4 py-3 text-right">المالك</th>
+                  <th className="px-4 py-3 text-right">الدليل</th>
+                  <th className="px-4 py-3 text-right">الأثر</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/10 bg-transparent">
@@ -119,8 +119,8 @@ export const CaseStandardsView = ({ standards }: CaseStandardsViewProps) => (
 
         <div className="space-y-6">
           <SectionCard
-            eyebrow="Evidence"
-            title="Evidence Requirements"
+            eyebrow="الأدلة"
+            title="متطلبات الأدلة"
             description="ما المطلوب ومن المسؤول."
           >
             <div className="space-y-3">
@@ -148,8 +148,8 @@ export const CaseStandardsView = ({ standards }: CaseStandardsViewProps) => (
           </SectionCard>
 
           <SectionCard
-            eyebrow="Blockers"
-            title="Blockers Summary"
+            eyebrow="الموانع"
+            title="ملخص الموانع"
             description="ما الذي يمنع الاعتماد الآن."
           >
             <div className="space-y-3">
@@ -160,7 +160,7 @@ export const CaseStandardsView = ({ standards }: CaseStandardsViewProps) => (
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="text-white">{item.title}</div>
-                    <StatusPill label="Blocker" tone="danger" />
+                    <StatusPill label="مانع" tone="danger" />
                   </div>
                   <div className="mt-2 text-sm text-slate-300">{item.rationale}</div>
                   <div className="mt-3 text-xs text-slate-400">

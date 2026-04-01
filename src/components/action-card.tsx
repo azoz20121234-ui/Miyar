@@ -5,6 +5,7 @@ interface ActionCardProps {
   eyebrow?: string;
   title: string;
   problem?: string;
+  context?: string;
   reason?: string;
   impact?: string;
   description?: string;
@@ -27,6 +28,7 @@ export const ActionCard = ({
   eyebrow,
   title,
   problem,
+  context,
   reason,
   impact,
   description,
@@ -40,10 +42,10 @@ export const ActionCard = ({
     ? `${ctaBase} pointer-events-none cursor-not-allowed border border-white/10 bg-white/[0.03] text-slate-500`
     : `${ctaBase} border border-white/10 bg-white/[0.05] text-white hover:bg-white/[0.08]`;
   const resolvedProblem = problem ?? title;
-  const resolvedReason = reason ?? description;
+  const resolvedContext = context ?? reason ?? description ?? resolvedProblem;
   const shellClass =
     variant === "primary"
-      ? "surface-card p-6 sm:p-7"
+      ? "surface-card p-7 sm:p-8"
       : "surface-card-soft p-5";
 
   return (
@@ -60,28 +62,32 @@ export const ActionCard = ({
         {status ? <div className="shrink-0">{status}</div> : null}
       </div>
 
-      <div className="mt-5 space-y-4">
-        <div className="surface-card-muted px-4 py-3">
-          <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">المشكلة</div>
-          <div className="mt-2 text-sm leading-7 text-white">{resolvedProblem}</div>
-        </div>
-
-        {resolvedReason ? (
-          <div className="surface-card-muted px-4 py-3">
-            <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">السبب</div>
-            <div className="mt-2 text-sm leading-7 body-soft">{resolvedReason}</div>
+      <div className="mt-6 space-y-4">
+        {impact ? (
+          <div className="rounded-[24px] border border-white/10 bg-white/[0.06] px-5 py-5">
+            <div className="text-[11px] tracking-[0.16em] text-slate-500">الأثر المتوقع</div>
+            <div
+              className={`mt-3 ${variant === "primary" ? "text-xl leading-9" : "text-base leading-8"} font-medium text-white`}
+            >
+              {impact}
+            </div>
           </div>
         ) : null}
 
-        {impact ? (
-          <div className="surface-card-muted px-4 py-3">
-            <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">الأثر</div>
-            <div className="mt-2 text-sm leading-7 text-white">{impact}</div>
+        <div className="surface-card-muted px-4 py-4">
+          <div className="text-[11px] tracking-[0.16em] text-slate-500">السياق</div>
+          <div className="mt-2 text-sm leading-7 text-white">{resolvedContext}</div>
+        </div>
+
+        {resolvedProblem !== resolvedContext ? (
+          <div className="surface-card-muted px-4 py-4">
+            <div className="text-[11px] tracking-[0.16em] text-slate-500">النقطة الحالية</div>
+            <div className="mt-2 text-sm leading-7 body-soft">{resolvedProblem}</div>
           </div>
         ) : null}
       </div>
 
-      {meta ? <div className="mt-4 text-xs uppercase tracking-[0.14em] text-slate-500">{meta}</div> : null}
+      {meta ? <div className="mt-4 text-xs tracking-[0.14em] text-slate-500">{meta}</div> : null}
 
       {cta ? (
         <div className="mt-5">

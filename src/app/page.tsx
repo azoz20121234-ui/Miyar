@@ -1,45 +1,27 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-import { MetricCard } from "@/components/metric-card";
-import { RoleSwitcher } from "@/components/role-switcher";
+import { DecisionCard } from "@/components/decision-card";
+import { InfoCard } from "@/components/info-card";
 import { SectionCard } from "@/components/section-card";
 import { StatusPill } from "@/components/status-pill";
-import { pipelineCases } from "@/data/dashboard";
 import { formatCurrencyRange, statusLabel } from "@/lib/scoring";
+import { APP_ROLES, getFirstAllowedHref, getRoleConfig } from "@/lib/role-model";
 import { useAssessment } from "@/store/assessment-context";
-
-const modules = [
-  {
-    icon: "تح",
-    title: "تحليل الوظيفة",
-    text: "تفكيك الدور إلى مهام وأدوات وبيئة."
-  },
-  {
-    icon: "قد",
-    title: "ملف القدرات",
-    text: "قراءة تشغيلية مختصرة لما يمكن تنفيذه فعليًا."
-  },
-  {
-    icon: "مط",
-    title: "المطابقة",
-    text: "استخراج الفجوات والعوائق بشكل قابل للتفسير."
-  },
-  {
-    icon: "تق",
-    title: "التقرير التنفيذي",
-    text: "حكم نهائي مع تكلفة وزمن واعتماد مطلوب."
-  }
-];
+import { useRoleSession } from "@/store/role-session-context";
 
 export default function LandingPage() {
-  const { bundle } = useAssessment();
+  const router = useRouter();
+  const { bundle, caseWorkflow, explainability } = useAssessment();
+  const { setRole } = useRoleSession();
+  const topBlockers = explainability.approvalBlocks.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-cinematic text-slate-100">
-      <div className="mx-auto max-w-[1400px] px-4 py-5 sm:px-6 lg:px-8">
-        <header className="sticky top-0 z-30 mb-8 rounded-[24px] border border-white/10 bg-[#0b1017]/86 px-5 py-4 backdrop-blur">
+      <div className="mx-auto max-w-[1320px] px-4 py-5 sm:px-6 lg:px-8">
+        <header className="sticky top-0 z-30 mb-10 rounded-[28px] border border-white/10 bg-[#0b1017]/88 px-5 py-4 backdrop-blur-xl">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-4">
               <Link
@@ -49,235 +31,154 @@ export default function LandingPage() {
                 م
               </Link>
               <div>
-                <div className="text-xs uppercase tracking-[0.28em] text-slate-500">Meyar</div>
-                <div className="mt-1 text-sm text-slate-300">Decision &amp; Compliance Standard Engine</div>
+                <div className="text-xs tracking-[0.28em] text-slate-500">Meyar</div>
+                <div className="mt-1 text-sm text-slate-300">محرك القرار والامتثال المعياري</div>
               </div>
             </div>
 
-            <nav className="hidden items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] px-2 py-2 lg:flex">
-              <a href="#overview" className="rounded-full px-4 py-2 text-sm text-slate-400 transition hover:bg-white/5 hover:text-white">
-                Overview
-              </a>
-              <a href="#cases" className="rounded-full px-4 py-2 text-sm text-slate-400 transition hover:bg-white/5 hover:text-white">
-                Cases
-              </a>
-              <a href="#standards" className="rounded-full px-4 py-2 text-sm text-slate-400 transition hover:bg-white/5 hover:text-white">
-                Standards
-              </a>
-              <Link href="/readiness-report" className="rounded-full px-4 py-2 text-sm text-slate-400 transition hover:bg-white/5 hover:text-white">
-                Reports
-              </Link>
-              <Link href="/dashboard" className="rounded-full px-4 py-2 text-sm text-slate-400 transition hover:bg-white/5 hover:text-white">
-                Admin
-              </Link>
-            </nav>
-
             <div className="flex items-center gap-3">
-              <div className="hidden lg:flex">
-                <RoleSwitcher />
-              </div>
               <Link
                 href="/home"
                 className="rounded-full bg-white px-5 py-3 text-center text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
               >
-                ادخل حسب الدور
+                ادخل البوابة الحالية
               </Link>
             </div>
           </div>
         </header>
 
-        <main className="space-y-8">
-          <section className="rounded-[32px] border border-white/10 bg-white/[0.03] px-6 py-8 shadow-[0_24px_60px_rgba(0,0,0,0.18)] sm:px-8 sm:py-10">
-            <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end">
-              <div className="max-w-3xl">
-                <div className="text-[11px] uppercase tracking-[0.24em] text-slate-500">Operational Readiness</div>
-                <h1 className="mt-3 text-4xl font-semibold leading-tight text-white sm:text-5xl">
-                  قرار التوظيف يبدأ من الجاهزية التشغيلية.
-                </h1>
-                <p className="mt-4 max-w-2xl text-base leading-7 text-slate-400">
-                  تقييم مختصر للملاءمة، الاعتماد المطلوب، والتكلفة قبل إصدار القرار.
-                </p>
-                <div className="mt-7 flex flex-wrap gap-3">
+        <main className="space-y-10">
+          <DecisionCard
+            eyebrow="مدخل القرار"
+            title={bundle.report.recommendation}
+            summary={`الحالة الحالية في ${caseWorkflow.currentStateLabel} ويقودها ${caseWorkflow.currentOwnerLabel}.`}
+            value={`${bundle.report.finalReadiness}%`}
+            badge={<StatusPill label={statusLabel(bundle.report.status)} tone="warning" />}
+            className="p-8 sm:p-10"
+            footer={
+              <div className="space-y-6">
+                <div className="flex flex-wrap gap-3">
                   <Link
                     href="/home"
                     className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
                   >
-                    ادخل لوحة الدور
+                    استكمل الحالة الحالية
                   </Link>
                   <Link
-                    href="/readiness-report"
+                    href="/portal/new-case"
                     className="rounded-full border border-white/10 bg-white/[0.03] px-5 py-3 text-sm text-slate-200 transition hover:bg-white/5"
                   >
-                    اعرض التقرير
+                    ابدأ حالة جديدة
                   </Link>
                 </div>
+
+                <div className="grid gap-4 md:grid-cols-3">
+                  <InfoCard
+                    label="الحالة"
+                    value={caseWorkflow.currentStateLabel}
+                    hint="المسار الجاري الآن"
+                  />
+                  <InfoCard
+                    label="التكلفة المتوقعة"
+                    value={formatCurrencyRange(bundle.report.totalCostRangeSar)}
+                    hint="نطاق التنفيذ الحالي"
+                  />
+                  <InfoCard
+                    label="أقرب خطوة"
+                    value={caseWorkflow.primaryAction.label}
+                    hint="الإجراء الأقرب لتحريك القرار"
+                  />
+                </div>
+              </div>
+            }
+          />
+
+          <SectionCard
+            eyebrow="اختيار البوابة"
+            title="ادخل حسب الدور"
+            description="اختر البوابة التي تريد العمل منها."
+          >
+            <div className="grid gap-4 lg:grid-cols-3">
+              {APP_ROLES.map((item) => {
+                const config = getRoleConfig(item);
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => {
+                      setRole(item);
+                      router.push(getFirstAllowedHref(item));
+                    }}
+                    className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 text-right transition hover:bg-white/[0.06]"
+                  >
+                    <div className="text-xs tracking-[0.18em] text-slate-500">بوابة</div>
+                    <div className="mt-3 text-2xl font-semibold text-white">{config.label}</div>
+                    <div className="mt-3 text-sm leading-7 text-slate-400">{config.description}</div>
+                    <div className="mt-5 inline-flex rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm text-white">
+                      ادخل البوابة
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </SectionCard>
+
+          <SectionCard
+            eyebrow="لقطة مختصرة"
+            title="ما الذي يمنع التحريك الآن؟"
+            description="أبرز الموانع الحالية فقط."
+          >
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
+              <div className="space-y-3">
+                {topBlockers.length > 0 ? (
+                  topBlockers.map((block) => (
+                    <div key={block.id} className="rounded-[24px] border border-white/10 bg-white/[0.03] px-5 py-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="text-white">{block.title}</div>
+                        <StatusPill label={block.blocker ? "مانع" : "مراجعة"} tone={block.blocker ? "danger" : "warning"} />
+                      </div>
+                      <div className="mt-2 text-sm leading-7 text-slate-400">{block.requiredAction}</div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-[24px] border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-slate-300">
+                    لا توجد موانع حرجة مفتوحة في الحالة الحالية.
+                  </div>
+                )}
               </div>
 
-              <div className="grid gap-3">
-                <MetricCard
-                  label="الجاهزية"
-                  value={`${bundle.report.finalReadiness}%`}
-                  hint="الحالة الحالية"
-                  tone="neutral"
-                />
-                <MetricCard
-                  label="التكلفة"
-                  value={formatCurrencyRange(bundle.report.totalCostRangeSar)}
-                  hint="نطاق التنفيذ"
-                  tone="neutral"
-                />
-                <MetricCard
-                  label="زمن التهيئة"
-                  value={`${bundle.report.maxImplementationDays} أيام`}
-                  hint="المدة المتوقعة"
-                  tone="neutral"
-                />
+              <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
+                <div className="text-[11px] tracking-[0.18em] text-slate-500">ملخص سريع</div>
+                <div className="mt-4 space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-400">المرشح</span>
+                    <span className="text-white">{bundle.profile.candidateAlias}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-400">الوظيفة</span>
+                    <span className="text-white">{bundle.job.title}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-400">الاعتماد</span>
+                    <span className="text-white">{caseWorkflow.nextStageLabel}</span>
+                  </div>
+                </div>
               </div>
             </div>
-          </section>
-
-          <section id="overview" className="grid gap-4 lg:grid-cols-3">
-            <SectionCard
-              eyebrow="Snapshot"
-              title="حالة نشطة"
-              description="عرض سريع للحالة الحالية."
-            >
-              <div className="space-y-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <div className="text-lg font-semibold text-white">{bundle.job.title}</div>
-                    <div className="mt-1 text-sm text-slate-400">{bundle.profile.candidateAlias}</div>
-                  </div>
-                  <StatusPill label={statusLabel(bundle.report.status)} tone="warning" />
-                </div>
-                <div className="text-sm text-slate-400">جاهز للمراجعة التنفيذية</div>
-                <div className="lg:hidden">
-                  <RoleSwitcher />
-                </div>
-              </div>
-            </SectionCard>
-
-            <SectionCard
-              eyebrow="Fit"
-              title="درجة الملاءمة"
-              description="مؤشر تشغيلي مباشر."
-            >
-              <div className="space-y-3">
-                <div className="text-4xl font-semibold text-white">{bundle.report.taskFit}%</div>
-                <div className="text-sm text-slate-400">ملاءمة المهام الأساسية</div>
-                <div className="h-2 rounded-full bg-white/8">
-                  <div className="h-2 rounded-full bg-white" style={{ width: `${bundle.report.taskFit}%` }} />
-                </div>
-              </div>
-            </SectionCard>
-
-            <SectionCard
-              eyebrow="Required"
-              title="الاعتماد المطلوب"
-              description="الإجراءات الأولى قبل المباشرة."
-            >
-              <div className="space-y-2">
-                {bundle.report.topActions.slice(0, 2).map((item) => (
-                  <div key={item.title} className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-200">
-                    {item.title}
-                  </div>
-                ))}
-              </div>
-            </SectionCard>
-          </section>
-
-          <section id="standards">
-            <SectionCard
-              eyebrow="Modules"
-              title="وحدات المنصة"
-              description="أربع وحدات تشغيلية فقط."
-            >
-              <div className="grid gap-4 lg:grid-cols-4">
-                {modules.map((item) => (
-                  <div key={item.title} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-sm font-semibold text-white">
-                      {item.icon}
-                    </div>
-                    <div className="mt-4 text-lg font-semibold text-white">{item.title}</div>
-                    <div className="mt-2 text-sm leading-6 text-slate-400">{item.text}</div>
-                  </div>
-                ))}
-              </div>
-            </SectionCard>
-          </section>
-
-          <section id="cases" className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
-            <SectionCard
-              eyebrow="Cases"
-              title="حالات حديثة"
-              description="عرض حي مختصر من مساحة العمل."
-            >
-              <div className="overflow-hidden rounded-[20px] border border-white/10">
-                <table className="min-w-full divide-y divide-white/10 text-sm">
-                  <thead className="bg-white/[0.03] text-slate-500">
-                    <tr>
-                      <th className="px-4 py-3 text-right">الجهة</th>
-                      <th className="px-4 py-3 text-right">الحالة</th>
-                      <th className="px-4 py-3 text-right">الجاهزية</th>
-                      <th className="px-4 py-3 text-right">التكلفة</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/10 bg-transparent">
-                    {pipelineCases.slice(0, 4).map((item) => (
-                      <tr key={item.id}>
-                        <td className="px-4 py-4 text-white">{item.company}</td>
-                        <td className="px-4 py-4 text-slate-300">{item.statusLabel}</td>
-                        <td className="px-4 py-4 text-slate-300">{item.readiness}%</td>
-                        <td className="px-4 py-4 text-slate-300">{item.costSar.toLocaleString("ar-SA")} ر.س</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </SectionCard>
-
-            <SectionCard
-              eyebrow="Workspace"
-              title="عرض مباشر"
-              description="وصول سريع إلى الحالة الحالية."
-            >
-              <div className="space-y-4">
-                <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-4">
-                  <div className="text-sm text-slate-400">الحكم</div>
-                  <div className="mt-2 text-2xl font-semibold text-white">{bundle.report.recommendation}</div>
-                </div>
-                <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-4">
-                  <div className="text-sm text-slate-400">العوائق الرئيسية</div>
-                  <div className="mt-3 space-y-2">
-                    {bundle.report.topBarriers.slice(0, 2).map((item) => (
-                      <div key={item.title} className="text-sm text-slate-200">
-                        {item.title}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <Link
-                  href="/home"
-                  className="block rounded-full border border-white/10 bg-white/[0.03] px-5 py-3 text-center text-sm text-slate-200 transition hover:bg-white/5"
-                >
-                  افتح لوحة الدور
-                </Link>
-              </div>
-            </SectionCard>
-          </section>
+          </SectionCard>
         </main>
 
         <footer className="mt-10 flex flex-col gap-4 border-t border-white/10 py-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
           <div>Meyar</div>
           <div className="flex flex-wrap gap-4">
             <Link href="/home" className="transition hover:text-white">
-              Home
+              البوابة
             </Link>
             <Link href="/readiness-report" className="transition hover:text-white">
-              Reports
+              التقرير
             </Link>
             <Link href="/dashboard" className="transition hover:text-white">
-              Admin
+              الإدارة
             </Link>
           </div>
         </footer>

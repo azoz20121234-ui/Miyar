@@ -66,7 +66,7 @@ export default function WorkspacePage() {
         </section>
 
         <SectionCard
-          eyebrow="Active Assessment"
+          eyebrow="التقييم النشط"
           title="الملف الجاري"
           description="ملخص تنفيذي للحالة النشطة قبل الانتقال إلى صفحات التفاصيل."
         >
@@ -124,7 +124,7 @@ export default function WorkspacePage() {
         </SectionCard>
 
         <SectionCard
-          eyebrow="Role Catalog"
+          eyebrow="كتالوج الأدوار"
           title="قوالب الوظائف الجاهزة في MVP"
           description="هذه ليست قائمة وظائف عامة؛ بل قوالب أدوار يمكن تقييمها فورًا داخل المحرك نفسه."
         >
@@ -159,7 +159,7 @@ export default function WorkspacePage() {
         </SectionCard>
 
         <SectionCard
-          eyebrow="Decision Logic"
+          eyebrow="منطق القرار"
           title="لماذا القرار الحالي مقنع؟"
           description="المحرك يشرح منطق الحكم لا يكتفي بإظهار النتيجة."
         >
@@ -173,7 +173,7 @@ export default function WorkspacePage() {
         </SectionCard>
 
         <SectionCard
-          eyebrow="Pipeline"
+          eyebrow="خط الحالات"
           title="قائمة القرارات المفتوحة"
           description="فلترة سريعة للحالات بحسب مستوى الجاهزية لفرق الموارد البشرية والتشغيل."
         >

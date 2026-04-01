@@ -23,17 +23,19 @@ import {
 const clamp = (value: number, max = 18) => Math.max(0, Math.min(max, Math.round(value)));
 
 const roleLabel = (role: AppRole) => getRoleConfig(role).label;
+const riskLabel = (risk: "low" | "medium" | "high") =>
+  risk === "low" ? "منخفضة" : risk === "medium" ? "متوسطة" : "مرتفعة";
 
 const actionTemplateByCheckId: Record<string, string> = {
-  "capability-evidence-present": "أكمل evidence أبعاد القدرات وأثبت ظروف الأداء المناسبة داخل الملف.",
-  "barriers-linked-to-tasks": "اربط كل barrier بمهمة أو أداة محددة قبل رفع الحالة.",
-  "accommodations-linked": "اربط كل accommodation بالعائق والمهمة المستهدفة بصورة مباشرة.",
-  "accommodations-scoped": "أكمل نطاق التكلفة والزمن ومتطلبات التنفيذ لكل accommodation.",
-  "decision-rationale-present": "ثبّت why this decision وdecision rationale بصياغة تنفيذية مختصرة.",
+  "capability-evidence-present": "أكمل أدلة أبعاد القدرات وأثبت ظروف الأداء المناسبة داخل الملف.",
+  "barriers-linked-to-tasks": "اربط كل عائق بمهمة أو أداة محددة قبل رفع الحالة.",
+  "accommodations-linked": "اربط كل تكييف بالعائق والمهمة المستهدفة بصورة مباشرة.",
+  "accommodations-scoped": "أكمل نطاق التكلفة والزمن ومتطلبات التنفيذ لكل تكييف.",
+  "decision-rationale-present": "ثبّت سبب القرار ومبرراته بصياغة تنفيذية مختصرة.",
   "gov-case-owner-set": "حدد مالك الحالة المسؤول عن الإغلاق النهائي وربطه بطابور المتابعة.",
-  "gov-hiring-review": "أكمل مراجعة Hiring Manager وسجلها ضمن الحالة قبل الاعتماد.",
-  "gov-compliance-review": "أكمل مراجعة Compliance وحوّل النتيجة إلى sign-off واضح.",
-  "gov-accommodation-owner": "أضف owner تنفيذي لكل accommodation مع التكلفة والزمن."
+  "gov-hiring-review": "أكمل مراجعة مدير التوظيف وسجلها ضمن الحالة قبل الاعتماد.",
+  "gov-compliance-review": "أكمل مراجعة الامتثال وحوّل النتيجة إلى اعتماد واضح.",
+  "gov-accommodation-owner": "أضف مالك تنفيذ لكل تكييف مع التكلفة والزمن."
 };
 
 const requirementMeta: Record<
@@ -45,19 +47,19 @@ const requirementMeta: Record<
 > = {
   "no-blockers": {
     ownerRole: "compliance-reviewer",
-    requiredAction: "أغلق blocker checks المفتوحة قبل طلب الاعتماد."
+    requiredAction: "أغلق الفحوصات المانعة المفتوحة قبل طلب الاعتماد."
   },
   "evidence-complete": {
     ownerRole: "assessor",
-    requiredAction: "استكمل evidence pending وأغلق عناصر needs review."
+    requiredAction: "استكمل الأدلة الناقصة وأغلق العناصر التي تنتظر مراجعة."
   },
   "decision-rationale": {
     ownerRole: "compliance-reviewer",
-    requiredAction: "أكمل decision rationale القابل للعرض على اللجنة."
+    requiredAction: "أكمل مبررات القرار القابلة للعرض على اللجنة."
   },
   "readiness-threshold": {
     ownerRole: "assessor",
-    requiredAction: "ارفع readiness فوق حد الاعتماد عبر التكييفات الحرجة."
+    requiredAction: "ارفع الجاهزية فوق حد الاعتماد عبر التكييفات الحرجة."
   }
 };
 
@@ -78,7 +80,7 @@ const buildPositiveDrivers = (
     candidates.push({
       id: "driver-task-fit",
       title: "ملاءمة المهام",
-      summary: `Task fit عند ${bundle.report.taskFit}% مع تغطية حرجة ${bundle.report.criticalCoverage}%.`,
+      summary: `ملاءمة المهام عند ${bundle.report.taskFit}% مع تغطية حرجة ${bundle.report.criticalCoverage}%.`,
       direction: "positive",
       impact: clamp((bundle.report.taskFit - 58) * 0.58),
       level: resolveDriverLevel((bundle.report.taskFit - 58) * 0.58),
@@ -106,7 +108,7 @@ const buildPositiveDrivers = (
     candidates.push({
       id: "driver-feasibility",
       title: "قابلية تنفيذ التكييف",
-      summary: `Accommodation feasibility عند ${bundle.report.accommodationFeasibility}% بزمن تنفيذ أقصى ${bundle.report.maxImplementationDays} أيام.`,
+      summary: `قابلية تنفيذ التكييف عند ${bundle.report.accommodationFeasibility}% بزمن تنفيذ أقصى ${bundle.report.maxImplementationDays} أيام.`,
       direction: "positive",
       impact: clamp((bundle.report.accommodationFeasibility - 66) * 0.45),
       level: resolveDriverLevel((bundle.report.accommodationFeasibility - 66) * 0.45),
@@ -163,8 +165,8 @@ const buildNegativeDrivers = (
   if (standards.blockers.length > 0) {
     candidates.push({
       id: "driver-blockers",
-      title: "Blockers غير مغلقة",
-      summary: `${standards.blockers.length} blocker checks ما زالت تمنع الاعتماد النهائي.`,
+      title: "موانع غير مغلقة",
+      summary: `${standards.blockers.length} فحوصات مانعة ما زالت تمنع الاعتماد النهائي.`,
       direction: "negative",
       impact: -clamp(10 + blockerImpact * 0.08 + standards.blockers.length),
       level: "blocker",
@@ -177,8 +179,8 @@ const buildNegativeDrivers = (
   if (evidencePending > 0) {
     candidates.push({
       id: "driver-evidence",
-      title: "Evidence pending",
-      summary: `${evidencePending} checks ما زالت بين missing evidence وneeds review.`,
+      title: "أدلة معلّقة",
+      summary: `${evidencePending} فحوصات ما زالت بين دليل ناقص وبانتظار مراجعة.`,
       direction: "negative",
       impact: -clamp(7 + evidencePending * 2, 16),
       level: resolveDriverLevel(-(7 + evidencePending * 2)),
@@ -214,7 +216,7 @@ const buildNegativeDrivers = (
     candidates.push({
       id: "driver-threshold-gap",
       title: "فجوة الجاهزية",
-      summary: `Approval readiness أقل من threshold الحالي بـ ${APPROVAL_READINESS_THRESHOLD - bundle.report.finalReadiness} نقطة.`,
+      summary: `جاهزية الاعتماد أقل من الحد الحالي بـ ${APPROVAL_READINESS_THRESHOLD - bundle.report.finalReadiness} نقطة.`,
       direction: "negative",
       impact: -clamp(APPROVAL_READINESS_THRESHOLD - bundle.report.finalReadiness + 6, 14),
       level: resolveDriverLevel(-(APPROVAL_READINESS_THRESHOLD - bundle.report.finalReadiness + 6)),
@@ -228,7 +230,7 @@ const buildNegativeDrivers = (
     candidates.push({
       id: "driver-residual-risk",
       title: "مخاطر متبقية",
-      summary: `Residual risk الحالي ${bundle.report.residualRiskLevel} ويحتاج إغلاقًا قبل الاعتماد المطمئن.`,
+      summary: `المخاطر المتبقية الحالية ${bundle.report.residualRiskLevel} وتحتاج إغلاقًا قبل الاعتماد المطمئن.`,
       direction: "negative",
       impact: -clamp(bundle.report.residualRiskLevel === "high" ? 13 : 9),
       level: resolveDriverLevel(bundle.report.residualRiskLevel === "high" ? -13 : -9),
@@ -260,7 +262,7 @@ const buildApprovalBlocks = (
         ownerLabel: roleLabel(ownerRole),
         requiredAction:
           actionTemplateByCheckId[blocker.id] ??
-          "أغلق هذا check وربط evidence المطلوب داخل الحزمة الحالية.",
+          "أغلق هذا الفحص واربط الدليل المطلوب داخل الحزمة الحالية.",
         impact: check?.scoreImpact ?? 10
       };
     })
@@ -276,7 +278,7 @@ const buildApprovalBlocks = (
     ownerLabel: roleLabel(requirement.ownerRole),
     requiredAction:
       actionTemplateByCheckId[requirement.id] ??
-      "استكمل evidence المطلوب ثم أعد رفع الحالة للمراجعة.",
+      "استكمل الدليل المطلوب ثم أعد رفع الحالة للمراجعة.",
     impact: requirement.impactLabel === "عالٍ" ? 10 : requirement.impactLabel === "متوسط" ? 8 : 6
   }));
 
@@ -286,7 +288,7 @@ const buildApprovalBlocks = (
   ) {
     blockers.push({
       id: "readiness-threshold",
-      title: "Approval readiness below threshold",
+      title: "جاهزية الاعتماد أقل من الحد",
       reason: `الجاهزية الحالية ${bundle.report.finalReadiness}% بينما حد الاعتماد ${APPROVAL_READINESS_THRESHOLD}%.`,
       blocker: true,
       status: "blocker",
@@ -384,21 +386,21 @@ const buildRecommendationModes = (
   return [
     {
       mode: "conservative",
-      title: "Conservative",
+      title: "محافظ",
       summary: "أوقف الاعتماد حتى إغلاق الموانع الحالية بالكامل.",
       printableText: approvalProjection.approvalReady
-        ? `يوصى بالاعتماد الآن. الجاهزية الحالية ${bundle.report.finalReadiness}% وتتجاوز حد الاعتماد، مع مخاطر متبقية ${bundle.report.residualRiskLevel}.`
+        ? `يوصى بالاعتماد الآن. الجاهزية الحالية ${bundle.report.finalReadiness}% وتتجاوز حد الاعتماد، مع مخاطر متبقية ${riskLabel(bundle.report.residualRiskLevel)}.`
         : `لا يوصى بالاعتماد الآن. يجب أولًا إغلاق ${topBlockers || "الموانع الحالية"} قبل إعادة العرض على اللجنة.`
     },
     {
       mode: "balanced",
-      title: "Balanced",
+      title: "متوازن",
       summary: "حافظ على القرار الحالي، واسمح فقط بما يدفع الحالة إلى الاعتماد.",
       printableText: `التوصية الحالية هي ${bundle.report.recommendation}. أبقِ الحالة في مسارها الحالي، وأغلق ${topBlockers || "المتطلبات الحرجة"} للوصول إلى جاهزية متوقعة ${leadScenario.projectedReadiness}%.`
     },
     {
       mode: "enablement-first",
-      title: "Enablement-first",
+      title: "تمكيني",
       summary: "ابدأ التنفيذ الآن مع منع الاعتماد النهائي حتى إغلاق الشروط الحرجة.",
       printableText: `يمكن البدء بتنفيذ التكييفات الحرجة فورًا ضمن مدة ${bundle.report.maxImplementationDays} أيام تقريبًا، مع تعليق الاعتماد النهائي حتى تصبح الحالة عند قرار ${leadScenario.projectedDecision}.`
     }

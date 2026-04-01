@@ -51,7 +51,7 @@ export default function MatchingPage() {
         </section>
 
         <SectionCard
-          eyebrow="Task Fit"
+          eyebrow="ملاءمة المهام"
           title="تفصيل ملاءمة كل مهمة"
           description="كل مهمة تُقيّم مقابل القدرات الفعلية والبيئة الحالية، ثم تُحوّل إلى تفسير عربي واضح."
         >
@@ -115,7 +115,7 @@ export default function MatchingPage() {
 
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <SectionCard
-            eyebrow="Barriers"
+            eyebrow="العوائق"
             title="العوائق التشغيلية المستخرجة"
             description="هذه العوائق ليست افتراضات عامة عن الإعاقة، بل نتائج مباشرة من المهام والبيئة والأدوات."
           >
@@ -155,7 +155,7 @@ export default function MatchingPage() {
           </SectionCard>
 
           <SectionCard
-            eyebrow="Explainability"
+            eyebrow="التفسير"
             title="منطق القرار"
             description="المعادلة هنا قابلة للمراجعة، ومخرجاتها مرتبطة مباشرة بسبب القرار النهائي."
           >

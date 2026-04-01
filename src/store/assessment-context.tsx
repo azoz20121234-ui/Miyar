@@ -243,8 +243,8 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
           id: `timeline-${Date.now()}`,
           at: timestamp,
           actorRole: role,
-          action: "Manager review completed",
-          note: "تم تأكيد واقعية المهام وessential tasks قبل إرسال الحالة إلى الامتثال.",
+          action: "اكتملت مراجعة المدير",
+          note: "تم تأكيد واقعية المهام والمهام الأساسية قبل إرسال الحالة إلى الامتثال.",
           fromState: current.state,
           toState: current.state
         }
@@ -255,7 +255,7 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
   const caseWorkflow = useMemo<CaseWorkflowSnapshot>(() => {
     const roleConfig = getRoleConfig(role);
     const currentOwnerLabel =
-      caseMeta.ownerRole === "closed" ? "Closed" : getRoleConfig(caseMeta.ownerRole).label;
+      caseMeta.ownerRole === "closed" ? "مغلق" : getRoleConfig(caseMeta.ownerRole).label;
 
     const stageAction = getStageActionForRole(caseRecord.state, role);
     const stageActionItem = stageAction
@@ -274,7 +274,7 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
             disabled: !guard.allowed || caseRecord.managerReviewCompleted,
             reasons:
               caseRecord.managerReviewCompleted
-                ? ["Manager review completed."]
+                ? ["اكتملت مراجعة المدير."]
                 : guard.blockingReasons,
             kind: "stage-action" as const,
             tone: "primary" as const

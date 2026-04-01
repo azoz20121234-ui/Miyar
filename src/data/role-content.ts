@@ -90,18 +90,18 @@ export const getRoleHomeContent = (
     case "assessor":
       return {
         title: "لوحة التقييم",
-        subtitle: "قدرات، عوائق، وتكييف مع checks تشغيلية على مسؤوليتك.",
+        subtitle: "قدرات، عوائق، وتكييف مع فحوصات تشغيلية على مسؤوليتك.",
         cta: config.primaryAction,
         metrics: [
           { label: "حالات معيّنة", value: "3", hint: "قيد العمل", tone: "neutral" },
           {
-            label: "Checks عليك",
+            label: "فحوصات عليك",
             value: `${standards.ownerCounts.assessor}`,
-            hint: "مطلوبة من Assessor",
+            hint: "مطلوبة من المقيّم",
             tone: standards.ownerCounts.assessor > 0 ? "warning" : "success"
           },
           {
-            label: "Evidence ناقص",
+            label: "أدلة ناقصة",
             value: `${standards.evidenceRequirements.filter((item) => item.ownerRole === "assessor").length}`,
             hint: "قبل الإغلاق",
             tone: "warning"
@@ -109,14 +109,14 @@ export const getRoleHomeContent = (
         ],
         actions: [
           { title: "حدّث ملف القدرات", meta: bundle.profile.candidateAlias, status: "بانتظارك" },
-          { title: "أغلق checks القدرات والعوائق", meta: `${standards.ownerCounts.assessor} check`, status: "مفتوح" },
+          { title: "أغلق فحوصات القدرات والعوائق", meta: `${standards.ownerCounts.assessor} فحص`, status: "مفتوح" },
           { title: "أكمل خطة التكييف", meta: midpoint(bundle), status: "جاهز" }
         ],
         rows: openOwnedChecks(standards, "assessor").slice(0, 4).map((item) => ({
           primary: item.label,
           secondary: item.rationale,
           status: item.status,
-          owner: "Assessor"
+          owner: "المقيّم"
         }))
       };
     case "hiring-manager":
@@ -127,45 +127,45 @@ export const getRoleHomeContent = (
         metrics: [
           { label: "بانتظار مراجعتك", value: "2", hint: "حالات الفريق", tone: "warning" },
           {
-            label: "Task Reality Checks",
+            label: "فحوصات واقعية المهام",
             value: `${standards.ownerCounts["hiring-manager"]}`,
-            hint: "على Hiring Manager",
+            hint: "على مدير التوظيف",
             tone: standards.ownerCounts["hiring-manager"] > 0 ? "warning" : "success"
           },
           { label: "مهام أساسية", value: `${bundle.job.tasks.filter((task) => task.essential).length}`, hint: "في الحالة الحالية", tone: "neutral" }
         ],
         actions: [
           { title: "راجع واقعية المهام", meta: bundle.job.title, status: "نشطة" },
-          { title: "أكّد essential vs adaptable", meta: `${openOwnedChecks(standards, "hiring-manager").length} check مفتوح`, status: "مفتوح" },
+          { title: "أكّد الأساسية مقابل القابلة للتعديل", meta: `${openOwnedChecks(standards, "hiring-manager").length} فحص مفتوح`, status: "مفتوح" },
           { title: "اعتمد أو أعد للتعديل", meta: bundle.report.recommendation, status: "قرار" }
         ],
         rows: openOwnedChecks(standards, "hiring-manager").slice(0, 4).map((item) => ({
           primary: item.label,
           secondary: item.rationale,
           status: item.status,
-          owner: "Hiring Manager"
+          owner: "مدير التوظيف"
         }))
       };
     case "compliance-reviewer":
       return {
         title: "لوحة الامتثال",
-        subtitle: "راجع blockers وdecision trace قبل الاعتماد أو طلب الاستكمال.",
+        subtitle: "راجع الموانع وأثر القرار قبل الاعتماد أو طلب الاستكمال.",
         cta: config.primaryAction,
         metrics: [
           { label: "طابور الامتثال", value: "3", hint: "جاهز للمراجعة", tone: "neutral" },
-          { label: "Blockers", value: `${standards.blockers.length}`, hint: "قبل الاعتماد", tone: "danger" },
-          { label: "Needs Review", value: `${standards.counts["needs-review"]}`, hint: "على مسار المراجعة", tone: "warning" }
+          { label: "الموانع", value: `${standards.blockers.length}`, hint: "قبل الاعتماد", tone: "danger" },
+          { label: "بانتظار مراجعة", value: `${standards.counts["needs-review"]}`, hint: "على مسار المراجعة", tone: "warning" }
         ],
         actions: [
-          { title: "افتح Decision Trace", meta: "تحقق من مبررات القرار", status: "الآن" },
-          { title: "راجع Blockers", meta: `${standards.blockers.length} blocker`, status: "مفتوح" },
+          { title: "افتح أثر القرار", meta: "تحقق من مبررات القرار", status: "الآن" },
+          { title: "راجع الموانع", meta: `${standards.blockers.length} مانع`, status: "مفتوح" },
           { title: "اعتمد أو ارفض", meta: bundle.report.recommendation, status: "قرار" }
         ],
         rows: standards.blockers.slice(0, 4).map((item) => ({
           primary: item.title,
           secondary: item.rationale,
-          status: "blocker",
-          owner: "Compliance"
+          status: "مانع",
+          owner: "الامتثال"
         }))
       };
     case "executive-viewer":
@@ -175,19 +175,19 @@ export const getRoleHomeContent = (
         cta: config.primaryAction,
         metrics: [
           { label: "قرارات نشطة", value: `${pipelineCases.length}`, hint: "في المحفظة", tone: "neutral" },
-          { label: "Standards Completion", value: `${standards.overview.completionRate}%`, hint: "للحالة الحالية", tone: "success" },
-          { label: "Blockers", value: `${standards.blockers.length}`, hint: "قبل الاعتماد", tone: standards.blockers.length > 0 ? "warning" : "success" }
+          { label: "اكتمال المعايير", value: `${standards.overview.completionRate}%`, hint: "للحالة الحالية", tone: "success" },
+          { label: "الموانع", value: `${standards.blockers.length}`, hint: "قبل الاعتماد", tone: standards.blockers.length > 0 ? "warning" : "success" }
         ],
         actions: [
-          { title: "راجع Portfolio Dashboard", meta: "عرض المحفظة الحالية", status: "جاهز" },
-          { title: "افتح التقارير", meta: `${standards.overview.blockers} blocker`, status: "مفتوح" },
+          { title: "راجع لوحة المحفظة", meta: "عرض المحفظة الحالية", status: "جاهز" },
+          { title: "افتح التقارير", meta: `${standards.overview.blockers} مانع`, status: "مفتوح" },
           { title: "راجع الاتجاهات", meta: "التكلفة والجاهزية", status: "ملخص" }
         ],
         rows: [
           ...standards.blockers.slice(0, 2).map((item) => ({
             primary: item.title,
             secondary: item.rationale,
-            status: "blocker",
+            status: "مانع",
             owner: item.ownerRole
           })),
           ...sharedRows().slice(0, 2)
@@ -196,17 +196,17 @@ export const getRoleHomeContent = (
     case "platform-admin":
       return {
         title: "لوحة إدارة المنصة",
-        subtitle: "إدارة standards catalog، القوالب، وسجل التشغيل الداخلي.",
+        subtitle: "إدارة كتالوج المعايير، والقوالب، وسجل التشغيل الداخلي.",
         cta: config.primaryAction,
         metrics: [
           { label: "قوالب نشطة", value: `${bundle.roleCatalog.length}`, hint: "ضمن النظام", tone: "neutral" },
-          { label: "معايير منشورة", value: `${standards.overview.totalStandards}`, hint: "داخل catalog", tone: "success" },
-          { label: "Evidence pending", value: `${standards.counts["missing-evidence"] + standards.counts["needs-review"]}`, hint: "على مستوى المعايير", tone: "warning" }
+          { label: "معايير منشورة", value: `${standards.overview.totalStandards}`, hint: "داخل الكتالوج", tone: "success" },
+          { label: "أدلة معلّقة", value: `${standards.counts["missing-evidence"] + standards.counts["needs-review"]}`, hint: "على مستوى المعايير", tone: "warning" }
         ],
         actions: [
-          { title: "حدّث Standards Library", meta: `${standards.overview.totalChecks} check`, status: "مفتوح" },
+          { title: "حدّث مكتبة المعايير", meta: `${standards.overview.totalChecks} فحص`, status: "مفتوح" },
           { title: "راجع الصلاحيات", meta: "6 أدوار مفعلة", status: "جاهز" },
-          { title: "تحقق من Audit Log", meta: "أثر التغييرات", status: "مراقبة" }
+          { title: "تحقق من سجل التدقيق", meta: "أثر التغييرات", status: "مراقبة" }
         ],
         rows: standards.libraryRows.slice(0, 4).map((item) => ({
           primary: item.title,
@@ -267,7 +267,7 @@ export const getPortalPageContent = (
       return {
         title: "حالة الإرسال",
         subtitle: "تتبع ما أُرسل وما يحتاج استكمالًا.",
-        sectionLabel: "Submission Status",
+        sectionLabel: "حالة الإرسال",
         cta: { label: "ارجع إلى الحالات", href: "/portal/cases" },
         metrics: [
           { label: "مرسل", value: "2", hint: "بانتظار المراجعة", tone: "success" },
@@ -284,16 +284,16 @@ export const getPortalPageContent = (
     case "assigned-cases":
       return {
         title: "الحالات المعيّنة",
-        subtitle: "حالات التقييم وما يرتبط بها من capability checks.",
-        sectionLabel: "Assigned Cases",
+        subtitle: "حالات التقييم وما يرتبط بها من فحوصات القدرات.",
+        sectionLabel: "الحالات المعيّنة",
         cta: { label: "افتح ملف القدرات", href: "/candidate-profile" },
         metrics: [
           { label: "معيّنة لك", value: "3", hint: "قيد العمل" },
-          { label: "Checks عليك", value: `${standards.ownerCounts.assessor}`, hint: "Assessor queue", tone: "warning" },
+          { label: "فحوصات عليك", value: `${standards.ownerCounts.assessor}`, hint: "طابور المقيّم", tone: "warning" },
           { label: "جاهزة للمطابقة", value: "2", hint: "بعد الملف", tone: "success" }
         ],
         actions: [
-          { title: "حدّث Capability Profile", meta: bundle.profile.candidateAlias },
+          { title: "حدّث ملف القدرات", meta: bundle.profile.candidateAlias },
           { title: "راجع العوائق", meta: `${bundle.barriers.length} عناصر` },
           { title: "أكمل خطة التكييف", meta: midpoint(bundle) }
         ],
@@ -301,14 +301,14 @@ export const getPortalPageContent = (
           primary: item.label,
           secondary: item.rationale,
           status: item.status,
-          owner: "Assessor"
+          owner: "المقيّم"
         }))
       };
     case "barriers":
       return {
         title: "العوائق",
         subtitle: "العوائق التشغيلية التي تحتاج معالجة قبل القرار.",
-        sectionLabel: "Barrier Review",
+        sectionLabel: "مراجعة العوائق",
         cta: { label: "افتح صفحة المطابقة", href: "/matching" },
         metrics: [
           { label: "عوائق مفتوحة", value: `${bundle.barriers.length}`, hint: "في الحالة الحالية", tone: "warning" },
@@ -324,37 +324,37 @@ export const getPortalPageContent = (
           primary: item.title,
           secondary: item.summary,
           status: item.severity,
-          owner: "Assessor"
+          owner: "المقيّم"
         }))
       };
     case "team-queue":
       return {
-        title: "Team Queue",
-        subtitle: "حالات Task Reality التي تنتظر تأكيدك.",
-        sectionLabel: "Hiring Queue",
+        title: "طابور الفريق",
+        subtitle: "حالات واقعية المهام التي تنتظر تأكيدك.",
+        sectionLabel: "طابور التوظيف",
         cta: { label: "افتح تحليل الوظيفة", href: "/job-analysis" },
         metrics: [
           { label: "بانتظارك", value: "2", hint: "حالات حالية", tone: "warning" },
-          { label: "Task checks", value: `${standards.ownerCounts["hiring-manager"]}`, hint: "على Hiring Manager" },
+          { label: "فحوصات المهام", value: `${standards.ownerCounts["hiring-manager"]}`, hint: "على مدير التوظيف" },
           { label: "جاهز للتوصية", value: "1", hint: "بعد التحقق", tone: "success" }
         ],
         actions: [
-          { title: "راجع Job Reality", meta: bundle.job.title },
-          { title: "اعتمد Task Validation", meta: "essential vs adaptable" },
+          { title: "راجع واقعية الوظيفة", meta: bundle.job.title },
+          { title: "اعتمد المهام الأساسية والقابلة للتعديل", meta: "أساسية مقابل قابلة للتعديل" },
           { title: "أعد للتعديل عند الحاجة", meta: "قبل التقرير النهائي" }
         ],
         rows: openOwnedChecks(standards, "hiring-manager").slice(0, 4).map((item) => ({
           primary: item.label,
           secondary: item.rationale,
           status: item.status,
-          owner: "Hiring Manager"
+          owner: "مدير التوظيف"
         }))
       };
     case "task-validation":
       return {
-        title: "Task Validation",
+        title: "اعتماد المهام",
         subtitle: "التحقق من المهام الأساسية والقابلة للتعديل.",
-        sectionLabel: "Task Validation",
+        sectionLabel: "اعتماد المهام",
         cta: { label: "افتح تحليل الوظيفة", href: "/job-analysis" },
         metrics: [
           { label: "أساسية", value: `${bundle.job.tasks.filter((item) => item.essential).length}`, hint: "جوهر الدور" },
@@ -363,8 +363,8 @@ export const getPortalPageContent = (
         ],
         actions: bundle.job.tasks.slice(0, 3).map((task) => ({
           title: task.title,
-          meta: task.taskTier === "essential" ? "Essential" : "Secondary",
-          status: task.adaptable ? "Adaptable" : "Fixed"
+          meta: task.taskTier === "essential" ? "أساسية" : "ثانوية",
+          status: task.adaptable ? "قابلة للتعديل" : "ثابتة"
         })),
         rows: bundle.job.tasks.slice(0, 5).map((task) => ({
           primary: task.title,
@@ -375,14 +375,14 @@ export const getPortalPageContent = (
       };
     case "recommendation-review":
       return {
-        title: "Recommendation Review",
+        title: "مراجعة التوصية",
         subtitle: "مراجعة التوصية قبل تحويلها إلى قرار نهائي.",
-        sectionLabel: "Recommendation",
+        sectionLabel: "التوصية",
         cta: { label: "اعرض التقرير التنفيذي", href: "/readiness-report" },
         metrics: [
           { label: "القرار الحالي", value: bundle.report.recommendation, hint: "الناتج الحالي" },
           { label: "الجاهزية", value: `${bundle.report.finalReadiness}%`, hint: "بعد التهيئة", tone: "success" },
-          { label: "Blockers", value: `${standards.blockers.length}`, hint: "قبل الاعتماد", tone: "warning" }
+          { label: "الموانع", value: `${standards.blockers.length}`, hint: "قبل الاعتماد", tone: "warning" }
         ],
         actions: bundle.report.decisionRationale.slice(0, 3).map((item) => ({
           title: item,
@@ -394,44 +394,44 @@ export const getPortalPageContent = (
             primary: item.label,
             secondary: item.rationale,
             status: item.status,
-            owner: "Hiring Manager"
+            owner: "مدير التوظيف"
           })),
           ...bundle.report.topActions.slice(0, 3).map((item) => ({
             primary: item.title,
             secondary: item.summary,
             status: "إجراء",
-            owner: "Hiring Manager"
+            owner: "مدير التوظيف"
           }))
         ]
       };
     case "compliance-queue":
       return {
-        title: "Compliance Queue",
+        title: "طابور الامتثال",
         subtitle: "الحالات الداخلة إلى مسار الاعتماد والامتثال.",
-        sectionLabel: "Compliance Queue",
-        cta: { label: "افتح Decision Trace", href: "/portal/decision-trace" },
+        sectionLabel: "طابور الامتثال",
+        cta: { label: "افتح أثر القرار", href: "/portal/decision-trace" },
         metrics: [
           { label: "جاهز للمراجعة", value: "3", hint: "حالات نشطة" },
-          { label: "Blockers", value: `${standards.blockers.length}`, hint: "قبل القرار", tone: "danger" },
-          { label: "Evidence pending", value: `${standards.counts["missing-evidence"]}`, hint: "تحتاج استكمال", tone: "warning" }
+          { label: "الموانع", value: `${standards.blockers.length}`, hint: "قبل القرار", tone: "danger" },
+          { label: "أدلة معلّقة", value: `${standards.counts["missing-evidence"]}`, hint: "تحتاج استكمال", tone: "warning" }
         ],
         actions: [
-          { title: "افتح Standards Check", meta: "راجع الإشارات" },
-          { title: "تحقق من Decision Trace", meta: "مبررات القرار" },
-          { title: "اصدر اعتمادًا أو طلب استكمال", meta: "ضمن Approval Panel" }
+          { title: "افتح فحص المعايير", meta: "راجع الإشارات" },
+          { title: "تحقق من أثر القرار", meta: "مبررات القرار" },
+          { title: "اصدر اعتمادًا أو طلب استكمال", meta: "ضمن لوحة الاعتماد" }
         ],
         rows: standards.blockers.slice(0, 4).map((item) => ({
           primary: item.title,
           secondary: item.rationale,
-          status: "blocker",
+          status: "مانع",
           owner: item.ownerRole
         }))
       };
     case "standards-check":
       return {
-        title: "Standards Check",
+        title: "فحص المعايير",
         subtitle: "قراءة سريعة للمعايير والإشارات قبل الاعتماد.",
-        sectionLabel: "Standards",
+        sectionLabel: "المعايير",
         cta: { label: "راجع التقرير التنفيذي", href: "/readiness-report" },
         metrics: bundle.report.signals.slice(0, 3).map((signal) => ({
           label: signal.label,
@@ -448,66 +448,66 @@ export const getPortalPageContent = (
           primary: signal.label,
           secondary: signal.rationale,
           status: `${signal.score}%`,
-          owner: signal.direction === "higher-better" ? "Up" : "Down"
+          owner: signal.direction === "higher-better" ? "تصاعدي" : "نزولي"
         }))
       };
     case "decision-trace":
       return {
-        title: "Decision Trace",
+        title: "أثر القرار",
         subtitle: "أثر القرار من المهام إلى العوائق ثم التكييف ثم التقرير.",
-        sectionLabel: "Trace",
+        sectionLabel: "الأثر",
         cta: { label: "افتح لوحة الاعتماد", href: "/portal/approval-panel" },
         metrics: [
-          { label: "Task Fit", value: `${bundle.report.taskFit}%`, hint: "مساهمة المهام" },
-          { label: "Barrier Coverage", value: `${bundle.plan.barrierCoverage}%`, hint: "تغطية الخطة", tone: "success" },
-          { label: "Standards", value: `${standards.overview.completionRate}%`, hint: "اكتمال checks" }
+          { label: "ملاءمة المهام", value: `${bundle.report.taskFit}%`, hint: "مساهمة المهام" },
+          { label: "تغطية العوائق", value: `${bundle.plan.barrierCoverage}%`, hint: "تغطية الخطة", tone: "success" },
+          { label: "المعايير", value: `${standards.overview.completionRate}%`, hint: "اكتمال الفحوصات" }
         ],
         actions: bundle.report.decisionRationale.slice(0, 3).map((item) => ({
           title: item,
-          meta: "trace step"
+          meta: "خطوة أثر"
         })),
         rows: [
           ...standards.blockers.slice(0, 2).map((item) => ({
             primary: item.title,
             secondary: item.rationale,
-            status: "Blocker",
+            status: "مانع",
             owner: item.ownerRole
           })),
           ...bundle.report.topBarriers.map((item) => ({
             primary: item.title,
             secondary: item.summary,
-            status: "Barrier",
-            owner: "Trace"
+            status: "عائق",
+            owner: "الأثر"
           })),
           ...bundle.report.topActions.slice(0, 2).map((item) => ({
             primary: item.title,
             secondary: item.summary,
-            status: "Action",
-            owner: "Trace"
+            status: "إجراء",
+            owner: "الأثر"
           }))
         ]
       };
     case "approval-panel":
       return {
-        title: "Approval Panel",
+        title: "لوحة الاعتماد",
         subtitle: "لوحة مختصرة للاعتماد أو الرفض أو طلب الاستكمال.",
-        sectionLabel: "Approval",
+        sectionLabel: "الاعتماد",
         cta: { label: "افتح التقرير التنفيذي", href: "/readiness-report" },
         metrics: [
           { label: "قرار مقترح", value: bundle.report.recommendation, hint: "من المحرك" },
-          { label: "Blockers", value: `${standards.blockers.length}`, hint: "يمنع الاعتماد", tone: "warning" },
+          { label: "الموانع", value: `${standards.blockers.length}`, hint: "يمنع الاعتماد", tone: "warning" },
           { label: "جاهزية", value: `${bundle.report.finalReadiness}%`, hint: "الحالة الحالية", tone: "success" }
         ],
         actions: [
-          { title: "اعتمد القرار", meta: "إذا اكتملت الشروط", status: "Approve" },
-          { title: "اطلب استكمال", meta: "إذا بقيت فجوات" , status: "Request" },
-          { title: "ارفض", meta: "إذا لم تتحقق الجاهزية", status: "Reject" }
+          { title: "اعتمد القرار", meta: "إذا اكتملت الشروط", status: "اعتماد" },
+          { title: "اطلب استكمال", meta: "إذا بقيت فجوات" , status: "طلب استكمال" },
+          { title: "ارفض", meta: "إذا لم تتحقق الجاهزية", status: "رفض" }
         ],
         rows: [
           ...standards.blockers.slice(0, 3).map((item) => ({
             primary: item.title,
             secondary: item.rationale,
-            status: "blocker",
+            status: "مانع",
             owner: item.ownerRole
           })),
           ...bundle.report.checklist.slice(0, 3).map((item) => ({
@@ -520,14 +520,14 @@ export const getPortalPageContent = (
       };
     case "reports":
       return {
-        title: "Reports",
+        title: "التقارير",
         subtitle: "تقارير جاهزة للقراءة التنفيذية.",
-        sectionLabel: "Reports",
+        sectionLabel: "التقارير",
         cta: { label: "اعرض التقرير التنفيذي", href: "/readiness-report" },
         metrics: [
           { label: "تقارير حديثة", value: "4", hint: "آخر دورة" },
           { label: "متوسط الجاهزية", value: "75%", hint: "محفظة نشطة", tone: "success" },
-          { label: "Standards Completion", value: `${standards.overview.completionRate}%`, hint: "للحالة الحالية" }
+          { label: "اكتمال المعايير", value: `${standards.overview.completionRate}%`, hint: "للحالة الحالية" }
         ],
         actions: [
           { title: "تقرير جاهزية", meta: bundle.report.recommendation },
@@ -538,9 +538,9 @@ export const getPortalPageContent = (
       };
     case "trends":
       return {
-        title: "Trends",
+        title: "الاتجاهات",
         subtitle: "اتجاهات خفيفة للجاهزية والقرار والتكلفة.",
-        sectionLabel: "Trends",
+        sectionLabel: "الاتجاهات",
         cta: { label: "افتح اللوحة التنفيذية", href: "/dashboard" },
         metrics: [
           { label: "اتجاه الجاهزية", value: "+4%", hint: "مقارنة سابقة", tone: "success" },
@@ -549,16 +549,16 @@ export const getPortalPageContent = (
         ],
         actions: [
           { title: "الجاهزية تميل للارتفاع", meta: "بسبب خطط أسرع" },
-          { title: "التكلفة مستقرة", meta: "ضمن أدوار MVP" },
+          { title: "التكلفة مستقرة", meta: "ضمن أدوار النسخة الحالية" },
           { title: "القرارات المعتمدة ترتفع", meta: "في الحالات المكتبية" }
         ],
         rows: sharedRows()
       };
     case "decisions-summary":
       return {
-        title: "Decisions Summary",
+        title: "ملخص القرارات",
         subtitle: "ملخص مختصر لحالة القرارات عبر المحفظة.",
-        sectionLabel: "Summary",
+        sectionLabel: "الملخص",
         cta: { label: "اعرض التقارير", href: "/portal/reports" },
         metrics: [
           { label: "قرار معتمد", value: "4", hint: "آخر دورة", tone: "success" },
@@ -568,15 +568,15 @@ export const getPortalPageContent = (
         actions: [
           { title: "المحفظة تميل إلى مناسب بعد التهيئة", meta: "الأكثر تكرارًا" },
           { title: "تكلفة القرارات قابلة للضبط", meta: "ضمن النطاق" },
-          { title: "الاستمرارية أعلى في الأدوار المكتبية", meta: "Saudi-first MVP" }
+          { title: "الاستمرارية أعلى في الأدوار المكتبية", meta: "ضمن النسخة السعودية الأولى" }
         ],
         rows: sharedRows()
       };
     case "templates":
       return {
-        title: "Templates",
+        title: "القوالب",
         subtitle: "إدارة قوالب الأدوار الجاهزة داخل النسخة الأولى.",
-        sectionLabel: "Templates",
+        sectionLabel: "القوالب",
         cta: { label: "راجع القوالب الحالية", href: "/workspace" },
         metrics: [
           { label: "قوالب نشطة", value: `${bundle.roleCatalog.length}`, hint: "ضمن النظام" },
@@ -597,18 +597,18 @@ export const getPortalPageContent = (
       };
     case "standards":
       return {
-        title: "Standards",
-        subtitle: "Catalog منظّم للمعايير والـ checks داخل Meyar — Decision & Compliance Standard Engine.",
-        sectionLabel: "Standards",
+        title: "المعايير",
+        subtitle: "كتالوج منظّم للمعايير والفحوصات داخل Meyar — محرك القرار والامتثال المعياري.",
+        sectionLabel: "المعايير",
         cta: { label: "افتح فحص المعايير", href: "/portal/standards-check" },
         metrics: [
           { label: "معايير", value: `${standards.overview.totalStandards}`, hint: "في المكتبة" },
-          { label: "Checks", value: `${standards.overview.totalChecks}`, hint: "إجمالي checks" },
-          { label: "Evidence pending", value: `${standards.counts["missing-evidence"]}`, hint: "بحاجة متابعة", tone: "warning" }
+          { label: "فحوصات", value: `${standards.overview.totalChecks}`, hint: "إجمالي الفحوصات" },
+          { label: "أدلة معلّقة", value: `${standards.counts["missing-evidence"]}`, hint: "بحاجة متابعة", tone: "warning" }
         ],
         actions: standards.libraryRows.slice(0, 3).map((item) => ({
           title: item.title,
-          meta: `${item.type} • ${item.checksCount} checks`
+          meta: `${item.type} • ${item.checksCount} فحوصات`
         })),
         rows: standards.libraryRows.slice(0, 6).map((item) => ({
           primary: item.title,
@@ -619,9 +619,9 @@ export const getPortalPageContent = (
       };
     case "roles-permissions":
       return {
-        title: "Roles & Permissions",
-        subtitle: "طبقة الصلاحيات الحالية داخل الـ MVP.",
-        sectionLabel: "Permissions",
+        title: "الأدوار والصلاحيات",
+        subtitle: "طبقة الصلاحيات الحالية داخل النسخة التجريبية.",
+        sectionLabel: "الصلاحيات",
         cta: { label: "ارجع إلى لوحة الدور", href: "/home" },
         metrics: [
           { label: "أدوار نشطة", value: "6", hint: "مفعلة الآن" },
@@ -629,46 +629,46 @@ export const getPortalPageContent = (
           { label: "صفحات مقيدة", value: "مفعلة", hint: "Route gating", tone: "neutral" }
         ],
         actions: [
-          { title: "Case Initiator", meta: "بدء الحالة والإرسال" },
-          { title: "Assessor", meta: "الملف والعوائق والتكييف" },
-          { title: "Platform Admin", meta: "إدارة النظام والقوالب" }
+          { title: "مبادر الحالة", meta: "بدء الحالة والإرسال" },
+          { title: "المقيّم", meta: "الملف والعوائق والتكييف" },
+          { title: "مدير المنصة", meta: "إدارة النظام والقوالب" }
         ],
         rows: [
-          { primary: "Case Initiator", secondary: "Create, Submit, Intake", status: "4 perms", owner: "MVP" },
-          { primary: "Assessor", secondary: "Profile, Barriers, Matching", status: "5 perms", owner: "MVP" },
-          { primary: "Hiring Manager", secondary: "Review, Validate, Recommend", status: "4 perms", owner: "MVP" },
-          { primary: "Compliance Reviewer", secondary: "Trace, Check, Approve", status: "4 perms", owner: "MVP" },
-          { primary: "Executive Viewer", secondary: "Dashboard, Reports, Trends", status: "4 perms", owner: "MVP" },
-          { primary: "Platform Admin", secondary: "Full system access", status: "All perms", owner: "MVP" }
+          { primary: "مبادر الحالة", secondary: "إنشاء، إرسال، إدخال", status: "4 صلاحيات", owner: "النسخة الحالية" },
+          { primary: "المقيّم", secondary: "ملف القدرات، العوائق، المطابقة", status: "5 صلاحيات", owner: "النسخة الحالية" },
+          { primary: "مدير التوظيف", secondary: "مراجعة، اعتماد، توصية", status: "4 صلاحيات", owner: "النسخة الحالية" },
+          { primary: "مراجع الامتثال", secondary: "أثر القرار، الفحص، الاعتماد", status: "4 صلاحيات", owner: "النسخة الحالية" },
+          { primary: "المشاهد التنفيذي", secondary: "اللوحة، التقارير، الاتجاهات", status: "4 صلاحيات", owner: "النسخة الحالية" },
+          { primary: "مدير المنصة", secondary: "وصول كامل للنظام", status: "كل الصلاحيات", owner: "النسخة الحالية" }
         ]
       };
     case "system-settings":
       return {
-        title: "System Settings",
+        title: "إعدادات النظام",
         subtitle: "إعدادات تشغيلية خفيفة تمهّد للتوسع لاحقًا.",
-        sectionLabel: "System",
+        sectionLabel: "النظام",
         cta: { label: "راجع سجل التدقيق", href: "/portal/audit-log" },
         metrics: [
-          { label: "Role session", value: "Mock", hint: "بدون auth حقيقي" },
-          { label: "Route gating", value: "On", hint: "مفعّل", tone: "success" },
-          { label: "إعدادات قابلة للتوسعة", value: "Ready", hint: "للمرحلة التالية" }
+          { label: "جلسة الدور", value: "تجريبية", hint: "بدون توثيق حقيقي" },
+          { label: "حماية المسارات", value: "مفعّل", hint: "مفعّل", tone: "success" },
+          { label: "إعدادات قابلة للتوسعة", value: "جاهزة", hint: "للمرحلة التالية" }
         ],
         actions: [
-          { title: "Session role", meta: "محلي داخل الـ MVP" },
-          { title: "Page access", meta: "مبني على permission map" },
-          { title: "Portal routes", meta: "قابلة للتوسعة" }
+          { title: "جلسة الدور", meta: "محلية داخل النسخة الحالية" },
+          { title: "وصول الصفحات", meta: "مبني على خريطة الصلاحيات" },
+          { title: "مسارات البوابات", meta: "قابلة للتوسعة" }
         ],
         rows: [
-          { primary: "Role Session", secondary: "Local storage session", status: "Mock", owner: "UI" },
-          { primary: "Permission Map", secondary: "Centralized", status: "Active", owner: "Core" },
-          { primary: "Route Guard", secondary: "Access Restricted state", status: "Active", owner: "Core" }
+          { primary: "جلسة الدور", secondary: "محفوظة محليًا", status: "تجريبية", owner: "الواجهة" },
+          { primary: "خريطة الصلاحيات", secondary: "مركزية", status: "نشطة", owner: "الأساس" },
+          { primary: "حارس المسار", secondary: "حالة الوصول المقيّد", status: "نشط", owner: "الأساس" }
         ]
       };
     case "audit-log":
       return {
-        title: "Audit Log",
-        subtitle: "أثر التغييرات والانتقال بين الأدوار داخل الـ MVP.",
-        sectionLabel: "Audit",
+        title: "سجل التدقيق",
+        subtitle: "أثر التغييرات والانتقال بين الأدوار داخل النسخة التجريبية.",
+        sectionLabel: "التدقيق",
         cta: { label: "ارجع إلى الإعدادات", href: "/portal/system-settings" },
         metrics: [
           { label: "أحداث حديثة", value: "12", hint: "آخر 7 أيام" },
@@ -676,15 +676,15 @@ export const getPortalPageContent = (
           { label: "تغييرات قوالب", value: "2", hint: "مراجعة أخيرة", tone: "warning" }
         ],
         actions: [
-          { title: "Role switched", meta: "Case Initiator → Assessor" },
-          { title: "Template viewed", meta: bundle.job.title },
-          { title: "Decision trace opened", meta: "Compliance Reviewer" }
+          { title: "تم تبديل الدور", meta: "مبادر الحالة ← المقيّم" },
+          { title: "تمت مراجعة قالب", meta: bundle.job.title },
+          { title: "تم فتح أثر القرار", meta: "مراجع الامتثال" }
         ],
         rows: [
-          { primary: "09:15", secondary: "Role switched to Assessor", status: "Session", owner: "Demo" },
-          { primary: "10:10", secondary: "Job analysis opened", status: "Page", owner: "Hiring Manager" },
-          { primary: "11:05", secondary: "Readiness report reviewed", status: "Report", owner: "Compliance" },
-          { primary: "12:20", secondary: "Templates list opened", status: "Admin", owner: "Platform" }
+          { primary: "09:15", secondary: "تم التبديل إلى دور المقيّم", status: "جلسة", owner: "الديمو" },
+          { primary: "10:10", secondary: "تم فتح تحليل الوظيفة", status: "صفحة", owner: "مدير التوظيف" },
+          { primary: "11:05", secondary: "تمت مراجعة التقرير التنفيذي", status: "تقرير", owner: "الامتثال" },
+          { primary: "12:20", secondary: "تم فتح قائمة القوالب", status: "إدارة", owner: "المنصة" }
         ]
       };
   }

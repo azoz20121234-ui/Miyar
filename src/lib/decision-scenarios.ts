@@ -79,7 +79,7 @@ export const buildDecisionScenarios = (
     {
       id: "complete-evidence",
       title: "إذا اكتملت الأدلة الناقصة",
-      summary: "يرفع يقين القرار ويغلق متطلبات evidence pending داخل الحالة.",
+      summary: "يرفع يقين القرار ويغلق متطلبات الأدلة الناقصة داخل الحالة.",
       readiness: evidenceClosedReadiness,
       confidence: clamp(
         bundle.report.confidence + Math.min(14, (missingEvidenceChecks.length + reviewChecks.length) * 3)

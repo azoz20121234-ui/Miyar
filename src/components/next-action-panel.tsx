@@ -67,7 +67,7 @@ export const NextActionPanel = () => {
 
   return (
     <div className="surface-card-soft p-5">
-      <div className="portal-label">Next Action</div>
+      <div className="portal-label">الإجراء التالي</div>
       <div className="mt-3 text-xl font-semibold tracking-[-0.02em] text-white">{primaryAction.label}</div>
       <div className="mt-2 text-sm leading-6 body-muted">{primaryAction.description}</div>
 
@@ -91,7 +91,7 @@ export const NextActionPanel = () => {
 
       {secondaryActions.length > 0 ? (
         <div className="mt-5 space-y-3">
-          <div className="portal-label">Transition Buttons</div>
+          <div className="portal-label">إجراءات المرحلة</div>
           <div className="space-y-3">
             {secondaryActions.map((action) => (
               <div key={action.id} className="space-y-2">

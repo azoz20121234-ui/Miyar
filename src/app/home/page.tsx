@@ -12,12 +12,12 @@ import { useAssessment } from "@/store/assessment-context";
 import { useRoleSession } from "@/store/role-session-context";
 
 const portalNameMap = {
-  "case-initiator": "Case Initiation Portal",
-  assessor: "Assessment Portal",
-  "hiring-manager": "Manager Portal",
-  "compliance-reviewer": "Compliance Portal",
-  "executive-viewer": "Executive Portal",
-  "platform-admin": "Admin Portal"
+  "case-initiator": "بوابة بدء الحالة",
+  assessor: "بوابة التقييم",
+  "hiring-manager": "بوابة المدير",
+  "compliance-reviewer": "بوابة الامتثال",
+  "executive-viewer": "البوابة التنفيذية",
+  "platform-admin": "بوابة الإدارة"
 } as const;
 
 export default function RoleHomePage() {
@@ -59,7 +59,7 @@ export default function RoleHomePage() {
     <AppShell
       pageId="home"
       title={portalNameMap[role]}
-      subtitle="Decision Entry تركّز على الحالة الحالية فقط: أين نحن، ماذا نفعل الآن، ولماذا."
+      subtitle="مدخل القرار يركّز على الحالة الحالية فقط: أين نحن، ماذا نفعل الآن، ولماذا."
       actions={
         <Link
           href={roleConfig.primaryAction.href}
@@ -73,7 +73,7 @@ export default function RoleHomePage() {
         <section className="surface-card-soft p-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
-              <div className="portal-label">Decision Status</div>
+              <div className="portal-label">حالة القرار</div>
               <div className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-white sm:text-[40px]">
                 {bundle.report.recommendation}
               </div>
@@ -83,25 +83,25 @@ export default function RoleHomePage() {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <StatusPill label={`${bundle.report.finalReadiness}% readiness`} tone={statusTone(bundle.report.status)} />
-              <StatusPill label={`${explainability.approvalBlocks.length} blockers`} tone={explainability.approvalBlocks.length > 0 ? "warning" : "success"} />
+              <StatusPill label={`جاهزية ${bundle.report.finalReadiness}%`} tone={statusTone(bundle.report.status)} />
+              <StatusPill label={`${explainability.approvalBlocks.length} موانع`} tone={explainability.approvalBlocks.length > 0 ? "warning" : "success"} />
               <StatusPill label={`التالي ${caseWorkflow.nextStageLabel}`} tone="neutral" />
             </div>
           </div>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
             <div className="surface-card-muted px-4 py-3">
-              <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Decision readiness</div>
+              <div className="text-[11px] tracking-[0.16em] text-slate-500">جاهزية القرار</div>
               <div className="mt-2 text-lg font-semibold text-white">{bundle.report.finalReadiness}%</div>
-              <div className="mt-1 text-xs body-muted">Gap {explainability.threshold.currentGap}% إلى حد الاعتماد</div>
+              <div className="mt-1 text-xs body-muted">فجوة {explainability.threshold.currentGap}% إلى حد الاعتماد</div>
             </div>
             <div className="surface-card-muted px-4 py-3">
-              <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Current owner</div>
+              <div className="text-[11px] tracking-[0.16em] text-slate-500">المالك الحالي</div>
               <div className="mt-2 text-lg font-semibold text-white">{caseWorkflow.currentOwnerLabel}</div>
               <div className="mt-1 text-xs body-muted">المسؤول عن التحريك الآن</div>
             </div>
             <div className="surface-card-muted px-4 py-3">
-              <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Top blocker</div>
+              <div className="text-[11px] tracking-[0.16em] text-slate-500">أهم مانع</div>
               <div className="mt-2 text-lg font-semibold text-white">
                 {visibleBlocks[0]?.ownerLabel ?? "لا يوجد"}
               </div>
@@ -113,7 +113,7 @@ export default function RoleHomePage() {
         </section>
 
         <ActionCard
-          eyebrow="Primary Action"
+          eyebrow="الإجراء الرئيسي"
           title={primaryAction.label}
           problem={primaryAction.label}
           reason={primaryAction.description}
@@ -121,7 +121,7 @@ export default function RoleHomePage() {
           meta={`المرحلة الحالية ${caseWorkflow.currentStateLabel}`}
           status={
             <StatusPill
-              label={primaryAction.disabled ? "Blocked" : "Ready"}
+              label={primaryAction.disabled ? "معلّق" : "جاهز"}
               tone={primaryAction.disabled ? "warning" : "success"}
             />
           }
@@ -145,7 +145,7 @@ export default function RoleHomePage() {
           {visibleBlocks.map((block, index) => (
             <ActionCard
               key={block.id}
-              eyebrow="Supporting Action"
+              eyebrow="إجراء مساند"
               title={block.title}
               problem={block.title}
               reason={block.requiredAction}
@@ -157,7 +157,7 @@ export default function RoleHomePage() {
               meta={block.ownerLabel}
               status={
                 <StatusPill
-                  label={block.blocker ? "Blocker" : "Review"}
+                  label={block.blocker ? "مانع" : "مراجعة"}
                   tone={block.blocker ? "danger" : "warning"}
                 />
               }
@@ -167,15 +167,15 @@ export default function RoleHomePage() {
         </section>
 
         <SectionCard
-          eyebrow="Minimal List"
-          title="Decision blockers"
-          description="القائمة الوحيدة داخل Home."
+          eyebrow="قائمة مختصرة"
+          title="موانع القرار"
+          description="القائمة الوحيدة داخل الصفحة الرئيسية."
         >
           <div className="table-shell">
             <table className="min-w-full divide-y divide-white/10 text-sm">
               <thead className="bg-white/[0.03] text-slate-500">
                 <tr>
-                  <th className="px-4 py-3 text-right">Blocker</th>
+                  <th className="px-4 py-3 text-right">المانع</th>
                   <th className="px-4 py-3 text-right">السبب</th>
                   <th className="px-4 py-3 text-right">المالك</th>
                   <th className="px-4 py-3 text-right">الحالة</th>
@@ -189,7 +189,7 @@ export default function RoleHomePage() {
                     <td className="px-4 py-4 text-slate-300">{block.ownerLabel}</td>
                     <td className="px-4 py-4">
                       <StatusPill
-                        label={block.blocker ? "Blocker" : "Review"}
+                        label={block.blocker ? "مانع" : "مراجعة"}
                         tone={block.blocker ? "danger" : "warning"}
                       />
                     </td>

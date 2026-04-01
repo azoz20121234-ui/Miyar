@@ -295,7 +295,7 @@ export const PORTAL_PAGE_KEYS: Record<PortalSlug, AppPageId> = {
 
 export const ROLE_CONFIGS: Record<AppRole, RoleConfig> = {
   "case-initiator": {
-    label: "Case Initiator",
+    label: "مبادر الحالة",
     shortLabel: "المبادر",
     description: "يبدأ الحالة ويدفعها إلى مسار المراجعة.",
     defaultHref: "/home",
@@ -304,19 +304,19 @@ export const ROLE_CONFIGS: Record<AppRole, RoleConfig> = {
       href: "/portal/new-case"
     },
     navItems: [
-      { label: "Overview", href: "/home", pageId: "home" },
-      { label: "Cases", href: "/portal/cases", pageId: "portal:cases" },
-      { label: "New Case", href: "/portal/new-case", pageId: "portal:new-case" },
-      { label: "Job Intake", href: "/job-analysis", pageId: "job-analysis" },
+      { label: "نظرة عامة", href: "/home", pageId: "home" },
+      { label: "الحالات", href: "/portal/cases", pageId: "portal:cases" },
+      { label: "حالة جديدة", href: "/portal/new-case", pageId: "portal:new-case" },
+      { label: "إدخال الوظيفة", href: "/job-analysis", pageId: "job-analysis" },
       {
-        label: "Submission Status",
+        label: "حالة الإرسال",
         href: "/portal/submission-status",
         pageId: "portal:submission-status"
       }
     ]
   },
   assessor: {
-    label: "Assessor",
+    label: "المقيّم",
     shortLabel: "المقيّم",
     description: "يبني الملف التشغيلي ويقترح التكييف.",
     defaultHref: "/home",
@@ -325,28 +325,28 @@ export const ROLE_CONFIGS: Record<AppRole, RoleConfig> = {
       href: "/matching"
     },
     navItems: [
-      { label: "Overview", href: "/home", pageId: "home" },
+      { label: "نظرة عامة", href: "/home", pageId: "home" },
       {
-        label: "Assigned Cases",
+        label: "الحالات المعيّنة",
         href: "/portal/assigned-cases",
         pageId: "portal:assigned-cases"
       },
       {
-        label: "Capability Profile",
+        label: "ملف القدرات",
         href: "/candidate-profile",
         pageId: "candidate-profile"
       },
-      { label: "Barriers", href: "/portal/barriers", pageId: "portal:barriers" },
-      { label: "Matching", href: "/matching", pageId: "matching" },
+      { label: "العوائق", href: "/portal/barriers", pageId: "portal:barriers" },
+      { label: "المطابقة", href: "/matching", pageId: "matching" },
       {
-        label: "Accommodations",
+        label: "التكييفات",
         href: "/accommodation-plan",
         pageId: "accommodation-plan"
       }
     ]
   },
   "hiring-manager": {
-    label: "Hiring Manager",
+    label: "مدير التوظيف",
     shortLabel: "مدير التوظيف",
     description: "يراجع واقعية الدور ويؤكد المهام الحاسمة.",
     defaultHref: "/home",
@@ -355,27 +355,27 @@ export const ROLE_CONFIGS: Record<AppRole, RoleConfig> = {
       href: "/portal/recommendation-review"
     },
     navItems: [
-      { label: "Overview", href: "/home", pageId: "home" },
-      { label: "Team Queue", href: "/portal/team-queue", pageId: "portal:team-queue" },
+      { label: "نظرة عامة", href: "/home", pageId: "home" },
+      { label: "طابور الفريق", href: "/portal/team-queue", pageId: "portal:team-queue" },
       {
-        label: "Job Reality Review",
+        label: "مراجعة واقعية الوظيفة",
         href: "/job-analysis",
         pageId: "job-analysis"
       },
       {
-        label: "Task Validation",
+        label: "اعتماد المهام",
         href: "/portal/task-validation",
         pageId: "portal:task-validation"
       },
       {
-        label: "Recommendation Review",
+        label: "مراجعة التوصية",
         href: "/portal/recommendation-review",
         pageId: "portal:recommendation-review"
       }
     ]
   },
   "compliance-reviewer": {
-    label: "Compliance Reviewer",
+    label: "مراجع الامتثال",
     shortLabel: "الامتثال",
     description: "يراجع الأثر والمعايير ويعتمد القرار.",
     defaultHref: "/home",
@@ -384,31 +384,31 @@ export const ROLE_CONFIGS: Record<AppRole, RoleConfig> = {
       href: "/portal/approval-panel"
     },
     navItems: [
-      { label: "Overview", href: "/home", pageId: "home" },
+      { label: "نظرة عامة", href: "/home", pageId: "home" },
       {
-        label: "Compliance Queue",
+        label: "طابور الامتثال",
         href: "/portal/compliance-queue",
         pageId: "portal:compliance-queue"
       },
       {
-        label: "Standards Check",
+        label: "فحص المعايير",
         href: "/portal/standards-check",
         pageId: "portal:standards-check"
       },
       {
-        label: "Decision Trace",
+        label: "أثر القرار",
         href: "/portal/decision-trace",
         pageId: "portal:decision-trace"
       },
       {
-        label: "Approval Panel",
+        label: "لوحة الاعتماد",
         href: "/portal/approval-panel",
         pageId: "portal:approval-panel"
       }
     ]
   },
   "executive-viewer": {
-    label: "Executive Viewer",
+    label: "المشاهد التنفيذي",
     shortLabel: "تنفيذي",
     description: "يرى المحفظة والتقارير والاتجاهات فقط.",
     defaultHref: "/home",
@@ -417,23 +417,23 @@ export const ROLE_CONFIGS: Record<AppRole, RoleConfig> = {
       href: "/portal/reports"
     },
     navItems: [
-      { label: "Overview", href: "/home", pageId: "home" },
+      { label: "نظرة عامة", href: "/home", pageId: "home" },
       {
-        label: "Portfolio Dashboard",
+        label: "لوحة المحفظة",
         href: "/dashboard",
         pageId: "dashboard"
       },
-      { label: "Reports", href: "/portal/reports", pageId: "portal:reports" },
-      { label: "Trends", href: "/portal/trends", pageId: "portal:trends" },
+      { label: "التقارير", href: "/portal/reports", pageId: "portal:reports" },
+      { label: "الاتجاهات", href: "/portal/trends", pageId: "portal:trends" },
       {
-        label: "Decisions Summary",
+        label: "ملخص القرارات",
         href: "/portal/decisions-summary",
         pageId: "portal:decisions-summary"
       }
     ]
   },
   "platform-admin": {
-    label: "Platform Admin",
+    label: "مدير المنصة",
     shortLabel: "المدير",
     description: "يدير القوالب والمعايير والصلاحيات.",
     defaultHref: "/home",
@@ -442,20 +442,20 @@ export const ROLE_CONFIGS: Record<AppRole, RoleConfig> = {
       href: "/portal/templates"
     },
     navItems: [
-      { label: "Overview", href: "/home", pageId: "home" },
-      { label: "Templates", href: "/portal/templates", pageId: "portal:templates" },
-      { label: "Standards", href: "/portal/standards", pageId: "portal:standards" },
+      { label: "نظرة عامة", href: "/home", pageId: "home" },
+      { label: "القوالب", href: "/portal/templates", pageId: "portal:templates" },
+      { label: "المعايير", href: "/portal/standards", pageId: "portal:standards" },
       {
-        label: "Roles & Permissions",
+        label: "الأدوار والصلاحيات",
         href: "/portal/roles-permissions",
         pageId: "portal:roles-permissions"
       },
       {
-        label: "System Settings",
+        label: "إعدادات النظام",
         href: "/portal/system-settings",
         pageId: "portal:system-settings"
       },
-      { label: "Audit Log", href: "/portal/audit-log", pageId: "portal:audit-log" }
+      { label: "سجل التدقيق", href: "/portal/audit-log", pageId: "portal:audit-log" }
     ]
   }
 };

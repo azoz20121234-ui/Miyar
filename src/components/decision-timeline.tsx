@@ -13,7 +13,7 @@ export const DecisionTimeline = () => {
 
   return (
     <div className="surface-card-soft p-5">
-      <div className="portal-label">Decision Timeline</div>
+      <div className="portal-label">الخط الزمني للقرار</div>
       <div className="mt-4 space-y-4">
         {[...caseRecord.timeline].reverse().map((item) => (
           <div key={item.id} className="flex gap-3">

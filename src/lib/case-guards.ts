@@ -38,13 +38,13 @@ export const evaluateTransitionGuard = (
       return withResult([
         {
           id: "draft-job-ready",
-          label: "Job intake ready",
+          label: "إدخال الوظيفة مكتمل",
           passed: bundle.job.tasks.length >= 3,
-          reason: "مطلوب Job Intake أوضح قبل الإرسال."
+          reason: "مطلوب إدخال وظيفة أوضح قبل الإرسال."
         },
         {
           id: "draft-environment-ready",
-          label: "Environment captured",
+          label: "بيئة العمل موثقة",
           passed: bundle.job.environment.tools.length >= 3 || bundle.job.tools.length >= 3,
           reason: "بيئة العمل أو أدواتها ما زالت ناقصة."
         }
@@ -53,74 +53,74 @@ export const evaluateTransitionGuard = (
       return withResult([
         {
           id: "capability-profile-complete",
-          label: "Capability profile complete",
+          label: "ملف القدرات مكتمل",
           passed: checkPassed(standards, "capability-evidence-present"),
-          reason: "Capability profile غير مكتمل."
+          reason: "ملف القدرات غير مكتمل."
         },
         {
           id: "barriers-documented",
-          label: "Barriers documented",
+          label: "العوائق موثقة",
           passed: bundle.barriers.length > 0 && checkPassed(standards, "barriers-linked-to-tasks"),
           reason: "العوائق غير مكتملة أو غير مرتبطة بالمهام."
         },
         {
           id: "accommodations-ready",
-          label: "Accommodations ready",
+          label: "التكييفات جاهزة",
           passed: bundle.plan.items.length > 0 && checkPassed(standards, "accommodations-linked"),
-          reason: "لا توجد accommodations جاهزة للإرسال."
+          reason: "لا توجد تكييفات جاهزة للإرسال."
         }
       ]);
     case "send-to-compliance":
       return withResult([
         {
           id: "essential-tasks-confirmed",
-          label: "Essential tasks confirmed",
+          label: "المهام الأساسية مؤكدة",
           passed: checkPassed(standards, "task-essential-defined"),
-          reason: "Essential tasks غير مثبتة."
+          reason: "المهام الأساسية غير مثبتة."
         },
         {
           id: "manager-review-completed",
-          label: "Manager review completed",
+          label: "مراجعة المدير مكتملة",
           passed: caseRecord.managerReviewCompleted,
-          reason: "Manager review completed مطلوب قبل الإرسال."
+          reason: "مراجعة المدير مطلوبة قبل الإرسال."
         }
       ]);
     case "approve-case":
       return withResult([
         {
           id: "no-blockers",
-          label: "No blockers",
+          label: "لا توجد موانع",
           passed: standards.blockers.length === 0,
-          reason: "Blockers unresolved."
+          reason: "لا تزال هناك موانع غير مغلقة."
         },
         {
           id: "evidence-complete",
-          label: "Evidence complete",
+          label: "الأدلة مكتملة",
           passed:
             standards.counts["missing-evidence"] === 0 &&
             standards.counts["needs-review"] === 0,
-          reason: "Evidence pending."
+          reason: "ما زالت الأدلة ناقصة."
         },
         {
           id: "decision-rationale",
-          label: "Decision rationale present",
+          label: "مبررات القرار موجودة",
           passed:
             bundle.report.decisionRationale.length >= 3 &&
             checkPassed(standards, "decision-rationale-present"),
-          reason: "Missing decision rationale."
+          reason: "مبررات القرار غير مكتملة."
         },
         {
           id: "readiness-threshold",
-          label: "Decision readiness threshold",
+          label: "حد الجاهزية مستوفى",
           passed: bundle.report.finalReadiness >= 72,
-          reason: "Readiness below approval threshold."
+          reason: "الجاهزية أقل من حد الاعتماد."
         }
       ]);
     case "reject-case":
       return withResult([
         {
           id: "compliance-reviewed",
-          label: "Compliance review active",
+          label: "مراجعة الامتثال نشطة",
           passed: caseRecord.state === "COMPLIANCE_REVIEW",
           reason: "الحالة ليست في مرحلة قرار نهائي."
         }
@@ -132,7 +132,7 @@ export const evaluateTransitionGuard = (
       return withResult([
         {
           id: "revision-allowed",
-          label: "Revision route available",
+          label: "مسار التعديل متاح",
           passed: true,
           reason: ""
         }
@@ -141,13 +141,13 @@ export const evaluateTransitionGuard = (
       return withResult([
         {
           id: "revision-exists",
-          label: "Revision requested",
+          label: "تم طلب تعديل",
           passed: caseRecord.revisionCount > 0,
           reason: "الحالة لم تدخل مسار التعديل بعد."
         },
         {
           id: "assessment-restart-ready",
-          label: "Assessment restart ready",
+          label: "إعادة التقييم جاهزة",
           passed: bundle.job.tasks.length > 0,
           reason: "لا توجد بيانات كافية لإعادة التقييم."
         }
@@ -168,19 +168,19 @@ export const evaluateStageActionGuard = (
       return withResult([
         {
           id: "manager-review-state",
-          label: "Manager review active",
+          label: "مراجعة المدير نشطة",
           passed: caseRecord.state === "MANAGER_REVIEW",
-          reason: "الحالة ليست في مرحلة Manager Review."
+          reason: "الحالة ليست في مرحلة مراجعة المدير."
         },
         {
           id: "task-reality-ready",
-          label: "Task reality ready",
+          label: "واقعية المهام جاهزة",
           passed: checkPassed(standards, "task-essential-defined"),
-          reason: "Task reality غير جاهزة بعد."
+          reason: "واقعية المهام غير جاهزة بعد."
         },
         {
           id: "recommendation-visible",
-          label: "Recommendation visible",
+          label: "التوصية ظاهرة",
           passed: bundle.report.recommendation.trim().length > 0,
           reason: "التوصية الحالية غير جاهزة للمراجعة."
         }

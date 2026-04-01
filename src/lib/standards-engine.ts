@@ -14,9 +14,9 @@ const LAST_UPDATED = "30 مارس 2026";
 const clamp = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
 
 const categoryLabelMap: Record<StandardsCategory, string> = {
-  "platform-accessibility": "Platform Accessibility",
-  "assessment-core": "Assessment Core",
-  governance: "Governance"
+  "platform-accessibility": "إتاحة المنصة",
+  "assessment-core": "معايير التقييم الأساسية",
+  governance: "الحوكمة"
 };
 
 const impactLabel = (scoreImpact: number) => {
