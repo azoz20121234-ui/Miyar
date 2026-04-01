@@ -83,7 +83,7 @@ export default function RoleHomePage() {
     },
     {
       title: "ما الذي تحركه",
-      items: [...roleDefinition.edits.slice(0, 2), ...roleDefinition.submits.slice(0, 2)].slice(0, 4)
+      items: roleDefinition.edits.slice(0, 3)
     }
   ];
   const roleZoneTitleMap = {
