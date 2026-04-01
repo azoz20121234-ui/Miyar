@@ -1,0 +1,26 @@
+import { ReactNode } from "react";
+
+interface ExternalFlowCardProps {
+  title: string;
+  subtitle: string;
+  children: ReactNode;
+  footer?: ReactNode;
+}
+
+export const ExternalFlowCard = ({
+  title,
+  subtitle,
+  children,
+  footer
+}: ExternalFlowCardProps) => (
+  <section className="surface-card p-7 sm:p-8">
+    <div className="max-w-3xl">
+      <h2 className="text-2xl font-semibold text-white sm:text-[30px]">{title}</h2>
+      <p className="mt-3 text-sm leading-7 text-slate-400 sm:text-base">{subtitle}</p>
+    </div>
+
+    <div className="mt-7 space-y-5">{children}</div>
+
+    {footer ? <div className="mt-8">{footer}</div> : null}
+  </section>
+);
