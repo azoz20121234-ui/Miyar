@@ -13,6 +13,7 @@ import { defaultLibrary, demoCapabilityProfile, demoJob } from "@/data/demo-case
 import { evaluateStageActionGuard, evaluateTransitionGuard } from "@/lib/case-guards";
 import { createInitialCaseRecord, CASE_STATE_META, type CaseRecord } from "@/lib/case-state";
 import { buildDecisionExplainability } from "@/lib/decision-explainer";
+import { ExternalHandoffPayload } from "@/lib/external-handoff";
 import {
   getPrimaryTransition,
   getStageActionForRole,
@@ -62,6 +63,7 @@ interface AssessmentContextValue {
   explainability: DecisionExplainability;
   caseRecord: CaseRecord;
   caseWorkflow: CaseWorkflowSnapshot;
+  externalHandoff: ExternalHandoffPayload | null;
   selectRoleTemplate: (jobId: string) => void;
   toggleTaskEssential: (taskId: string) => void;
   toggleTaskAdaptable: (taskId: string) => void;
@@ -72,6 +74,8 @@ interface AssessmentContextValue {
     value: Job["environment"][K]
   ) => void;
   updateDimensionScore: (dimensionId: string, delta: number) => void;
+  applyExternalHandoff: (handoff: ExternalHandoffPayload) => void;
+  clearExternalHandoff: () => void;
   transitionCase: (transitionId: string) => void;
   completeStageAction: (actionId: string) => void;
   resetDemo: () => void;
@@ -95,6 +99,7 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
   const [job, setJob] = useState<Job>(cloneJob);
   const [profile, setProfile] = useState<CapabilityProfile>(cloneProfile);
   const [caseRecord, setCaseRecord] = useState<CaseRecord>(cloneCaseRecord);
+  const [externalHandoff, setExternalHandoff] = useState<ExternalHandoffPayload | null>(null);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
@@ -107,18 +112,23 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
         job: Job;
         profile: CapabilityProfile;
         caseRecord?: CaseRecord;
+        externalHandoff?: ExternalHandoffPayload | null;
       };
       setJob(parsed.job ?? cloneJob());
       setProfile(parsed.profile ?? cloneProfile());
       setCaseRecord(parsed.caseRecord ?? cloneCaseRecord());
+      setExternalHandoff(parsed.externalHandoff ?? null);
     } catch {
       window.localStorage.removeItem(STORAGE_KEY);
     }
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ job, profile, caseRecord }));
-  }, [job, profile, caseRecord]);
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ job, profile, caseRecord, externalHandoff })
+    );
+  }, [job, profile, caseRecord, externalHandoff]);
 
   const toggleTaskEssential = (taskId: string) => {
     setJob((current) => ({
@@ -170,6 +180,76 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
           : dimension
       )
     }));
+  };
+
+  const applyExternalHandoff = (handoff: ExternalHandoffPayload) => {
+    const timestamp = new Date().toISOString();
+
+    setExternalHandoff(handoff);
+    setJob((current) => ({
+      ...current,
+      title: handoff.jobTitle,
+      summary: handoff.jobPurpose,
+      coreSkills: handoff.jobRequirements.length ? handoff.jobRequirements : current.coreSkills,
+      tools: handoff.workTools.length
+        ? Array.from(new Set([...current.tools, ...handoff.workTools]))
+        : current.tools,
+      outcomes: [
+        `مرشح مرتبط: ${handoff.candidateName}`,
+        `جاهزية أولية: ${handoff.initialReadiness}%`,
+        `جهة العمل: ${handoff.employerName}`
+      ],
+      environment: {
+        ...current.environment,
+        communicationPattern: handoff.preferences.some((item) => item.includes("كتابي"))
+          ? "written-first"
+          : current.environment.communicationPattern,
+        tools: handoff.workTools.length
+          ? Array.from(new Set([...current.environment.tools, ...handoff.workTools]))
+          : current.environment.tools,
+        risks: handoff.coreTasks.length
+          ? Array.from(new Set([...current.environment.risks, ...handoff.coreTasks.slice(0, 3)]))
+          : current.environment.risks
+      }
+    }));
+
+    setProfile((current) => ({
+      ...current,
+      candidateAlias: handoff.candidateName,
+      headline: `ملف تشغيلي مبدئي مبني على إدخال خارجي لدور ${handoff.candidateTargetRole}.`,
+      assessmentConfidence: Math.max(62, Math.min(91, handoff.initialReadiness + 8)),
+      preferredModes: handoff.preferences.length ? handoff.preferences : current.preferredModes,
+      toolsMastery: handoff.proposedAccommodations.length
+        ? handoff.proposedAccommodations
+        : current.toolsMastery,
+      workConditions: handoff.preferences.length ? handoff.preferences : current.workConditions,
+      operationalStrengths: handoff.primaryCapabilities.length
+        ? handoff.primaryCapabilities
+        : current.operationalStrengths,
+      constraints: current.constraints
+    }));
+
+    setCaseRecord((current) => ({
+      ...current,
+      state: "DRAFT",
+      updatedAt: timestamp,
+      timeline: [
+        ...current.timeline,
+        {
+          id: `timeline-handoff-${Date.now()}`,
+          at: timestamp,
+          actorRole: "case-initiator",
+          action: "تم استلام إدخال خارجي",
+          note: `تم ربط المرشح ${handoff.candidateName} بوظيفة ${handoff.jobTitle} ونقل الحزمة التمهيدية إلى Meyar Core.`,
+          fromState: current.state,
+          toState: "DRAFT"
+        }
+      ]
+    }));
+  };
+
+  const clearExternalHandoff = () => {
+    setExternalHandoff(null);
   };
 
   const bundle = buildAssessmentBundle(job, profile, defaultLibrary, roleCatalog);
@@ -361,6 +441,7 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
     setJob(cloneJob());
     setProfile(cloneProfile());
     setCaseRecord(cloneCaseRecord());
+    setExternalHandoff(null);
     window.localStorage.removeItem(STORAGE_KEY);
   };
 
@@ -376,11 +457,14 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
         explainability,
         caseRecord,
         caseWorkflow,
+        externalHandoff,
         selectRoleTemplate,
         toggleTaskEssential,
         toggleTaskAdaptable,
         setEnvironmentField,
         updateDimensionScore,
+        applyExternalHandoff,
+        clearExternalHandoff,
         transitionCase,
         completeStageAction,
         resetDemo

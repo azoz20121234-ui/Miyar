@@ -44,6 +44,9 @@ export default function ExternalEmployerPage() {
   const previousStep = activeIndex > 0 ? employerSteps[activeIndex - 1].id : null;
   const nextStep =
     activeIndex < employerSteps.length - 1 ? employerSteps[activeIndex + 1].id : null;
+  const nextStepLabel = nextStep
+    ? employerSteps.find((item) => item.id === nextStep)?.label ?? "المتابعة"
+    : "الإرسال";
 
   const primaryLabel = step === "summary" ? "انتقل إلى الإرسال" : "متابعة";
   const primaryHref = step === "summary" ? "/external/submit" : null;
@@ -71,15 +74,15 @@ export default function ExternalEmployerPage() {
           <div className="portal-label">ملخص سريع</div>
           <div className="mt-3 space-y-3 text-sm">
             <div className="flex items-center justify-between gap-3">
-              <span className="text-slate-400">الجهة</span>
-              <span className="text-white">{employer.start.companyName || "غير مكتمل"}</span>
+              <span className="text-slate-400">حالة الوظيفة</span>
+              <span className="text-white">{step === "summary" ? "جاهزة للربط" : "قيد الإدخال"}</span>
             </div>
             <div className="flex items-center justify-between gap-3">
-              <span className="text-slate-400">الوظيفة</span>
-              <span className="text-white">{employer.start.roleTitle || "غير محدد"}</span>
+              <span className="text-slate-400">الخطوة التالية</span>
+              <span className="text-white">{nextStepLabel}</span>
             </div>
             <div className="flex items-center justify-between gap-3">
-              <span className="text-slate-400">التكييف</span>
+              <span className="text-slate-400">التكييف المفتوح</span>
               <span className="text-white">
                 {employer.accommodations.openAdjustments || "بانتظار الإدخال"}
               </span>

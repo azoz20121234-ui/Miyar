@@ -6,13 +6,14 @@ import { useAssessment } from "@/store/assessment-context";
 import { useRoleSession } from "@/store/role-session-context";
 
 import { CaseStandardsView } from "./case-standards-view";
+import { ExperienceRolesView } from "./experience-roles-view";
 import { RoleHubView } from "./role-hub-view";
 import { StandardsLibraryView } from "./standards-library-view";
 
 export const PortalPageClient = ({ slug }: { slug: PortalSlug }) => {
-  const { bundle, standards } = useAssessment();
+  const { bundle, standards, externalHandoff } = useAssessment();
   const { role } = useRoleSession();
-  const content = getPortalPageContent(slug, role, bundle, standards);
+  const content = getPortalPageContent(slug, role, bundle, standards, externalHandoff);
 
   if (slug === "standards") {
     return <StandardsLibraryView standards={standards} />;
@@ -20,6 +21,10 @@ export const PortalPageClient = ({ slug }: { slug: PortalSlug }) => {
 
   if (slug === "standards-check") {
     return <CaseStandardsView standards={standards} />;
+  }
+
+  if (slug === "roles-permissions") {
+    return <ExperienceRolesView />;
   }
 
   return (

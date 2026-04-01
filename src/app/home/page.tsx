@@ -6,19 +6,11 @@ import { ActionCard } from "@/components/action-card";
 import { AppShell } from "@/components/app-shell";
 import { SectionCard } from "@/components/section-card";
 import { StatusPill } from "@/components/status-pill";
+import { INTERNAL_ROLE_REFERENCE } from "@/lib/experience-roles";
 import { getRoleConfig } from "@/lib/role-model";
 import { statusTone } from "@/lib/scoring";
 import { useAssessment } from "@/store/assessment-context";
 import { useRoleSession } from "@/store/role-session-context";
-
-const portalNameMap = {
-  "case-initiator": "بوابة بدء الحالة",
-  assessor: "بوابة التقييم",
-  "hiring-manager": "بوابة المدير",
-  "compliance-reviewer": "بوابة الامتثال",
-  "executive-viewer": "البوابة التنفيذية",
-  "platform-admin": "بوابة الإدارة"
-} as const;
 
 export default function RoleHomePage() {
   const {
@@ -30,6 +22,7 @@ export default function RoleHomePage() {
   } = useAssessment();
   const { role } = useRoleSession();
   const roleConfig = getRoleConfig(role);
+  const roleDefinition = INTERNAL_ROLE_REFERENCE[role];
   const primaryAction = caseWorkflow.primaryAction;
 
   const visibleBlocks = (() => {
@@ -58,8 +51,8 @@ export default function RoleHomePage() {
   return (
     <AppShell
       pageId="home"
-      title={portalNameMap[role]}
-      subtitle="مدخل القرار يركّز على الحالة الحالية فقط: أين نحن، ماذا نفعل الآن، ولماذا."
+      title={`مساحة ${roleDefinition.label}`}
+      subtitle="مساحة قرار موحدة تركّز على المرحلة الحالية، المانع الأعلى، والإجراء التالي لهذا الدور فقط."
       actions={
         <Link
           href={roleConfig.primaryAction.href}

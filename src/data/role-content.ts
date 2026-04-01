@@ -1,4 +1,5 @@
 import { pipelineCases } from "@/data/dashboard";
+import { ExternalHandoffPayload } from "@/lib/external-handoff";
 import { CaseStandardsEvaluation } from "@/lib/standards-types";
 import { getRoleConfig, type AppRole, type PortalSlug } from "@/lib/role-model";
 import { AssessmentBundle } from "@/models/types";
@@ -82,7 +83,7 @@ export const getRoleHomeContent = (
         ],
         actions: [
           { title: "ابدأ حالة جديدة", meta: "تعيين الوظيفة + البيانات الأساسية", status: "الآن" },
-          { title: "أكمل Job Intake", meta: bundle.job.title, status: "نشطة" },
+          { title: "أكمل تحليل الوظيفة", meta: bundle.job.title, status: "نشطة" },
           { title: "أرسل الحالة للمراجعة", meta: "بعد اكتمال المتطلبات", status: "التالي" }
         ],
         rows: sharedRows()
@@ -122,7 +123,7 @@ export const getRoleHomeContent = (
     case "hiring-manager":
       return {
         title: "لوحة مدير التوظيف",
-        subtitle: "أكد واقعية المهام واحسم task reality قبل الرفع للاعتماد.",
+        subtitle: "أكد واقعية المهام واحسم الواقعية التشغيلية قبل الرفع للاعتماد.",
         cta: config.primaryAction,
         metrics: [
           { label: "بانتظار مراجعتك", value: "2", hint: "حالات الفريق", tone: "warning" },
@@ -222,7 +223,8 @@ export const getPortalPageContent = (
   slug: PortalSlug,
   role: AppRole,
   bundle: AssessmentBundle,
-  standards: CaseStandardsEvaluation
+  standards: CaseStandardsEvaluation,
+  externalHandoff?: ExternalHandoffPayload | null
 ): PortalPageContent => {
   const roleLabel = getRoleConfig(role).shortLabel;
 
@@ -231,7 +233,7 @@ export const getPortalPageContent = (
       return {
         title: "الحالات",
         subtitle: "الحالات التي بدأتَها ضمن هذا الدور.",
-        sectionLabel: "Case Queue",
+        sectionLabel: "طابور الحالات",
         cta: { label: "ابدأ حالة جديدة", href: "/portal/new-case" },
         metrics: [
           { label: "نشطة", value: "4", hint: "قيد المتابعة" },
@@ -240,7 +242,7 @@ export const getPortalPageContent = (
         ],
         actions: [
           { title: "راجع الحالات المفتوحة", meta: `دور ${roleLabel}` },
-          { title: "حدّث Job Intake", meta: bundle.job.title },
+          { title: "حدّث تحليل الوظيفة", meta: bundle.job.title },
           { title: "أرسل ما هو جاهز", meta: "بعد اكتمال المتطلبات" }
         ],
         rows: sharedRows()
@@ -248,20 +250,61 @@ export const getPortalPageContent = (
     case "new-case":
       return {
         title: "حالة جديدة",
-        subtitle: "إدخال أولي سريع قبل الانتقال إلى Job Intake.",
-        sectionLabel: "New Case",
-        cta: { label: "انتقل إلى Job Intake", href: "/job-analysis" },
-        metrics: [
-          { label: "قوالب الوظائف", value: `${bundle.roleCatalog.length}`, hint: "متاحة" },
-          { label: "حقول أساسية", value: "4", hint: "مطلوبة للبدء" },
-          { label: "مسودة حالية", value: "1", hint: "قابلة للإكمال", tone: "warning" }
-        ],
-        actions: [
-          { title: "اختر الوظيفة", meta: bundle.job.title },
-          { title: "أدخل المتطلبات الأساسية", meta: "الجهة + المالك + النطاق" },
-          { title: "احفظ كمسودة أو انتقل للتحليل", meta: "الخطوة التالية" }
-        ],
-        rows: sharedRows().slice(0, 3)
+        subtitle: externalHandoff
+          ? "تم استلام حزمة خارجية تمهيدية. راجعها ثم حرّك الحالة إلى تحليل الوظيفة."
+          : "إدخال أولي سريع قبل الانتقال إلى تحليل الوظيفة.",
+        sectionLabel: "حالة جديدة",
+        cta: { label: "انتقل إلى تحليل الوظيفة", href: "/job-analysis" },
+        metrics: externalHandoff
+          ? [
+              { label: "جاهزية أولية", value: `${externalHandoff.initialReadiness}%`, hint: externalHandoff.initialReadinessLabel, tone: "success" },
+              { label: "أدلة مكتملة", value: `${externalHandoff.completedEvidence.length}`, hint: "وصلت من الطبقة الخارجية" },
+              { label: "تكييفات مقترحة", value: `${externalHandoff.proposedAccommodations.length}`, hint: "جاهزة للمراجعة", tone: "warning" }
+            ]
+          : [
+              { label: "قوالب الوظائف", value: `${bundle.roleCatalog.length}`, hint: "متاحة" },
+              { label: "حقول أساسية", value: "4", hint: "مطلوبة للبدء" },
+              { label: "مسودة حالية", value: "1", hint: "قابلة للإكمال", tone: "warning" }
+            ],
+        actions: externalHandoff
+          ? [
+              { title: "راجع الحزمة المستلمة", meta: `${externalHandoff.candidateName} • ${externalHandoff.jobTitle}`, status: "تم الاستلام" },
+              { title: "تحقق من الوظيفة والمرشح", meta: `${externalHandoff.completedEvidence.length} أدلة • ${externalHandoff.coreTasks.length} مهام`, status: "قبل التحليل" },
+              { title: "انتقل إلى تحليل الوظيفة", meta: "الخطوة التالية داخل Meyar Core", status: "التالي" }
+            ]
+          : [
+              { title: "اختر الوظيفة", meta: bundle.job.title },
+              { title: "أدخل المتطلبات الأساسية", meta: "الجهة + المالك + النطاق" },
+              { title: "احفظ كمسودة أو انتقل للتحليل", meta: "الخطوة التالية" }
+            ],
+        rows: externalHandoff
+          ? [
+              {
+                primary: "المرشح",
+                secondary: `${externalHandoff.candidateName} • ${externalHandoff.candidateTargetRole}`,
+                status: "مدخل خارجي",
+                owner: "الطبقة الخارجية"
+              },
+              {
+                primary: "الوظيفة",
+                secondary: `${externalHandoff.jobTitle} • ${externalHandoff.employerName}`,
+                status: "مدخل خارجي",
+                owner: "الطبقة الخارجية"
+              },
+              {
+                primary: "الأدلة",
+                secondary: externalHandoff.completedEvidence.join(" • "),
+                status: "مكتملة",
+                owner: "المرشح"
+              },
+              {
+                primary: "التكييفات",
+                secondary: externalHandoff.proposedAccommodations.join(" • "),
+                status: "تمهيدية",
+                owner: "جهة العمل"
+              }
+            ]
+          : sharedRows().slice(0, 3)
       };
     case "submission-status":
       return {

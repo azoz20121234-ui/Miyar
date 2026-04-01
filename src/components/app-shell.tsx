@@ -26,16 +26,16 @@ interface AppShellProps {
 }
 
 const portalNameMap = {
-  "case-initiator": "بوابة بدء الحالة",
-  assessor: "بوابة التقييم",
-  "hiring-manager": "بوابة المدير",
-  "compliance-reviewer": "بوابة الامتثال",
-  "executive-viewer": "البوابة التنفيذية",
-  "platform-admin": "بوابة الإدارة"
+  "case-initiator": "مساحة بدء الحالة",
+  assessor: "مساحة التقييم",
+  "hiring-manager": "مساحة المدير",
+  "compliance-reviewer": "مساحة الامتثال",
+  "executive-viewer": "المساحة التنفيذية",
+  "platform-admin": "مساحة الإدارة"
 } as const;
 
 export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShellProps) => {
-  const { bundle, caseWorkflow } = useAssessment();
+  const { bundle, caseWorkflow, externalHandoff } = useAssessment();
   const { role, roleLabel, canAccess } = useRoleSession();
   const pathname = usePathname();
   const roleConfig = getRoleConfig(role);
@@ -56,9 +56,9 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                 م
               </Link>
               <div>
-                <div className="portal-label">Meyar</div>
+                <div className="portal-label">Meyar Core</div>
                 <div className="mt-1 text-sm text-slate-300">
-                  محرك القرار والامتثال المعياري
+                  مساحة القرار المؤسسية الداخلية
                 </div>
               </div>
             </div>
@@ -98,7 +98,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
         <main className="flex-1">
           <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
-              <div className="portal-label">{portalLabel}</div>
+              <div className="portal-label">Meyar Core • {portalLabel}</div>
               <h1 className="page-title mt-3">{title}</h1>
               <p className="mt-3 max-w-2xl text-sm leading-7 body-muted sm:text-base">{subtitle}</p>
             </div>
@@ -116,6 +116,33 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
           </div>
 
           <CaseStatusBar />
+
+          {externalHandoff ? (
+            <section className="surface-card-soft mb-6 p-5">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                  <div className="portal-label">استلام خارجي</div>
+                  <div className="mt-2 text-lg font-semibold text-white">
+                    {externalHandoff.candidateName} • {externalHandoff.jobTitle}
+                  </div>
+                  <div className="mt-2 text-sm text-slate-400">
+                    تم استلام حزمة تمهيدية من الطبقة الخارجية وإدخالها في مسودة Meyar Core.
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-slate-200">
+                    {externalHandoff.initialReadiness}% جاهزية أولية
+                  </div>
+                  <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-slate-200">
+                    {externalHandoff.completedEvidence.length} أدلة
+                  </div>
+                  <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-slate-200">
+                    {externalHandoff.proposedAccommodations.length} تكييفات مقترحة
+                  </div>
+                </div>
+              </div>
+            </section>
+          ) : null}
 
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
             <div>{canViewPage ? children : <AccessRestricted pageId={pageId as AppPageId} />}</div>

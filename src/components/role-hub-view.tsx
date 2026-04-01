@@ -124,7 +124,7 @@ const RowsTable = ({
   <SectionCard
     eyebrow={sectionLabel}
     title="القائمة المختصرة"
-    description="القائمة الوحيدة داخل هذه البوابة."
+    description="القائمة الوحيدة داخل هذه المساحة."
     className="scroll-mt-24"
   >
     <div className="table-shell">

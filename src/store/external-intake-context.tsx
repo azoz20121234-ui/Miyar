@@ -9,58 +9,7 @@ import {
   useState
 } from "react";
 
-export interface CandidateIntake {
-  start: {
-    fullName: string;
-    city: string;
-    targetRole: string;
-  };
-  capabilities: {
-    digitalNavigation: string;
-    writtenCommunication: string;
-    documentHandling: string;
-    keyboardUse: string;
-  };
-  evidence: {
-    workSample: string;
-    toolsUsed: string;
-    supportEvidence: string;
-  };
-  preferences: {
-    workMode: string;
-    supportTools: string;
-    scheduleNotes: string;
-    contactPreference: string;
-  };
-}
-
-export interface EmployerIntake {
-  start: {
-    companyName: string;
-    ownerName: string;
-    roleTitle: string;
-  };
-  jobBreakdown: {
-    rolePurpose: string;
-    coreTasks: string;
-    tools: string;
-  };
-  requirements: {
-    mustHave: string;
-    communicationPattern: string;
-    workMode: string;
-  };
-  risks: {
-    operationalRisks: string;
-    reviewPoints: string;
-    blockers: string;
-  };
-  accommodations: {
-    currentSupport: string;
-    openAdjustments: string;
-    budgetNotes: string;
-  };
-}
+import { CandidateIntake, EmployerIntake } from "@/lib/external-handoff";
 
 interface ExternalIntakeContextValue {
   candidate: CandidateIntake;

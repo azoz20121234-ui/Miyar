@@ -7,6 +7,11 @@ import { DecisionCard } from "@/components/decision-card";
 import { InfoCard } from "@/components/info-card";
 import { SectionCard } from "@/components/section-card";
 import { StatusPill } from "@/components/status-pill";
+import {
+  EXTERNAL_ROLE_ORDER,
+  EXTERNAL_ROLE_REFERENCE,
+  INTERNAL_ROLE_REFERENCE
+} from "@/lib/experience-roles";
 import { formatCurrencyRange, statusLabel } from "@/lib/scoring";
 import { APP_ROLES, getFirstAllowedHref, getRoleConfig } from "@/lib/role-model";
 import { useAssessment } from "@/store/assessment-context";
@@ -41,7 +46,7 @@ export default function LandingPage() {
                 href="/home"
                 className="rounded-full bg-white px-5 py-3 text-center text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
               >
-                ادخل البوابة الحالية
+                ادخل النواة الداخلية
               </Link>
             </div>
           </div>
@@ -94,13 +99,14 @@ export default function LandingPage() {
           />
 
           <SectionCard
-            eyebrow="اختيار البوابة"
-            title="ادخل حسب الدور"
-            description="اختر البوابة التي تريد العمل منها."
+            eyebrow="النواة الداخلية"
+            title="النواة الداخلية"
+            description="مساحة قرار داخلية موحدة. كل دور يرى طبقة مختلفة من الحالة داخل نفس المحرك."
           >
             <div className="grid gap-4 lg:grid-cols-3">
               {APP_ROLES.map((item) => {
                 const config = getRoleConfig(item);
+                const definition = INTERNAL_ROLE_REFERENCE[item];
                 return (
                   <button
                     key={item}
@@ -111,13 +117,73 @@ export default function LandingPage() {
                     }}
                     className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 text-right transition hover:bg-white/[0.06]"
                   >
-                    <div className="text-xs tracking-[0.18em] text-slate-500">بوابة</div>
+                    <div className="text-xs tracking-[0.18em] text-slate-500">دور داخلي</div>
                     <div className="mt-3 text-2xl font-semibold text-white">{config.label}</div>
-                    <div className="mt-3 text-sm leading-7 text-slate-400">{config.description}</div>
+                    <div className="mt-3 text-sm leading-7 text-slate-400">{definition.description}</div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {definition.sees.slice(0, 2).map((entry) => (
+                        <span
+                          key={`${item}-${entry}`}
+                          className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-slate-300"
+                        >
+                          {entry}
+                        </span>
+                      ))}
+                    </div>
                     <div className="mt-5 inline-flex rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm text-white">
                       ادخل البوابة
                     </div>
                   </button>
+                );
+              })}
+            </div>
+          </SectionCard>
+
+          <SectionCard
+            eyebrow="الطبقة الخارجية"
+            title="البوابات الخارجية"
+            description="طبقة إدخال ومتابعة محدودة تغذي Meyar Core دون كشف القرار الداخلي."
+          >
+            <div className="grid gap-4 lg:grid-cols-3">
+              {EXTERNAL_ROLE_ORDER.map((role) => {
+                const item = EXTERNAL_ROLE_REFERENCE[role];
+                const active = !item.futureReady;
+
+                return active ? (
+                  <Link
+                    key={role}
+                    href={item.homeHref}
+                    className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 transition hover:bg-white/[0.06]"
+                  >
+                    <div className="text-xs tracking-[0.18em] text-slate-500">بوابة خارجية</div>
+                    <div className="mt-3 text-2xl font-semibold text-white">{item.label}</div>
+                    <div className="mt-3 text-sm leading-7 text-slate-400">{item.description}</div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {item.sees.slice(0, 2).map((entry) => (
+                        <span
+                          key={`${role}-${entry}`}
+                          className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-slate-300"
+                        >
+                          {entry}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="mt-5 inline-flex rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm text-white">
+                      افتح البوابة
+                    </div>
+                  </Link>
+                ) : (
+                  <div
+                    key={role}
+                    className="rounded-[28px] border border-white/10 bg-white/[0.02] p-6"
+                  >
+                    <div className="text-xs tracking-[0.18em] text-slate-500">جاهز لاحقًا</div>
+                    <div className="mt-3 text-2xl font-semibold text-white">{item.label}</div>
+                    <div className="mt-3 text-sm leading-7 text-slate-400">{item.description}</div>
+                    <div className="mt-5 inline-flex rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-slate-400">
+                      غير مفعل الآن
+                    </div>
+                  </div>
                 );
               })}
             </div>
@@ -172,7 +238,13 @@ export default function LandingPage() {
           <div>Meyar</div>
           <div className="flex flex-wrap gap-4">
             <Link href="/home" className="transition hover:text-white">
-              البوابة
+              النواة الداخلية
+            </Link>
+            <Link href="/external/candidate" className="transition hover:text-white">
+              المرشح
+            </Link>
+            <Link href="/external/employer" className="transition hover:text-white">
+              جهة العمل
             </Link>
             <Link href="/readiness-report" className="transition hover:text-white">
               التقرير

@@ -42,6 +42,9 @@ export default function ExternalCandidatePage() {
   const activeIndex = stepIndex(step);
   const previousStep = activeIndex > 0 ? candidateSteps[activeIndex - 1].id : null;
   const nextStep = activeIndex < candidateSteps.length - 1 ? candidateSteps[activeIndex + 1].id : null;
+  const nextStepLabel = nextStep
+    ? candidateSteps.find((item) => item.id === nextStep)?.label ?? "المتابعة"
+    : "الإرسال";
 
   const primaryLabel = step === "summary" ? "انتقل إلى الإرسال" : "متابعة";
   const primaryHref = step === "summary" ? "/external/submit" : null;
@@ -66,16 +69,18 @@ export default function ExternalCandidatePage() {
           <div className="portal-label">ملخص سريع</div>
           <div className="mt-3 space-y-3 text-sm">
             <div className="flex items-center justify-between gap-3">
-              <span className="text-slate-400">الاسم</span>
-              <span className="text-white">{candidate.start.fullName || "غير مكتمل"}</span>
+              <span className="text-slate-400">حالة الملف</span>
+              <span className="text-white">{step === "summary" ? "جاهز للربط" : "قيد الإدخال"}</span>
             </div>
             <div className="flex items-center justify-between gap-3">
-              <span className="text-slate-400">الدور</span>
-              <span className="text-white">{candidate.start.targetRole || "غير محدد"}</span>
+              <span className="text-slate-400">الخطوة التالية</span>
+              <span className="text-white">{nextStepLabel}</span>
             </div>
             <div className="flex items-center justify-between gap-3">
-              <span className="text-slate-400">التفضيل</span>
-              <span className="text-white">{candidate.preferences.contactPreference || "غير مكتمل"}</span>
+              <span className="text-slate-400">التكييف المقترح</span>
+              <span className="text-white">
+                {candidate.preferences.supportTools || "بانتظار الإدخال"}
+              </span>
             </div>
           </div>
         </div>

@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 
 import { ExternalFlowCard } from "@/components/external/external-flow-card";
 import { ExternalShell } from "@/components/external/external-shell";
+import { buildExternalHandoff } from "@/lib/external-handoff";
+import { useAssessment } from "@/store/assessment-context";
 import { useRoleSession } from "@/store/role-session-context";
 import { useExternalIntake } from "@/store/external-intake-context";
 
@@ -13,8 +15,11 @@ export default function ExternalSubmitPage() {
   const router = useRouter();
   const { setRole } = useRoleSession();
   const { candidate, employer } = useExternalIntake();
+  const { applyExternalHandoff } = useAssessment();
+  const handoff = buildExternalHandoff(candidate, employer);
 
   const handleStartAssessment = () => {
+    applyExternalHandoff(handoff);
     setRole("case-initiator");
     router.push("/portal/new-case");
   };
@@ -41,6 +46,10 @@ export default function ExternalSubmitPage() {
             <div className="flex items-center justify-between gap-3">
               <span className="text-slate-400">المسار التالي</span>
               <span className="text-white">بدء التقييم الداخلي</span>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-slate-400">الجاهزية الأولية</span>
+              <span className="text-white">{handoff.initialReadiness}%</span>
             </div>
           </div>
         </div>
@@ -74,7 +83,7 @@ export default function ExternalSubmitPage() {
               <div className="flex items-center justify-between gap-3">
                 <span className="text-slate-400">الأدوات المفضلة</span>
                 <span className="text-right text-white">
-                  {candidate.preferences.supportTools}
+                  {handoff.proposedAccommodations.join("، ")}
                 </span>
               </div>
             </div>
@@ -93,7 +102,7 @@ export default function ExternalSubmitPage() {
               </div>
               <div className="flex items-center justify-between gap-3">
                 <span className="text-slate-400">المهام</span>
-                <span className="text-right text-white">{employer.jobBreakdown.coreTasks}</span>
+                <span className="text-right text-white">{handoff.coreTasks.join("، ")}</span>
               </div>
             </div>
           </section>
@@ -101,18 +110,15 @@ export default function ExternalSubmitPage() {
           <section className="surface-card-muted px-5 py-5">
             <div className="portal-label">ما سينتقل داخليًا</div>
             <div className="mt-4 space-y-3 text-sm">
-              {[
-                "بيانات الوظيفة الأساسية",
-                "صورة تشغيلية أولية عن قدرات المرشح",
-                "المخاطر والتكييفات المفتوحة قبل القرار"
-              ].map((item) => (
-                <div
-                  key={item}
-                  className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white"
-                >
-                  {item}
-                </div>
-              ))}
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white">
+                {handoff.candidateName} • {handoff.candidateTargetRole}
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white">
+                {handoff.completedEvidence.length} أدلة مكتملة • {handoff.initialReadinessLabel}
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white">
+                {handoff.jobTitle} • {handoff.proposedAccommodations.length} تكييفات مقترحة
+              </div>
             </div>
           </section>
         </div>

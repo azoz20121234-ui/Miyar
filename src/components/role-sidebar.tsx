@@ -16,7 +16,7 @@ export const RoleSidebar = () => {
   return (
     <div className="space-y-4">
       <div className="surface-card-soft p-5">
-        <div className="portal-label">جلسة البوابة</div>
+        <div className="portal-label">جلسة Meyar Core</div>
         <div className="mt-3 text-xl font-semibold tracking-[-0.02em] text-white">{roleLabel}</div>
         <div className="mt-2 text-sm leading-6 body-muted">{roleDescription}</div>
         <div className="mt-4">
@@ -25,7 +25,7 @@ export const RoleSidebar = () => {
       </div>
 
       <div className="surface-card-soft p-5">
-        <div className="portal-label">تنقل البوابة</div>
+        <div className="portal-label">تنقل المساحة</div>
         <div className="mt-4 space-y-2">
           {config.navItems.map((item) => {
             const active = pathname === item.href;
