@@ -5,7 +5,6 @@ import { useMemo, useState } from "react";
 import { ActionCard } from "@/components/action-card";
 import { AppShell } from "@/components/app-shell";
 import { DecisionCard } from "@/components/decision-card";
-import { InfoCard } from "@/components/info-card";
 import { ReportActions } from "@/components/report-actions";
 import { SectionCard } from "@/components/section-card";
 import { StatusPill } from "@/components/status-pill";
@@ -36,9 +35,11 @@ const riskTone = (risk: "low" | "medium" | "high") => {
 const ScenarioCard = ({ scenario }: { scenario: DecisionShiftScenario }) => (
   <ActionCard
     eyebrow="Scenario"
-    title={scenario.title}
-    description={scenario.summary}
-    meta={`Readiness ${scenario.projectedReadiness}% • Confidence +${scenario.confidenceDelta}%`}
+    title={scenario.projectedDecision}
+    problem={scenario.title}
+    reason={scenario.summary}
+    impact={`Readiness ${scenario.projectedReadiness}% • Confidence +${scenario.confidenceDelta}%`}
+    meta={`Residual ${scenario.residualRisk}`}
     status={
       <StatusPill
         label={scenario.closableNow ? "Decision shift" : "Partial shift"}
@@ -56,18 +57,17 @@ export default function ReadinessReportPage() {
   const isExecutive = role === "executive-viewer";
   const isManager = role === "hiring-manager";
   const isAdmin = role === "platform-admin";
-  const showFullBlocks = role === "compliance-reviewer" || isAdmin;
 
   const positiveDrivers = useMemo(() => {
-    if (!isManager) return explainability.topPositiveDrivers;
+    if (!isManager) return explainability.topPositiveDrivers.slice(0, 2);
     const filtered = explainability.topPositiveDrivers.filter(roleDriverFilter);
-    return filtered.length ? filtered : explainability.topPositiveDrivers.slice(0, 3);
+    return (filtered.length ? filtered : explainability.topPositiveDrivers).slice(0, 2);
   }, [explainability.topPositiveDrivers, isManager]);
 
   const negativeDrivers = useMemo(() => {
-    if (!isManager) return explainability.topNegativeDrivers;
+    if (!isManager) return explainability.topNegativeDrivers.slice(0, 2);
     const filtered = explainability.topNegativeDrivers.filter(roleDriverFilter);
-    return filtered.length ? filtered : explainability.topNegativeDrivers.slice(0, 3);
+    return (filtered.length ? filtered : explainability.topNegativeDrivers).slice(0, 2);
   }, [explainability.topNegativeDrivers, isManager]);
 
   const blocks = useMemo(() => {
@@ -80,140 +80,59 @@ export default function ReadinessReportPage() {
     explainability.recommendationModes.find((item) => item.mode === mode) ??
     explainability.recommendationModes[0];
 
-  const leadScenario =
-    explainability.scenarios.find((item) => item.closableNow) ??
-    [...explainability.scenarios].sort((left, right) => right.projectedReadiness - left.projectedReadiness)[0];
-
   return (
     <AppShell
       pageId="readiness-report"
       title="Executive Decision Brief"
-      subtitle="Brief تنفيذي مضغوط يوضح القرار، سببه، ما يمنع اعتماده، وما الذي يغيّره."
+      subtitle="Brief تنفيذي سريع القراءة يبرز القرار الحالي، أسبابِه، موانعه، وخطوات تغييره."
       actions={<ReportActions />}
     >
-      <div className="space-y-6">
-        <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-          <DecisionCard
-            eyebrow="Decision"
-            title={bundle.report.recommendation}
-            summary={`الحالة في ${caseWorkflow.currentStateLabel} ويقودها ${caseWorkflow.currentOwnerLabel}.`}
-            value={`${bundle.report.finalReadiness}%`}
-            badge={<StatusPill label={bundle.report.recommendation} tone={statusTone(bundle.report.status)} />}
-            footer={
-              <div className="grid gap-3 sm:grid-cols-3">
-                <div className="surface-card-muted px-4 py-3">
-                  <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Why</div>
-                  <div className="mt-2 text-sm font-medium text-white">
-                    {blocks.length > 0 ? "توجد موانع قابلة للإغلاق" : "لا يوجد مانع مباشر"}
-                  </div>
-                </div>
-                <div className="surface-card-muted px-4 py-3">
-                  <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Blockers</div>
-                  <div className="mt-2 text-sm font-medium text-white">{explainability.approvalBlocks.length}</div>
-                </div>
-                <div className="surface-card-muted px-4 py-3">
-                  <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Confidence</div>
-                  <div className="mt-2 text-sm font-medium text-white">{bundle.report.confidence}%</div>
-                </div>
+      <div className="mx-auto max-w-5xl space-y-6">
+        <DecisionCard
+          eyebrow="Decision"
+          title={bundle.report.recommendation}
+          summary={`الحالة في ${caseWorkflow.currentStateLabel} ويقودها ${caseWorkflow.currentOwnerLabel}.`}
+          value={`${bundle.report.finalReadiness}%`}
+          badge={<StatusPill label={bundle.report.recommendation} tone={statusTone(bundle.report.status)} />}
+          className="p-7 sm:p-9"
+          footer={
+            <div className="grid gap-3 sm:grid-cols-4">
+              <div className="surface-card-muted px-4 py-3">
+                <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Stage</div>
+                <div className="mt-2 text-sm font-medium text-white">{caseWorkflow.currentStateLabel}</div>
               </div>
-            }
-          />
-
-          <div className="grid gap-4">
-            <InfoCard
-              label="Current stage"
-              value={caseWorkflow.currentStateLabel}
-              hint={`Owner ${caseWorkflow.currentOwnerLabel}`}
-            />
-            <InfoCard
-              label="Threshold gap"
-              value={`${explainability.threshold.currentGap}%`}
-              hint={explainability.threshold.gapSummary}
-            />
-            <InfoCard
-              label="Estimated cost"
-              value={formatCurrencyRange(bundle.report.totalCostRangeSar)}
-              hint={`${bundle.report.maxImplementationDays} يوم للتنفيذ المتوقع`}
-            />
-          </div>
-        </section>
+              <div className="surface-card-muted px-4 py-3">
+                <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Blockers</div>
+                <div className="mt-2 text-sm font-medium text-white">{explainability.approvalBlocks.length}</div>
+              </div>
+              <div className="surface-card-muted px-4 py-3">
+                <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Threshold gap</div>
+                <div className="mt-2 text-sm font-medium text-white">{explainability.threshold.currentGap}%</div>
+              </div>
+              <div className="surface-card-muted px-4 py-3">
+                <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Estimated cost</div>
+                <div className="mt-2 text-sm font-medium text-white">{formatCurrencyRange(bundle.report.totalCostRangeSar)}</div>
+              </div>
+            </div>
+          }
+        />
 
         {!isExecutive ? (
           <SectionCard
             eyebrow="Why"
             title="Why this decision"
-            description="أقوى الأسباب التي رفعت القرار وخفضته."
+            description="أقوى ما رفع القرار وأقوى ما خفضه."
           >
-            <div className="grid gap-4 xl:grid-cols-2">
-              <div className="space-y-4">
-                {positiveDrivers.map((driver) => (
-                  <ActionCard
-                    key={driver.id}
-                    eyebrow="Positive driver"
-                    title={driver.title}
-                    description={driver.summary}
-                    meta={`+${Math.abs(driver.impact)} impact`}
-                    status={<StatusPill label={driver.level} tone={driverTone(driver.level)} />}
-                  />
-                ))}
-              </div>
-              <div className="space-y-4">
-                {negativeDrivers.map((driver) => (
-                  <ActionCard
-                    key={driver.id}
-                    eyebrow="Negative driver"
-                    title={driver.title}
-                    description={driver.summary}
-                    meta={`-${Math.abs(driver.impact)} impact`}
-                    status={<StatusPill label={driver.level} tone={driverTone(driver.level)} />}
-                  />
-                ))}
-              </div>
-            </div>
-          </SectionCard>
-        ) : null}
-
-        {showFullBlocks || isExecutive ? (
-          <SectionCard
-            eyebrow="Blockers"
-            title="What blocks approval"
-            description="العناصر التي تمنع Approved أو تؤخره الآن."
-          >
-            <div className="grid gap-4 xl:grid-cols-3">
-              {blocks.map((block) => (
+            <div className="space-y-4">
+              {[...positiveDrivers, ...negativeDrivers].map((driver) => (
                 <ActionCard
-                  key={block.id}
-                  eyebrow="Approval block"
-                  title={block.title}
-                  description={block.requiredAction}
-                  meta={block.ownerLabel}
-                  status={
-                    <StatusPill
-                      label={block.blocker ? "Blocker" : "Review"}
-                      tone={block.blocker ? "danger" : "warning"}
-                    />
-                  }
-                />
-              ))}
-            </div>
-          </SectionCard>
-        ) : null}
-
-        {!isExecutive ? (
-          <SectionCard
-            eyebrow="Actions"
-            title="What must happen next"
-            description="3 إجراءات فقط قبل تحريك القرار."
-          >
-            <div className="grid gap-4 xl:grid-cols-3">
-              {explainability.nextActions.slice(0, 3).map((action) => (
-                <ActionCard
-                  key={action.id}
-                  eyebrow="Next"
-                  title={action.title}
-                  description={action.requiredAction}
-                  meta={`${action.ownerLabel} • ${action.expectedImpact}`}
-                  status={<StatusPill label={action.urgency} tone={action.urgency === "now" ? "danger" : action.urgency === "next" ? "warning" : "neutral"} />}
+                  key={driver.id}
+                  eyebrow={driver.direction === "positive" ? "Positive" : "Negative"}
+                  title={driver.title}
+                  problem={driver.title}
+                  reason={driver.summary}
+                  impact={`${driver.direction === "positive" ? "+" : "-"}${Math.abs(driver.impact)} impact`}
+                  status={<StatusPill label={driver.level} tone={driverTone(driver.level)} />}
                 />
               ))}
             </div>
@@ -221,39 +140,78 @@ export default function ReadinessReportPage() {
         ) : null}
 
         <SectionCard
+          eyebrow="Blockers"
+          title="What blocks approval"
+          description="العناصر الأوضح التي تمنع القرار أو تؤخره الآن."
+        >
+          <div className="space-y-4">
+            {blocks.map((block) => (
+              <ActionCard
+                key={block.id}
+                eyebrow="Blocker"
+                title={block.title}
+                problem={block.title}
+                reason={block.requiredAction}
+                impact={`المسؤول ${block.ownerLabel}`}
+                status={
+                  <StatusPill
+                    label={block.blocker ? "Blocker" : "Review"}
+                    tone={block.blocker ? "danger" : "warning"}
+                  />
+                }
+              />
+            ))}
+          </div>
+        </SectionCard>
+
+        <SectionCard
+          eyebrow="Actions"
+          title="What must happen next"
+          description="أهم 3 إجراءات قبل تحريك القرار."
+        >
+          <div className="space-y-4">
+            {explainability.nextActions.slice(0, 3).map((action) => (
+              <ActionCard
+                key={action.id}
+                eyebrow="Action"
+                title={action.title}
+                problem={action.title}
+                reason={action.requiredAction}
+                impact={action.expectedImpact}
+                meta={action.ownerLabel}
+                status={
+                  <StatusPill
+                    label={action.urgency}
+                    tone={
+                      action.urgency === "now"
+                        ? "danger"
+                        : action.urgency === "next"
+                          ? "warning"
+                          : "neutral"
+                    }
+                  />
+                }
+              />
+            ))}
+          </div>
+        </SectionCard>
+
+        <SectionCard
           eyebrow="Scenario"
           title="If we act now"
-          description="السيناريوهات الأقرب لتحريك القرار من الوضع الحالي."
+          description="السيناريوهات الأقرب لتغيير القرار من الوضع الحالي."
         >
-          <div className="grid gap-4 xl:grid-cols-3">
+          <div className="space-y-4">
             {explainability.scenarios.map((scenario) => (
               <ScenarioCard key={scenario.id} scenario={scenario} />
             ))}
-          </div>
-          <div className="mt-5 grid gap-4 md:grid-cols-3">
-            <InfoCard
-              label="Expected decision"
-              value={leadScenario.projectedDecision}
-              hint="أفضل سيناريو متاح من الحالة الحالية"
-            />
-            <InfoCard
-              label="Residual risk"
-              value={leadScenario.residualRisk}
-              hint="بعد تنفيذ السيناريو الأقرب"
-              badge={<StatusPill label={leadScenario.residualRisk} tone={riskTone(leadScenario.residualRisk)} />}
-            />
-            <InfoCard
-              label="Decision threshold"
-              value={`${explainability.threshold.approvalThreshold}%`}
-              hint={`Current ${explainability.threshold.currentReadiness}%`}
-            />
           </div>
         </SectionCard>
 
         <SectionCard
           eyebrow="Final Statement"
           title="Final statement"
-          description="صياغة تنفيذية جاهزة للعرض أو المحضر."
+          description="صياغة تنفيذية قصيرة قابلة للعرض."
         >
           <div className="flex flex-wrap gap-3">
             {(["conservative", "balanced", "enablement-first"] as DecisionRecommendationMode[]).map(
@@ -278,12 +236,14 @@ export default function ReadinessReportPage() {
             )}
           </div>
 
-          <div className="mt-5 surface-card-soft p-6">
+          <div className="mt-5 surface-card p-6">
             <div className="flex flex-wrap items-center gap-3">
               <div className="text-lg font-semibold text-white">{activeRecommendation.title}</div>
               <StatusPill label={activeRecommendation.summary} tone="neutral" />
+              <StatusPill label={`${bundle.report.confidence}% confidence`} tone="neutral" />
+              <StatusPill label={bundle.report.residualRiskLevel} tone={riskTone(bundle.report.residualRiskLevel)} />
             </div>
-            <div className="mt-4 text-lg leading-9 text-white">
+            <div className="mt-5 text-xl leading-10 text-white">
               {activeRecommendation.printableText}
             </div>
           </div>
@@ -293,7 +253,7 @@ export default function ReadinessReportPage() {
           <SectionCard
             eyebrow="Trace"
             title="Approval trace"
-            description="عرض مختصر لمسار المتطلبات قبل الاعتماد."
+            description="مسار مختصر لشروط الاعتماد."
           >
             <div className="table-shell">
               <table className="min-w-full divide-y divide-white/10 text-sm">

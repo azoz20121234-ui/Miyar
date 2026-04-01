@@ -9,8 +9,6 @@ import { useRoleSession } from "@/store/role-session-context";
 
 import { ActionCard } from "./action-card";
 import { AppShell } from "./app-shell";
-import { DecisionCard } from "./decision-card";
-import { InfoCard } from "./info-card";
 import { SectionCard } from "./section-card";
 import { StatusPill } from "./status-pill";
 
@@ -79,6 +77,13 @@ const portalVariantLabel = {
   "platform-admin": "Platform Control"
 } as const;
 
+const impactForAction = (index: number, nextStageLabel: string, recommendation: string) => {
+  if (index === 0) return `يحرك الحالة مباشرة نحو ${nextStageLabel}.`;
+  if (index === 1) return "يخفض العوائق المفتوحة ويعطي المراجع التالي صورة أوضح.";
+  if (index === 2) return `يدعم قرار ${recommendation} بحزمة تشغيلية أكثر وضوحًا.`;
+  return "يرفع وضوح القرار داخل هذا المسار.";
+};
+
 const RowsTable = ({
   rows,
   sectionLabel
@@ -88,8 +93,9 @@ const RowsTable = ({
 }) => (
   <SectionCard
     eyebrow={sectionLabel}
-    title="Recent Items"
-    description="قائمة تشغيلية مختصرة مرتبطة بالبوابة الحالية."
+    title="Minimal List"
+    description="القائمة الوحيدة داخل هذه البوابة."
+    className="scroll-mt-24"
   >
     <div className="table-shell">
       <table className="min-w-full divide-y divide-white/10 text-sm">
@@ -102,7 +108,7 @@ const RowsTable = ({
           </tr>
         </thead>
         <tbody className="divide-y divide-white/10 bg-transparent">
-          {rows.map((row) => (
+          {rows.slice(0, 4).map((row) => (
             <tr key={`${row.primary}-${row.status}`}>
               <td className="px-4 py-4 text-white">{row.primary}</td>
               <td className="px-4 py-4 text-slate-300">{row.secondary}</td>
@@ -131,155 +137,10 @@ export const RoleHubView = ({
   const { bundle, explainability, caseWorkflow } = useAssessment();
   const { role } = useRoleSession();
   const portalLabel = portalVariantLabel[role];
-  const blockers = explainability.approvalBlocks.slice(0, 2);
-
-  const actionCards = actions.slice(0, 3).map((item, index) => (
-    <ActionCard
-      key={`${item.title}-${index}`}
-      eyebrow={index === 0 ? "Primary Work" : "Action"}
-      title={item.title}
-      description={item.meta}
-      meta={item.status}
-      status={item.status ? <StatusPill label={item.status} tone={toneForStatus(item.status)} /> : null}
-    />
-  ));
-
-  const metricsCards = metrics.slice(0, 3).map((item) => (
-    <InfoCard
-      key={item.label}
-      label={item.label}
-      value={item.value}
-      hint={item.hint}
-    />
-  ));
-
-  const decisionSummary = (
-    <DecisionCard
-      eyebrow={portalLabel}
-      title={title}
-      summary={subtitle}
-      value={`${bundle.report.finalReadiness}%`}
-      badge={<StatusPill label={bundle.report.recommendation} tone={statusTone(bundle.report.status)} />}
-      footer={
-        <div className="grid gap-3 sm:grid-cols-3">
-          <div className="surface-card-muted px-4 py-3">
-            <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Decision</div>
-            <div className="mt-2 text-sm font-medium text-white">{bundle.report.recommendation}</div>
-          </div>
-          <div className="surface-card-muted px-4 py-3">
-            <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Stage</div>
-            <div className="mt-2 text-sm font-medium text-white">{caseWorkflow.currentStateLabel}</div>
-          </div>
-          <div className="surface-card-muted px-4 py-3">
-            <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Open blockers</div>
-            <div className="mt-2 text-sm font-medium text-white">{explainability.approvalBlocks.length}</div>
-          </div>
-        </div>
-      }
-    />
-  );
-
-  const blockerRail = (
-    <div className="space-y-4">
-      {blockers.map((block) => (
-        <ActionCard
-          key={block.id}
-          eyebrow="Decision Blocker"
-          title={block.title}
-          description={block.requiredAction}
-          meta={block.ownerLabel}
-          status={<StatusPill label={block.blocker ? "Blocker" : "Review"} tone={block.blocker ? "danger" : "warning"} />}
-        />
-      ))}
-    </div>
-  );
-
-  const portalBody = (() => {
-    switch (role) {
-      case "executive-viewer":
-        return (
-          <div className="space-y-6">
-            <section className="grid gap-6 xl:grid-cols-[1.16fr_0.84fr]">
-              {decisionSummary}
-              <div className="grid gap-4">{metricsCards}</div>
-            </section>
-            <section className="grid gap-4 xl:grid-cols-3">{actionCards}</section>
-            <RowsTable rows={rows} sectionLabel={sectionLabel} />
-          </div>
-        );
-      case "compliance-reviewer":
-        return (
-          <div className="space-y-6">
-            <section className="grid gap-6 xl:grid-cols-[1.08fr_0.92fr]">
-              {decisionSummary}
-              {blockerRail}
-            </section>
-            <section className="grid gap-4 xl:grid-cols-3">{metricsCards}</section>
-            <section className="grid gap-6 xl:grid-cols-[0.82fr_1.18fr]">
-              <div className="space-y-4">{actionCards}</div>
-              <RowsTable rows={rows} sectionLabel={sectionLabel} />
-            </section>
-          </div>
-        );
-      case "platform-admin":
-        return (
-          <div className="space-y-6">
-            <section className="grid gap-6 xl:grid-cols-[1fr_1fr]">
-              {decisionSummary}
-              <SectionCard
-                eyebrow="Control Surface"
-                title="Admin snapshot"
-                description="مؤشرات سريعة للقوالب والمعايير والحالة الحالية."
-              >
-                <div className="grid gap-4 sm:grid-cols-3">{metricsCards}</div>
-              </SectionCard>
-            </section>
-            <section className="grid gap-4 xl:grid-cols-3">{actionCards}</section>
-            <RowsTable rows={rows} sectionLabel={sectionLabel} />
-          </div>
-        );
-      case "hiring-manager":
-        return (
-          <div className="space-y-6">
-            <section className="grid gap-6 xl:grid-cols-[1.18fr_0.82fr]">
-              {decisionSummary}
-              <div className="grid gap-4">{actionCards.slice(0, 2)}</div>
-            </section>
-            <section className="grid gap-4 xl:grid-cols-3">{metricsCards}</section>
-            <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-              <RowsTable rows={rows} sectionLabel={sectionLabel} />
-              <div className="space-y-4">{actionCards.slice(2)}</div>
-            </section>
-          </div>
-        );
-      case "assessor":
-        return (
-          <div className="space-y-6">
-            <section className="grid gap-6 xl:grid-cols-[1.08fr_0.92fr]">
-              {decisionSummary}
-              <div className="grid gap-4">{metricsCards}</div>
-            </section>
-            <section className="grid gap-4 xl:grid-cols-3">{actionCards}</section>
-            <RowsTable rows={rows} sectionLabel={sectionLabel} />
-          </div>
-        );
-      case "case-initiator":
-      default:
-        return (
-          <div className="space-y-6">
-            <section className="grid gap-6 xl:grid-cols-[1.18fr_0.82fr]">
-              {decisionSummary}
-              <div className="grid gap-4">{actionCards.slice(0, 2)}</div>
-            </section>
-            <section className="grid gap-4 xl:grid-cols-3">{metricsCards}</section>
-            <section className="grid gap-6 xl:grid-cols-[0.84fr_1.16fr]">
-              <div className="space-y-4">{actionCards.slice(2)}</div>
-              <RowsTable rows={rows} sectionLabel={sectionLabel} />
-            </section>
-          </div>
-        );
-    }
-  })();
+  const primaryAction = actions[0];
+  const supportingActions = actions.slice(1, 3);
+  const heroMetrics = metrics.slice(0, 3);
+  const topBlocker = explainability.approvalBlocks[0];
 
   return (
     <AppShell
@@ -295,7 +156,84 @@ export const RoleHubView = ({
         </Link>
       }
     >
-      {portalBody}
+      <div className="mx-auto max-w-5xl space-y-6">
+        <section className="surface-card-soft p-6">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <div className="portal-label">{portalLabel}</div>
+              <div className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-white sm:text-[40px]">
+                {bundle.report.recommendation}
+              </div>
+              <div className="mt-3 text-sm leading-7 body-muted">
+                {subtitle}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <StatusPill label={bundle.report.recommendation} tone={statusTone(bundle.report.status)} />
+              <StatusPill label={caseWorkflow.currentStateLabel} tone="neutral" />
+              {topBlocker ? <StatusPill label={`Blocker: ${topBlocker.ownerLabel}`} tone="warning" /> : null}
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            {heroMetrics.map((item) => (
+              <div key={item.label} className="surface-card-muted px-4 py-3">
+                <div className="text-[11px] uppercase tracking-[0.16em] text-slate-500">{item.label}</div>
+                <div className="mt-2 text-lg font-semibold text-white">{item.value}</div>
+                <div className="mt-1 text-xs body-muted">{item.hint}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {primaryAction ? (
+          <ActionCard
+            eyebrow="Primary Action"
+            title={primaryAction.title}
+            problem={primaryAction.title}
+            reason={primaryAction.meta ?? "هذا الإجراء هو المدخل الرئيسي لتحريك القرار الآن."}
+            impact={impactForAction(0, caseWorkflow.nextStageLabel, bundle.report.recommendation)}
+            meta={primaryAction.status}
+            status={
+              primaryAction.status ? (
+                <StatusPill label={primaryAction.status} tone={toneForStatus(primaryAction.status)} />
+              ) : (
+                <StatusPill label="Now" tone="success" />
+              )
+            }
+            cta={{ label: cta.label, href: cta.href }}
+            variant="primary"
+          />
+        ) : null}
+
+        <section className="space-y-4">
+          {supportingActions.map((item, index) => (
+            <ActionCard
+              key={`${item.title}-${index}`}
+              eyebrow="Supporting Action"
+              title={item.title}
+              problem={item.title}
+              reason={item.meta ?? "جزء داعم لتقليل التعليق داخل المسار الحالي."}
+              impact={impactForAction(index + 1, caseWorkflow.nextStageLabel, bundle.report.recommendation)}
+              meta={item.status}
+              status={
+                item.status ? (
+                  <StatusPill label={item.status} tone={toneForStatus(item.status)} />
+                ) : null
+              }
+              cta={{
+                label: index === 0 ? "افتح المسار" : "راجع القائمة",
+                href: index === 0 ? cta.href : "#portal-list"
+              }}
+            />
+          ))}
+        </section>
+
+        <div id="portal-list">
+          <RowsTable rows={rows} sectionLabel={sectionLabel} />
+        </div>
+      </div>
     </AppShell>
   );
 };
