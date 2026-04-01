@@ -62,27 +62,68 @@ h6 {
 
 @layer components {
   .surface-card {
-    @apply rounded-[28px] border border-white/10 bg-white/[0.035] shadow-panel;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.035);
+    box-shadow: 0 24px 64px -40px rgba(15, 23, 42, 0.7);
+  }
+
+  .decision-card {
+    border: 1px solid rgba(34, 211, 238, 0.15);
+    border-radius: 32px;
+    background: linear-gradient(180deg, rgba(10, 18, 30, 0.96) 0%, rgba(10, 14, 23, 0.98) 100%);
+    box-shadow: 0 28px 80px -48px rgba(34, 211, 238, 0.3);
+  }
+
+  .state-card {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    background: rgba(13, 21, 34, 0.88);
+  }
+
+  .summary-card {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .blocker-card {
+    border: 1px solid rgba(251, 191, 36, 0.18);
+    border-radius: 24px;
+    background: rgba(251, 191, 36, 0.08);
   }
 
   .surface-card-soft {
-    @apply rounded-[24px] border border-white/10 bg-white/[0.028];
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.028);
   }
 
   .surface-card-muted {
-    @apply rounded-[20px] border border-white/10 bg-white/[0.02];
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.02);
   }
 
   .portal-label {
-    @apply text-[11px] font-medium uppercase tracking-[0.24em] text-slate-500;
+    color: rgb(100 116 139);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
   }
 
   .page-title {
-    @apply text-[34px] font-semibold leading-tight text-white sm:text-[42px];
+    color: white;
+    font-size: 34px;
+    font-weight: 600;
+    line-height: 1.1;
   }
 
   .section-title {
-    @apply text-lg font-semibold text-white sm:text-xl;
+    color: white;
+    font-size: 1.125rem;
+    font-weight: 600;
   }
 
   .body-muted {
@@ -94,7 +135,22 @@ h6 {
   }
 
   .table-shell {
-    @apply overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.02];
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.02);
+  }
+}
+
+@media (min-width: 640px) {
+  @layer components {
+    .page-title {
+      font-size: 42px;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+    }
   }
 }
 

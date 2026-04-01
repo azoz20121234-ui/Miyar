@@ -82,20 +82,40 @@ export default function RoleHomePage() {
       items: [...roleDefinition.edits.slice(0, 2), ...roleDefinition.submits.slice(0, 2)].slice(0, 4)
     }
   ];
+  const roleZoneTitleMap = {
+    assessor: "منطقة عمل المقيّم",
+    "hiring-manager": "منطقة مراجعة المدير",
+    "compliance-reviewer": "منطقة قرار الامتثال",
+    "executive-viewer": "المنطقة التنفيذية",
+    "case-initiator": "منطقة بدء الحالة",
+    "platform-admin": "منطقة إدارة المنصة"
+  } as const;
+  const supportCards = [
+    {
+      title: "الأدلة",
+      items:
+        externalHandoff?.candidate.evidence.length
+          ? externalHandoff.candidate.evidence.slice(0, 3)
+          : ["لا توجد أدلة مرفقة بعد"]
+    },
+    {
+      title: "التكييفات",
+      items:
+        bundle.plan.items.length > 0
+          ? bundle.plan.items.slice(0, 3).map((item) => item.name)
+          : ["لا توجد تكييفات حاسمة حتى الآن"]
+    },
+    {
+      title: "الملخص",
+      items: [bundle.report.executiveSummary]
+    }
+  ];
 
   return (
     <AppShell
       pageId="home"
       title={`مساحة ${roleDefinition.label}`}
       subtitle="مساحة قرار موحدة تركّز على المرحلة الحالية، المانع الأعلى، والإجراء التالي لهذا الدور فقط."
-      actions={
-        <Link
-          href={roleConfig.primaryAction.href}
-          className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
-        >
-          {roleConfig.primaryAction.label}
-        </Link>
-      }
     >
       <div className="mx-auto max-w-5xl space-y-6">
         <section className="surface-card-soft p-6">
@@ -107,8 +127,11 @@ export default function RoleHomePage() {
                 </div>
               ) : null}
               <div className="portal-label">الحالة الحالية</div>
-              <div className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-white sm:text-[40px]">
+              <div className="mt-3 text-sm text-slate-400">
                 {job.title || `الحالة #${caseRecord.id}`}
+              </div>
+              <div className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-white sm:text-[42px]">
+                {bundle.report.recommendation}
               </div>
               <div className="mt-3 text-sm leading-7 body-muted">
                 الحالة #{caseRecord.id} • المرحلة الحالية {caseWorkflow.currentStateLabel} • المالك الحالي{" "}
@@ -126,12 +149,7 @@ export default function RoleHomePage() {
             </div>
           </div>
 
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="surface-card-muted px-4 py-3">
-              <div className="text-[11px] tracking-[0.16em] text-slate-500">القرار الحالي</div>
-              <div className="mt-2 text-lg font-semibold text-white">{bundle.report.recommendation}</div>
-              <div className="mt-1 text-xs body-muted">جاهزية {bundle.report.finalReadiness}%</div>
-            </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             <div className="surface-card-muted px-4 py-3">
               <div className="text-[11px] tracking-[0.16em] text-slate-500">أعلى مانع</div>
               <div className="mt-2 text-lg font-semibold text-white">
@@ -156,55 +174,9 @@ export default function RoleHomePage() {
           </div>
         </section>
 
-        {isAdmin ? (
-          <ActionCard
-            eyebrow="الإجراء الرئيسي"
-            title={roleConfig.primaryAction.label}
-            problem="هذه المساحة للإعدادات والمعايير والسجل."
-            reason="هذا الدور لا يدير التقييم التشغيلي المباشر، بل يضبط النظام الذي يعتمد عليه القرار."
-            impact="التحرك من هنا يرفع اتساق القوالب والمعايير والصلاحيات داخل المنصة."
-            meta="مساحة الإدارة"
-            status={<StatusPill label="إدارة" tone="neutral" />}
-            cta={{
-              label: roleConfig.primaryAction.label,
-              href: roleConfig.primaryAction.href
-            }}
-            variant="primary"
-          />
-        ) : (
-          <ActionCard
-            eyebrow="الإجراء الرئيسي"
-            title={primaryAction.label}
-            problem={primaryAction.label}
-            reason={primaryAction.description}
-            impact={`إذا أُنجز هذا الإجراء ستتحرك الحالة نحو ${caseWorkflow.nextStageLabel}.`}
-            meta={`المرحلة الحالية ${caseWorkflow.currentStateLabel}`}
-            status={
-              <StatusPill
-                label={primaryAction.disabled ? "معلّق" : "جاهز"}
-                tone={primaryAction.disabled ? "warning" : "success"}
-              />
-            }
-            cta={
-              primaryAction.kind === "link"
-                ? {
-                    label: primaryAction.label,
-                    href: primaryAction.href,
-                    disabled: primaryAction.disabled
-                  }
-                : {
-                    label: primaryAction.label,
-                    onClick: handlePrimaryAction,
-                    disabled: primaryAction.disabled
-                  }
-            }
-            variant="primary"
-          />
-        )}
-
         <SectionCard
           eyebrow={isAdmin ? "مساحة الإدارة" : "منطقة العمل"}
-          title={isAdmin ? "ماذا تدير الآن؟" : `ما الذي يخص ${roleDefinition.label}؟`}
+          title={roleZoneTitleMap[role]}
           description={
             isAdmin
               ? "هذه المساحة تختلف عن الأدوار التشغيلية وتركّز على التحكم الداخلي."
@@ -212,94 +184,120 @@ export default function RoleHomePage() {
           }
         >
           {isAdmin ? (
-            <div className="grid gap-3 md:grid-cols-3">
-              {adminZoneCards.map((card) => (
-                <Link
-                  key={card.title}
-                  href={card.href}
-                  className="surface-card-muted block px-4 py-4 transition hover:bg-white/[0.05]"
-                >
-                  <div className="text-sm font-semibold text-white">{card.title}</div>
-                  <div className="mt-2 text-sm leading-6 text-slate-400">{card.description}</div>
-                </Link>
-              ))}
+            <div className="space-y-4">
+              <ActionCard
+                eyebrow="الإجراء الرئيسي"
+                title={roleConfig.primaryAction.label}
+                problem="هذه المساحة للإعدادات والمعايير والسجل."
+                reason="هذا الدور لا يدير التقييم التشغيلي المباشر، بل يضبط النظام الذي يعتمد عليه القرار."
+                impact="التحرك من هنا يرفع اتساق القوالب والمعايير والصلاحيات داخل المنصة."
+                meta="مساحة الإدارة"
+                status={<StatusPill label="إدارة" tone="neutral" />}
+                cta={{
+                  label: roleConfig.primaryAction.label,
+                  href: roleConfig.primaryAction.href
+                }}
+                variant="primary"
+              />
+
+              <div className="grid gap-3 md:grid-cols-3">
+                {adminZoneCards.map((card) => (
+                  <Link
+                    key={card.title}
+                    href={card.href}
+                    className="state-card block px-4 py-4 transition hover:bg-white/[0.05]"
+                  >
+                    <div className="text-sm font-semibold text-white">{card.title}</div>
+                    <div className="mt-2 text-sm leading-6 text-slate-400">{card.description}</div>
+                  </Link>
+                ))}
+              </div>
             </div>
           ) : (
-            <div className="grid gap-3 md:grid-cols-2">
-              {roleZoneCards.map((card) => (
-                <div key={card.title} className="surface-card-muted px-4 py-4">
-                  <div className="text-sm font-semibold text-white">{card.title}</div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {card.items.map((item) => (
-                      <span
-                        key={`${card.title}-${item}`}
-                        className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-slate-200"
-                      >
-                        {item}
-                      </span>
-                    ))}
+            <div className="space-y-4">
+              <ActionCard
+                eyebrow="الإجراء التالي"
+                title={primaryAction.label}
+                problem={primaryAction.label}
+                reason={primaryAction.description}
+                impact={`إذا أُنجز هذا الإجراء ستتحرك الحالة نحو ${caseWorkflow.nextStageLabel}.`}
+                meta={`المرحلة الحالية ${caseWorkflow.currentStateLabel}`}
+                status={
+                  <StatusPill
+                    label={primaryAction.disabled ? "معلّق" : "جاهز"}
+                    tone={primaryAction.disabled ? "warning" : "success"}
+                  />
+                }
+                cta={
+                  primaryAction.kind === "link"
+                    ? {
+                        label: primaryAction.label,
+                        href: primaryAction.href,
+                        disabled: primaryAction.disabled
+                      }
+                    : {
+                        label: primaryAction.label,
+                        onClick: handlePrimaryAction,
+                        disabled: primaryAction.disabled
+                      }
+                }
+                variant="primary"
+              />
+
+              <div className="grid gap-3 md:grid-cols-3">
+                <div className="blocker-card px-4 py-4">
+                  <div className="text-xs text-amber-100">المانع الحالي</div>
+                  <div className="mt-2 text-sm font-semibold text-white">
+                    {primaryBlock?.title ?? "لا يوجد مانع مباشر"}
+                  </div>
+                  <div className="mt-2 text-sm leading-6 text-slate-300">
+                    {primaryBlock?.requiredAction ?? "المسار جاهز للتحرك الآن."}
                   </div>
                 </div>
-              ))}
+
+                {roleZoneCards.map((card) => (
+                  <div key={card.title} className="state-card px-4 py-4">
+                    <div className="text-sm font-semibold text-white">{card.title}</div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {card.items.map((item) => (
+                        <span
+                          key={`${card.title}-${item}`}
+                          className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-slate-200"
+                        >
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </SectionCard>
 
-        {!isAdmin ? (
-          <section className="space-y-4">
-            {visibleBlocks.map((block, index) => (
-              <ActionCard
-                key={block.id}
-                eyebrow="إجراء مساند"
-                title={block.title}
-                problem={block.title}
-                reason={block.requiredAction}
-                impact={
-                  index === 0
-                    ? "إغلاقه يزيل مانع القرار الأول."
-                    : "إغلاقه يرفع وضوح الحزمة قبل الاعتماد."
-                }
-                meta={block.ownerLabel}
-                status={
-                  <StatusPill
-                    label={block.blocker ? "مانع" : "مراجعة"}
-                    tone={block.blocker ? "danger" : "warning"}
-                  />
-                }
-                cta={{ label: "راجع التقرير", href: "/readiness-report" }}
-              />
-            ))}
-          </section>
-        ) : null}
-
         <DecisionTimeline />
 
         <SectionCard
-          eyebrow="الموانع"
-          title="ملخص سريع"
-          description="عرض مختصر للموانع المفتوحة فقط."
+          eyebrow="سياق داعم"
+          title="ما الذي يدعم القرار؟"
+          description="تفاصيل مختصرة تظهر فقط عند الحاجة بعد القرار والإجراء."
         >
-          <div className="space-y-3">
-            {explainability.approvalBlocks.slice(0, 3).map((block) => (
-              <div key={block.id} className="surface-card-muted flex flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between">
-                <div className="min-w-0">
-                  <div className="text-sm font-semibold text-white">{block.title}</div>
-                  <div className="mt-1 text-sm leading-6 text-slate-400">{block.reason}</div>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <StatusPill
-                    label={block.blocker ? "مانع" : "مراجعة"}
-                    tone={block.blocker ? "danger" : "warning"}
-                  />
-                  <StatusPill label={block.ownerLabel} tone="neutral" />
+          <div className="grid gap-4 md:grid-cols-3">
+            {supportCards.map((card) => (
+              <div key={card.title} className="summary-card px-4 py-4">
+                <div className="text-sm font-semibold text-white">{card.title}</div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {card.items.map((item) => (
+                    <span
+                      key={`${card.title}-${item}`}
+                      className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-slate-200"
+                    >
+                      {item}
+                    </span>
+                  ))}
                 </div>
               </div>
             ))}
-            {explainability.approvalBlocks.length === 0 ? (
-              <div className="surface-card-muted px-4 py-4 text-sm text-slate-300">
-                لا توجد موانع مفتوحة في هذه اللحظة.
-              </div>
-            ) : null}
           </div>
         </SectionCard>
       </div>

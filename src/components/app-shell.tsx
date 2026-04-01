@@ -44,6 +44,15 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
   const canViewPage = pageId ? canAccess(pageId) : true;
   const portalLabel = portalNameMap[role];
   const isHomePage = pageId === "home";
+  const isFocusedSurface =
+    isHomePage ||
+    pageId === "job-analysis" ||
+    pageId === "portal:new-case" ||
+    pageId === "portal:submission-status";
+  const hideExternalBanner =
+    pageId === "job-analysis" ||
+    pageId === "portal:new-case" ||
+    pageId === "portal:submission-status";
 
   return (
     <div className="min-h-screen bg-cinematic text-slate-100">
@@ -104,22 +113,24 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
               <h1 className="page-title mt-3">{title}</h1>
               <p className="mt-3 max-w-2xl text-sm leading-7 body-muted sm:text-base">{subtitle}</p>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
-                الجاهزية {bundle.report.finalReadiness}%
+            {!isFocusedSurface ? (
+              <div className="flex flex-wrap gap-2">
+                <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
+                  الجاهزية {bundle.report.finalReadiness}%
+                </div>
+                <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
+                  الثقة {bundle.report.confidence}%
+                </div>
+                <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
+                  التالي {caseWorkflow.nextStageLabel}
+                </div>
               </div>
-              <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
-                الثقة {bundle.report.confidence}%
-              </div>
-              <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
-                التالي {caseWorkflow.nextStageLabel}
-              </div>
-            </div>
+            ) : null}
           </div>
 
-          {!isHomePage ? <CaseStatusBar /> : null}
+          {!isFocusedSurface ? <CaseStatusBar /> : null}
 
-          {externalHandoff ? (
+          {externalHandoff && !hideExternalBanner ? (
             <section className="surface-card-soft mb-6 p-5">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
@@ -149,10 +160,10 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
             </section>
           ) : null}
 
-          <div className={isHomePage ? "" : "grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]"}>
+          <div className={isFocusedSurface ? "" : "grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]"}>
             <div>{canViewPage ? children : <AccessRestricted pageId={pageId as AppPageId} />}</div>
 
-            {!isHomePage ? (
+            {!isFocusedSurface ? (
               <aside className="hidden xl:block">
                 <div className="sticky top-28 space-y-4">
                   <RoleSidebar />

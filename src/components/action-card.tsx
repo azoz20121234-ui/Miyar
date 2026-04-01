@@ -40,13 +40,15 @@ export const ActionCard = ({
 }: ActionCardProps) => {
   const ctaClass = cta?.disabled
     ? `${ctaBase} pointer-events-none cursor-not-allowed border border-white/10 bg-white/[0.03] text-slate-500`
-    : `${ctaBase} border border-white/10 bg-white/[0.05] text-white hover:bg-white/[0.08]`;
+    : variant === "primary"
+      ? `${ctaBase} bg-white text-slate-950 hover:bg-slate-200`
+      : `${ctaBase} border border-white/10 bg-white/[0.05] text-white hover:bg-white/[0.08]`;
   const resolvedProblem = problem ?? title;
   const resolvedContext = context ?? reason ?? description ?? resolvedProblem;
   const shellClass =
     variant === "primary"
-      ? "surface-card p-7 sm:p-8"
-      : "surface-card-soft p-5";
+      ? "decision-card p-7 sm:p-8"
+      : "state-card p-5";
 
   return (
     <section className={`${shellClass} ${className}`}>
@@ -64,7 +66,7 @@ export const ActionCard = ({
 
       <div className="mt-6 space-y-4">
         {impact ? (
-          <div className="rounded-[24px] border border-white/10 bg-white/[0.06] px-5 py-5">
+          <div className="summary-card px-5 py-5">
             <div className="text-[11px] tracking-[0.16em] text-slate-500">الأثر المتوقع</div>
             <div
               className={`mt-3 ${variant === "primary" ? "text-xl leading-9" : "text-base leading-8"} font-medium text-white`}

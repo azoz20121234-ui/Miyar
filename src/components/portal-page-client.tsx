@@ -10,8 +10,10 @@ import { useRoleSession } from "@/store/role-session-context";
 
 import { CaseStandardsView } from "./case-standards-view";
 import { ExperienceRolesView } from "./experience-roles-view";
+import { NewCaseIntakeView } from "./new-case-intake-view";
 import { RoleHubView } from "./role-hub-view";
 import { StandardsLibraryView } from "./standards-library-view";
+import { SubmissionStatusView } from "./submission-status-view";
 
 export const PortalPageClient = ({ slug }: { slug: PortalSlug }) => {
   const router = useRouter();
@@ -48,6 +50,14 @@ export const PortalPageClient = ({ slug }: { slug: PortalSlug }) => {
 
   if (slug === "roles-permissions") {
     return <ExperienceRolesView />;
+  }
+
+  if (slug === "new-case") {
+    return <NewCaseIntakeView />;
+  }
+
+  if (slug === "submission-status") {
+    return <SubmissionStatusView />;
   }
 
   return (
