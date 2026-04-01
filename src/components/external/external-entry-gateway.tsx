@@ -40,17 +40,17 @@ export const ExternalEntryGateway = () => (
               </div>
             </Link>
 
-            <Link
-              href="/external/submit"
-              className="rounded-[28px] border border-white/10 bg-white px-6 py-7 text-right transition hover:bg-slate-200"
-            >
-              <div className="text-3xl">⚡</div>
-              <div className="mt-4 text-xl font-semibold text-slate-950">ابدأ التقييم</div>
-              <div className="mt-2 text-sm leading-6 text-slate-700">راجع الملخص التمهيدي ثم ادخل إلى نواة Meyar.</div>
-              <div className="mt-5 inline-flex rounded-full bg-slate-950 px-4 py-2 text-sm text-white">
-                ابدأ القرار
-              </div>
-            </Link>
+          <Link
+            href="/external/submit"
+            className="rounded-[28px] border border-white/10 bg-white px-6 py-7 text-right transition hover:bg-slate-200"
+          >
+            <div className="text-3xl">⚡</div>
+            <div className="mt-4 text-xl font-semibold text-slate-950">ابدأ التقييم</div>
+            <div className="mt-2 text-sm leading-6 text-slate-700">راجع الملخص التمهيدي ثم ادخل إلى نواة Meyar.</div>
+            <div className="mt-5 inline-flex rounded-full bg-slate-950 px-4 py-2 text-sm text-white">
+                ابدأ التقييم
+            </div>
+          </Link>
           </div>
         </section>
 

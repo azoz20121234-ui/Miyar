@@ -210,7 +210,7 @@ export default function ExternalEmployerPage() {
               href="/external/submit"
               className="block w-full rounded-[22px] bg-white px-6 py-4 text-center text-base font-semibold text-slate-950 transition hover:bg-slate-200"
             >
-              اذهب إلى الإرسال
+              انتقل لربط المرشح
             </Link>
           }
         >

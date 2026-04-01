@@ -253,12 +253,12 @@ export const getPortalPageContent = (
       };
     case "new-case":
       return {
-        title: "حالة جديدة",
+        title: "إنشاء الحالة",
         subtitle: externalHandoff
-          ? "تم استلام حزمة خارجية تمهيدية. راجعها ثم حرّك الحالة إلى تحليل الوظيفة."
-          : "إدخال أولي سريع قبل الانتقال إلى تحليل الوظيفة.",
-        sectionLabel: "حالة جديدة",
-        cta: { label: "انتقل إلى تحليل الوظيفة", href: "/job-analysis" },
+          ? "تم الاستلام من البوابات الخارجية. هذه الصفحة تنشئ الحالة داخل نواة Meyar قبل عرض القرار."
+          : "هذه الصفحة تنشئ المسودة داخل نواة Meyar قبل بدء التقييم.",
+        sectionLabel: "إنشاء الحالة",
+        cta: { label: "ابدأ التقييم", href: "/home" },
         metrics: externalHandoff
           ? [
               {
@@ -287,6 +287,11 @@ export const getPortalPageContent = (
         actions: externalHandoff
           ? [
               {
+                title: "تم إنشاء الحالة",
+                meta: "الحالة الآن في DRAFT",
+                status: "تم الاستلام"
+              },
+              {
                 title: "راجع الحزمة المستلمة",
                 meta: `مرشح خارجي • ${externalHandoff.job.title}`,
                 status: "تم الاستلام"
@@ -294,17 +299,23 @@ export const getPortalPageContent = (
               {
                 title: "تحقق من الوظيفة والمرشح",
                 meta: `${externalHandoff.candidate.evidence.length} أدلة • ${externalHandoff.job.criticalTasks.length} مهام أساسية`,
-                status: "قبل التحليل"
+                status: "جاهز للتقييم"
               },
-              { title: "انتقل إلى تحليل الوظيفة", meta: "الخطوة التالية داخل Meyar Core", status: "التالي" }
+              { title: "انتقل إلى مساحة القرار", meta: "الخطوة التالية داخل نواة Meyar", status: "التالي" }
             ]
           : [
               { title: "اختر الوظيفة", meta: bundle.job.title },
               { title: "أدخل المتطلبات الأساسية", meta: "الجهة + المالك + النطاق" },
-              { title: "احفظ كمسودة أو انتقل للتحليل", meta: "الخطوة التالية" }
+              { title: "ابدأ التقييم", meta: "الانتقال إلى مساحة القرار" }
             ],
         rows: externalHandoff
           ? [
+              {
+                primary: "الحالة",
+                secondary: "تم الإنشاء داخل نواة Meyar بحالة DRAFT",
+                status: "تم الاستلام",
+                owner: "مبادر الحالة"
+              },
               {
                 primary: "المرشح",
                 secondary: `${externalHandoff.candidate.capabilityScore}% جاهزية • ${externalHandoff.candidate.strengths.slice(0, 2).join(" • ") || "قدرات تمهيدية"}`,

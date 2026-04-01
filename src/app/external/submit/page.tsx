@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import { ExternalFlowCard } from "@/components/external/external-flow-card";
 import { ExternalShell } from "@/components/external/external-shell";
@@ -18,10 +19,22 @@ const steps = ["المرشح", "الوظيفة", "بدء القرار"];
 export default function ExternalSubmitPage() {
   const router = useRouter();
   const { setRole } = useRoleSession();
-  const { candidate, job } = useExternalIntake();
+  const { candidate, job, hasCandidateData, hasJobData } = useExternalIntake();
   const handoffPreview = buildExternalHandoffRecord({ candidate, job });
+  const canStartAssessment = hasCandidateData && hasJobData;
+  const preliminaryBlocker = !hasCandidateData
+    ? "ملف المرشح غير مكتمل."
+    : !hasJobData
+      ? "تعريف الوظيفة غير مكتمل."
+      : candidate.evidence.length === 0
+        ? "الأدلة ما زالت محدودة، لكن يمكن بدء التقييم التمهيدي."
+        : null;
 
   const handleStartAssessment = () => {
+    if (!canStartAssessment) {
+      return;
+    }
+
     applyExternalHandoff({ candidate, job });
     setRole("case-initiator");
     router.push("/portal/new-case");
@@ -40,15 +53,41 @@ export default function ExternalSubmitPage() {
         subtitle="هذه الصفحة تعرض الملخص الذي سينتقل إلى فريق التقييم."
         footer={
           <div className="space-y-4">
+            {!canStartAssessment ? (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {!hasCandidateData ? (
+                  <Link
+                    href="/external/candidate"
+                    className="block rounded-[20px] border border-white/10 bg-white/[0.04] px-4 py-4 text-center text-sm font-medium text-white transition hover:bg-white/[0.06]"
+                  >
+                    أكمل ملف المرشح
+                  </Link>
+                ) : null}
+                {!hasJobData ? (
+                  <Link
+                    href="/external/employer"
+                    className="block rounded-[20px] border border-white/10 bg-white/[0.04] px-4 py-4 text-center text-sm font-medium text-white transition hover:bg-white/[0.06]"
+                  >
+                    أكمل تعريف الوظيفة
+                  </Link>
+                ) : null}
+              </div>
+            ) : null}
+
             <div className="rounded-[20px] border border-white/10 bg-white/[0.03] px-4 py-4 text-sm leading-6 text-slate-300">
               لن تظهر تفاصيلك الداخلية للعامة. سيتم إرسال ملخص تمهيدي فقط إلى فريق التقييم.
             </div>
             <button
               type="button"
               onClick={handleStartAssessment}
-              className="w-full rounded-[22px] bg-white px-6 py-4 text-base font-semibold text-slate-950 transition hover:bg-slate-200"
+              disabled={!canStartAssessment}
+              className={`w-full rounded-[22px] px-6 py-4 text-base font-semibold transition ${
+                canStartAssessment
+                  ? "bg-white text-slate-950 hover:bg-slate-200"
+                  : "cursor-not-allowed border border-white/10 bg-white/[0.03] text-slate-500"
+              }`}
             >
-              ابدأ التقييم
+              ابدأ التقييم الداخلي
             </button>
           </div>
         }
@@ -170,6 +209,24 @@ export default function ExternalSubmitPage() {
             <div className="rounded-[18px] border border-white/10 bg-white/[0.03] px-4 py-4">
               <div className="text-xs text-slate-500">الجاهزية الأولية</div>
               <div className="mt-2 text-sm text-white">{candidate.capabilityScore}% قبل التقييم الداخلي</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="surface-card-muted px-5 py-5">
+          <div className="portal-label">عرض تمهيدي</div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-[18px] border border-white/10 bg-white/[0.03] px-4 py-4">
+              <div className="text-xs text-slate-500">مستوى التكييف المتوقع</div>
+              <div className="mt-2 text-sm font-medium text-white">
+                {accommodationLevelLabelMap[handoffPreview.expectedAccommodationLevel]}
+              </div>
+            </div>
+            <div className="rounded-[18px] border border-white/10 bg-white/[0.03] px-4 py-4">
+              <div className="text-xs text-slate-500">مانع أولي</div>
+              <div className="mt-2 text-sm font-medium text-white">
+                {preliminaryBlocker ?? "لا يوجد مانع أولي مباشر."}
+              </div>
             </div>
           </div>
         </div>
