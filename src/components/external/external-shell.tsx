@@ -33,8 +33,8 @@ export const ExternalShell = ({
             م
           </Link>
           <div>
-            <div className="portal-label">Meyar</div>
-            <div className="mt-1 text-sm text-slate-300">محرك القرار والامتثال المعياري</div>
+            <div className="portal-label">Meyar External</div>
+            <div className="mt-1 text-sm text-slate-300">طبقة الإدخال والمتابعة الخارجية</div>
           </div>
         </div>
 
@@ -104,7 +104,7 @@ export const ExternalShell = ({
             <div className="portal-label">الإيقاع</div>
             <div className="mt-3 text-xl font-semibold text-white">خطوة واحدة في كل شاشة</div>
             <div className="mt-2 text-sm leading-7 text-slate-400">
-              إدخال مختصر، زر رئيسي واحد، وتسليم واضح للمسار التالي.
+              إدخال مختصر، زر رئيسي واحد، وتسليم واضح إلى Meyar Core عند الجاهزية.
             </div>
           </div>
 
