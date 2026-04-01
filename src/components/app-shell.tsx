@@ -37,7 +37,7 @@ const portalNameMap = {
 
 export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShellProps) => {
   const { bundle, caseWorkflow, externalHandoff } = useAssessment();
-  const { role, roleLabel, canAccess } = useRoleSession();
+  const { role, roleLabel, canAccess, defaultHref } = useRoleSession();
   const pathname = usePathname();
   const roleConfig = getRoleConfig(role);
   const topSignals = bundle.report.signals.slice(0, 2);
@@ -79,10 +79,42 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
             </div>
 
             <div className="flex flex-wrap items-center gap-2.5">
+              <Link
+                href="/home#meyar-role-switcher"
+                className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-slate-200 transition hover:bg-white/[0.06]"
+              >
+                العودة إلى الأدوار
+              </Link>
               <StatusPill label={roleLabel} tone="neutral" />
               <StatusPill label={bundle.report.recommendation} tone={statusTone(bundle.report.status)} />
               <StatusPill label={caseWorkflow.currentStateLabel} tone="neutral" />
               {actions}
+            </div>
+          </div>
+
+          <div
+            id="meyar-role-switcher"
+            className="mt-4 rounded-[22px] border border-white/10 bg-white/[0.03] px-4 py-4"
+          >
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <div className="portal-label">الأدوار</div>
+                <div className="mt-1 text-sm text-slate-300">
+                  بدّل الدور أو ارجع إلى لوحة الدور الحالية من أي صفحة.
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <Link
+                  href={defaultHref}
+                  className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-200 transition hover:bg-white/[0.06]"
+                >
+                  لوحة الدور
+                </Link>
+                <div className="overflow-x-auto">
+                  <RoleSwitcher />
+                </div>
+              </div>
             </div>
           </div>
 
