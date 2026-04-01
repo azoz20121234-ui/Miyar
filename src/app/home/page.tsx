@@ -5,11 +5,16 @@ import Link from "next/link";
 import { ActionCard } from "@/components/action-card";
 import { AppShell } from "@/components/app-shell";
 import { DecisionTimeline } from "@/components/decision-timeline";
+import { FinancialImpactCard } from "@/components/financial-impact-card";
 import { SectionCard } from "@/components/section-card";
 import { StatusPill } from "@/components/status-pill";
 import { INTERNAL_ROLE_REFERENCE } from "@/lib/experience-roles";
+import {
+  estimatedDecisionROIBandLabel,
+  retentionImpactLevelLabel
+} from "@/lib/financial-model";
 import { getRoleConfig } from "@/lib/role-model";
-import { statusTone } from "@/lib/scoring";
+import { formatCurrency, statusTone } from "@/lib/scoring";
 import { useAssessment } from "@/store/assessment-context";
 import { useRoleSession } from "@/store/role-session-context";
 
@@ -17,6 +22,7 @@ export default function RoleHomePage() {
   const {
     bundle,
     explainability,
+    financialImpact,
     caseWorkflow,
     caseRecord,
     externalHandoff,
@@ -173,6 +179,63 @@ export default function RoleHomePage() {
             </div>
           </div>
         </section>
+
+        <FinancialImpactCard
+          title="الأثر المالي للقرار"
+          summary="ليس فقط ماذا قررنا، بل لماذا يبدو القرار منطقيًا ماليًا مقارنة بالتأخير أو القرار غير المناسب."
+          signalLabel={financialImpact.financialSignalLabel}
+          signalTone={financialImpact.financialSignalTone}
+          items={[
+            {
+              label: "تكلفة التكييف",
+              value: formatCurrency(financialImpact.directAccommodationCost),
+              hint: "الكلفة المباشرة قبل التنفيذ",
+              tone: "neutral"
+            },
+            {
+              label: "تكلفة القرار الخاطئ",
+              value: formatCurrency(financialImpact.wrongDecisionCost),
+              hint: "إعادة توظيف + فقدان إنتاجية + إعادة تقييم",
+              tone: "risk"
+            },
+            {
+              label: "تكلفة التأخير",
+              value: formatCurrency(financialImpact.delayCost),
+              hint: `${financialImpact.estimatedDelayDays} أيام تأخير تقديرية`,
+              tone: "watch"
+            },
+            {
+              label: "الهدر المتجنب",
+              value: formatCurrency(financialImpact.avoidedGhostHiringCost),
+              hint: "قيمة تجنب التوظيف الشكلي أو غير المنتج",
+              tone: "positive"
+            },
+            {
+              label: "العائد التقديري",
+              value: `${estimatedDecisionROIBandLabel(financialImpact.estimatedDecisionROIBand)} • ${financialImpact.estimatedDecisionROI}%`,
+              hint: "مقارنة بالقيمة المتجنبة مقابل تكلفة التنفيذ",
+              tone:
+                financialImpact.estimatedDecisionROIBand === "high"
+                  ? "positive"
+                  : financialImpact.estimatedDecisionROIBand === "medium"
+                    ? "watch"
+                    : "risk"
+            },
+            {
+              label: "أثر الاستمرارية",
+              value: retentionImpactLevelLabel(financialImpact.retentionImpactLevel),
+              hint: "تقدير عملي بعد التكييف",
+              tone:
+                financialImpact.retentionImpactLevel === "high"
+                  ? "positive"
+                  : financialImpact.retentionImpactLevel === "medium"
+                    ? "watch"
+                    : "risk"
+            }
+          ]}
+          conclusion={financialImpact.executiveConclusion}
+          footnote={financialImpact.assumptionsNote}
+        />
 
         <SectionCard
           eyebrow={isAdmin ? "مساحة الإدارة" : "منطقة العمل"}

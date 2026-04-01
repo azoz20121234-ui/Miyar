@@ -22,6 +22,7 @@ import {
   hasExternalHandoffData,
   isExternalHandoffInput
 } from "@/lib/external-handoff";
+import { buildFinancialImpactModel } from "@/lib/financial-model";
 import {
   getPrimaryTransition,
   getStageActionForRole,
@@ -38,6 +39,7 @@ import {
   DecisionExplainability,
   Job
 } from "@/models/types";
+import { FinancialImpactModel } from "@/types/financial";
 import { useRoleSession } from "@/store/role-session-context";
 
 type ActionTone = "primary" | "secondary" | "danger" | "neutral";
@@ -69,6 +71,7 @@ interface AssessmentContextValue {
   bundle: ReturnType<typeof buildAssessmentBundle>;
   standards: CaseStandardsEvaluation;
   explainability: DecisionExplainability;
+  financialImpact: FinancialImpactModel;
   caseRecord: CaseRecord;
   caseWorkflow: CaseWorkflowSnapshot;
   externalHandoff: ExternalHandoffRecord | null;
@@ -305,6 +308,17 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
   const bundle = buildAssessmentBundle(job, profile, defaultLibrary, roleCatalog);
   const standards = buildStandardsEvaluation(bundle);
   const explainability = buildDecisionExplainability(bundle, standards, caseRecord);
+  const financialImpact = useMemo(
+    () =>
+      buildFinancialImpactModel({
+        bundle,
+        standards,
+        explainability,
+        caseRecord,
+        externalHandoff
+      }),
+    [bundle, standards, explainability, caseRecord, externalHandoff]
+  );
   const caseMeta = CASE_STATE_META[caseRecord.state];
 
   const transitionCase = (transitionId: string) => {
@@ -505,6 +519,7 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
         bundle,
         standards,
         explainability,
+        financialImpact,
         caseRecord,
         caseWorkflow,
         externalHandoff,

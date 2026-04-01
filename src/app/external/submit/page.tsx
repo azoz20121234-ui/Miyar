@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+import { FinancialImpactCard } from "@/components/financial-impact-card";
 import { ExternalFlowCard } from "@/components/external/external-flow-card";
 import { ExternalShell } from "@/components/external/external-shell";
 import {
@@ -10,6 +11,11 @@ import {
   buildExternalHandoffRecord,
   complexityLabelMap
 } from "@/lib/external-handoff";
+import {
+  buildExternalFinancialPreview,
+  retentionImpactLevelLabel
+} from "@/lib/financial-model";
+import { formatCurrency } from "@/lib/scoring";
 import { applyExternalHandoff } from "@/store/assessment-context";
 import { useRoleSession } from "@/store/role-session-context";
 import { useExternalIntake } from "@/store/external-intake-context";
@@ -21,6 +27,11 @@ export default function ExternalSubmitPage() {
   const { setRole } = useRoleSession();
   const { candidate, job, hasCandidateData, hasJobData } = useExternalIntake();
   const handoffPreview = buildExternalHandoffRecord({ candidate, job });
+  const financialPreview = buildExternalFinancialPreview({
+    candidate: handoffPreview.candidate,
+    job: handoffPreview.job,
+    expectedAccommodationLevel: handoffPreview.expectedAccommodationLevel
+  });
   const canStartAssessment = hasCandidateData && hasJobData;
   const preliminaryBlocker = !hasCandidateData
     ? "ملف المرشح غير مكتمل."
@@ -230,6 +241,46 @@ export default function ExternalSubmitPage() {
             </div>
           </div>
         </div>
+
+        <FinancialImpactCard
+          eyebrow="تقدير مالي أولي"
+          title="المؤشر المالي التمهيدي"
+          summary={financialPreview.summary}
+          signalLabel={financialPreview.financialSignalLabel}
+          signalTone={financialPreview.financialSignalTone}
+          items={[
+            {
+              label: "تكلفة التكييف",
+              value: formatCurrency(financialPreview.directAccommodationCost),
+              hint: "تقدير أولي قبل التقييم الداخلي",
+              tone: "neutral"
+            },
+            {
+              label: "تكلفة التأخير",
+              value: formatCurrency(financialPreview.delayCost),
+              hint: "إذا تأخر إدخال الحالة أو تنفيذ التهيئة",
+              tone: financialPreview.financialSignalTone === "risk" ? "risk" : "watch"
+            },
+            {
+              label: "وفرة المخاطر",
+              value: formatCurrency(financialPreview.estimatedRiskAvoidanceValue),
+              hint: "هدر متجنب مقارنة بقرار غير منضبط",
+              tone: "positive"
+            },
+            {
+              label: "أثر الاستمرارية",
+              value: retentionImpactLevelLabel(financialPreview.retentionImpactLevel),
+              hint: "مؤشر عملي بعد التكييف المتوقع",
+              tone:
+                financialPreview.retentionImpactLevel === "high"
+                  ? "positive"
+                  : financialPreview.retentionImpactLevel === "medium"
+                    ? "watch"
+                    : "risk"
+            }
+          ]}
+          footnote={`هذا تقدير تمهيدي قبل إدخال الحالة إلى Meyar Core. ${financialPreview.assumptionsNote}`}
+        />
       </ExternalFlowCard>
     </ExternalShell>
   );

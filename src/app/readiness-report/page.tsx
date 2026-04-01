@@ -5,10 +5,15 @@ import { useMemo, useState } from "react";
 import { ActionCard } from "@/components/action-card";
 import { AppShell } from "@/components/app-shell";
 import { DecisionCard } from "@/components/decision-card";
+import { FinancialImpactCard } from "@/components/financial-impact-card";
 import { ReportActions } from "@/components/report-actions";
 import { SectionCard } from "@/components/section-card";
 import { StatusPill } from "@/components/status-pill";
-import { formatCurrencyRange, statusTone } from "@/lib/scoring";
+import {
+  estimatedDecisionROIBandLabel,
+  retentionImpactLevelLabel
+} from "@/lib/financial-model";
+import { formatCurrency, formatCurrencyRange, statusTone } from "@/lib/scoring";
 import {
   DecisionDriver,
   DecisionRecommendationMode,
@@ -56,7 +61,7 @@ const ScenarioCard = ({ scenario }: { scenario: DecisionShiftScenario }) => (
 );
 
 export default function ReadinessReportPage() {
-  const { bundle, explainability, caseWorkflow } = useAssessment();
+  const { bundle, explainability, financialImpact, caseWorkflow } = useAssessment();
   const { role } = useRoleSession();
   const [mode, setMode] = useState<DecisionRecommendationMode>("balanced");
 
@@ -122,6 +127,96 @@ export default function ReadinessReportPage() {
             </div>
           }
         />
+
+        <SectionCard
+          eyebrow="الأثر المالي"
+          title="الأثر المالي للقرار"
+          description="قراءة تنفيذية مختصرة توضح تكلفة التنفيذ مقابل كلفة التأخير أو القرار الخاطئ."
+        >
+          <div className="space-y-4">
+            <FinancialImpactCard
+              title="ملخص مالي تنفيذي"
+              summary={financialImpact.summary}
+              signalLabel={financialImpact.financialSignalLabel}
+              signalTone={financialImpact.financialSignalTone}
+              items={[
+                {
+                  label: "تكلفة التكييف",
+                  value: formatCurrency(financialImpact.directAccommodationCost),
+                  hint: "الكلفة المباشرة الحالية للتنفيذ",
+                  tone: "neutral"
+                },
+                {
+                  label: "تكلفة التأخير",
+                  value: formatCurrency(financialImpact.delayCost),
+                  hint: `${financialImpact.estimatedDelayDays} أيام تأخير تقديرية`,
+                  tone: "watch"
+                },
+                {
+                  label: "تكلفة القرار الخاطئ",
+                  value: formatCurrency(financialImpact.wrongDecisionCost),
+                  hint: "رفض أو تعيين غير منضبط",
+                  tone: "risk"
+                },
+                {
+                  label: "الهدر المتجنب",
+                  value: formatCurrency(financialImpact.avoidedGhostHiringCost),
+                  hint: "هدر تشغيلي يمكن تقليصه",
+                  tone: "positive"
+                },
+                {
+                  label: "وفرة المخاطر",
+                  value: formatCurrency(financialImpact.estimatedRiskAvoidanceValue),
+                  hint: "قيمة متجنبة تقديريًا من القرار",
+                  tone: "positive"
+                },
+                {
+                  label: "العائد التقديري",
+                  value: `${estimatedDecisionROIBandLabel(financialImpact.estimatedDecisionROIBand)} • ${financialImpact.estimatedDecisionROI}%`,
+                  hint: `أثر الاستمرارية ${retentionImpactLevelLabel(financialImpact.retentionImpactLevel)}`,
+                  tone:
+                    financialImpact.estimatedDecisionROIBand === "high"
+                      ? "positive"
+                      : financialImpact.estimatedDecisionROIBand === "medium"
+                        ? "watch"
+                        : "risk"
+                }
+              ]}
+              conclusion={financialImpact.executiveConclusion}
+              footnote={financialImpact.assumptionsNote}
+            />
+
+            <div className="grid gap-3 lg:grid-cols-3">
+              <div className="summary-card px-5 py-5">
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">إذا تم التنفيذ</div>
+                <div className="mt-3 text-lg font-semibold text-white">
+                  {formatCurrency(financialImpact.directAccommodationCost)}
+                </div>
+                <div className="mt-2 text-sm leading-7 text-slate-300">
+                  {financialImpact.executionScenario}
+                </div>
+              </div>
+              <div className="summary-card px-5 py-5">
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">إذا تأخر القرار</div>
+                <div className="mt-3 text-lg font-semibold text-white">
+                  {formatCurrency(financialImpact.delayCost)}
+                </div>
+                <div className="mt-2 text-sm leading-7 text-slate-300">
+                  {financialImpact.delayScenario}
+                </div>
+              </div>
+              <div className="summary-card px-5 py-5">
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">إذا كان القرار خاطئًا</div>
+                <div className="mt-3 text-lg font-semibold text-white">
+                  {formatCurrency(financialImpact.wrongDecisionCost)}
+                </div>
+                <div className="mt-2 text-sm leading-7 text-slate-300">
+                  {financialImpact.wrongDecisionScenario}
+                </div>
+              </div>
+            </div>
+          </div>
+        </SectionCard>
 
         {!isExecutive ? (
           <SectionCard
