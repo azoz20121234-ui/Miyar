@@ -50,6 +50,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
     pageId === "portal:new-case" ||
     pageId === "portal:submission-status";
   const hideExternalBanner =
+    isHomePage ||
     pageId === "job-analysis" ||
     pageId === "portal:new-case" ||
     pageId === "portal:submission-status";
@@ -74,7 +75,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
               </div>
             </div>
 
-            <div className="hidden xl:flex">
+            <div className={isHomePage ? "hidden" : "hidden xl:flex"}>
               <RoleSwitcher />
             </div>
 
@@ -99,39 +100,46 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
             </div>
           </div>
 
-          <div
-            id="meyar-role-switcher"
-            className="mt-4 rounded-[22px] border border-white/10 bg-white/[0.03] px-4 py-4"
-          >
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <div className="portal-label">الأدوار</div>
-                <div className="mt-1 text-sm text-slate-300">
-                  بدّل الدور أو ارجع إلى لوحة الدور الحالية من أي صفحة.
+          {isHomePage ? (
+            <div id="meyar-role-switcher" className="mt-4 overflow-x-auto pb-1">
+              <RoleSwitcher />
+            </div>
+          ) : (
+            <div
+              id="meyar-role-switcher"
+              className="mt-4 rounded-[22px] border border-white/10 bg-white/[0.03] px-4 py-4"
+            >
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                  <div className="portal-label">الأدوار</div>
+                  <div className="mt-1 text-sm text-slate-300">
+                    بدّل الدور أو ارجع إلى لوحة الدور الحالية من أي صفحة.
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex flex-wrap items-center gap-2">
-                <Link
-                  href={defaultHref}
-                  className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-200 transition hover:bg-white/[0.06]"
-                >
-                  لوحة الدور
-                </Link>
-                <Link
-                  href="/external"
-                  className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-200 transition hover:bg-white/[0.06]"
-                >
-                  العودة إلى الأدوار
-                </Link>
-                <div className="overflow-x-auto">
-                  <RoleSwitcher />
+                <div className="flex flex-wrap items-center gap-2">
+                  <Link
+                    href={defaultHref}
+                    className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-200 transition hover:bg-white/[0.06]"
+                  >
+                    لوحة الدور
+                  </Link>
+                  <Link
+                    href="/external"
+                    className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-200 transition hover:bg-white/[0.06]"
+                  >
+                    العودة إلى الأدوار
+                  </Link>
+                  <div className="overflow-x-auto">
+                    <RoleSwitcher />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
-          <div className="mt-4 flex gap-2 overflow-x-auto pb-1 xl:hidden">
+          {!isHomePage ? (
+            <div className="mt-4 flex gap-2 overflow-x-auto pb-1 xl:hidden">
             {roleConfig.navItems.map((item) => {
               const active = pathname === item.href;
               return (
@@ -148,30 +156,33 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                 </Link>
               );
             })}
-          </div>
+            </div>
+          ) : null}
         </header>
 
         <main className="flex-1">
-          <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl">
-              <div className="portal-label">نواة Meyar • {portalLabel}</div>
-              <h1 className="page-title mt-3">{title}</h1>
-              <p className="mt-3 max-w-2xl text-sm leading-7 body-muted sm:text-base">{subtitle}</p>
-            </div>
-            {!isFocusedSurface ? (
-              <div className="flex flex-wrap gap-2">
-                <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
-                  الجاهزية {bundle.report.finalReadiness}%
-                </div>
-                <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
-                  الثقة {bundle.report.confidence}%
-                </div>
-                <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
-                  التالي {caseWorkflow.nextStageLabel}
-                </div>
+          {!isHomePage ? (
+            <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-3xl">
+                <div className="portal-label">نواة Meyar • {portalLabel}</div>
+                <h1 className="page-title mt-3">{title}</h1>
+                <p className="mt-3 max-w-2xl text-sm leading-7 body-muted sm:text-base">{subtitle}</p>
               </div>
-            ) : null}
-          </div>
+              {!isFocusedSurface ? (
+                <div className="flex flex-wrap gap-2">
+                  <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
+                    الجاهزية {bundle.report.finalReadiness}%
+                  </div>
+                  <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
+                    الثقة {bundle.report.confidence}%
+                  </div>
+                  <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
+                    التالي {caseWorkflow.nextStageLabel}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
           {!isFocusedSurface ? <CaseStatusBar /> : null}
 
