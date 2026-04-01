@@ -10,8 +10,7 @@ import { FINANCIAL_ASSUMPTIONS } from "@/lib/financial-assumptions";
 import { CaseStandardsEvaluation } from "@/lib/standards-types";
 import {
   AssessmentBundle,
-  DecisionExplainability,
-  SuitabilityStatus
+  DecisionExplainability
 } from "@/models/types";
 import {
   EstimatedDecisionROIBand,
@@ -109,25 +108,20 @@ const resolveRetentionImpact = (
 };
 
 const resolveWrongDecisionMultiplier = (
-  status: SuitabilityStatus,
-  residualRiskLevel: AssessmentBundle["report"]["residualRiskLevel"],
-  blockers: number
-) => {
-  let multiplier =
-    status === "not-ready"
-      ? 1.22
-      : status === "needs-preparation"
-        ? 1.12
-        : status === "conditional"
-          ? 1.02
-          : 0.92;
-
-  if (residualRiskLevel === "high") multiplier += 0.12;
-  if (residualRiskLevel === "medium") multiplier += 0.05;
-  multiplier += Math.min(blockers, 4) * 0.02;
-
-  return multiplier;
-};
+  finalReadiness: number,
+  blockers: number,
+  fakeRoleRiskScore: number,
+  criticalCoverage: number
+) =>
+  clamp(
+    0.94 +
+      (100 - finalReadiness) / 180 +
+      Math.min(blockers, 4) * 0.03 +
+      fakeRoleRiskScore / 420 +
+      Math.max(0, 75 - criticalCoverage) / 300,
+    0.92,
+    1.34
+  );
 
 const resolveEstimatedDecisionROIBand = (estimatedDecisionROI: number): EstimatedDecisionROIBand => {
   if (estimatedDecisionROI >= 180) return "high";
@@ -163,14 +157,14 @@ const buildExecutiveConclusion = (
   const highestAlternative = Math.max(delayCost, wrongDecisionCost);
 
   if (directAccommodationCost <= highestAlternative * 0.45) {
-    return "القرار المقترح أقل تكلفة من بدائل التأخير أو القرار غير المناسب.";
+    return "تنفيذ التهيئة الآن أقل كلفة من إبقاء الحالة معلقة أو معالجة أثر تشغيل غير مناسب لاحقًا.";
   }
 
   if (directAccommodationCost <= highestAlternative * 0.75) {
-    return "التنفيذ ما زال ماليًا أرجح من إبقاء الحالة معلقة أو المضي بقرار غير مكتمل.";
+    return "الأثر المالي يميل لصالح التنفيذ المبكر، حتى مع بقاء بعض الحساسية في التكلفة أو التوقيت.";
   }
 
-  return "القيمة المالية موجودة، لكن التنفيذ يحتاج ضبطًا أدق للتكلفة والزمن قبل الاعتماد.";
+  return "الأثر المالي يحتاج ضبطًا أدق للتكلفة والزمن، لكنه يظل قراءة تفسيرية للحكم التشغيلي لا بديلًا عنه.";
 };
 
 const fakeRoleRiskScoreFromBundle = (bundle: AssessmentBundle) =>
@@ -212,10 +206,12 @@ export const buildFinancialImpactModel = ({
         );
 
   const delayCost = roundCurrency(estimatedDelayDays * dailyOperatingCostSar);
+  const fakeRoleRiskScore = fakeRoleRiskScoreFromBundle(bundle);
   const wrongDecisionMultiplier = resolveWrongDecisionMultiplier(
-    bundle.report.status,
-    bundle.report.residualRiskLevel,
-    explainability.approvalBlocks.length
+    bundle.report.finalReadiness,
+    explainability.approvalBlocks.length,
+    fakeRoleRiskScore,
+    bundle.report.criticalCoverage
   );
   const wrongDecisionCost = roundCurrency(
     (
@@ -226,7 +222,6 @@ export const buildFinancialImpactModel = ({
     ) * wrongDecisionMultiplier
   );
 
-  const fakeRoleRiskScore = fakeRoleRiskScoreFromBundle(bundle);
   const avoidedGhostHiringCost = roundCurrency(
     dailyOperatingCostSar *
       FINANCIAL_ASSUMPTIONS.ghostHiringExposureDaysByComplexity[complexityBand] *
@@ -286,10 +281,10 @@ export const buildFinancialImpactModel = ({
     estimatedDelayDays,
     summary:
       financialSignalLevel === "promising"
-        ? "التكلفة المباشرة محدودة مقارنة بقيمة الخطر الذي يتم تجنبه عند تنفيذ القرار الآن."
+        ? "اقتصاديًا، يبدو التنفيذ المبكر أقل عبئًا من ترك الحالة معلقة أو تأجيل التهيئة."
         : financialSignalLevel === "moderate"
-          ? "الأثر المالي مقنع، لكنه يعتمد على إغلاق الموانع وتنفيذ التكييف في الوقت المناسب."
-          : "القرار المالي حساس حاليًا ويحتاج إحكام الأدلة أو خفض كلفة التنفيذ قبل الاعتماد.",
+          ? "الأثر المالي مقنع، لكنه يبقى مرتبطًا بسرعة الإغلاق والتنفيذ بعد صدور الحكم التشغيلي."
+          : "الأثر المالي حساس حاليًا ويحتاج إحكام الأدلة أو خفض كلفة التنفيذ، دون أن يغيّر الحكم الصادر من Meyar Core.",
     executionScenario: `تنفيذ التكييف الآن يقيد الكلفة المباشرة عند ${formatSar(
       directAccommodationCost
     )} مع أثر استمرارية ${retentionImpactLabelMap[retentionImpactLevel]}.`,
@@ -305,7 +300,7 @@ export const buildFinancialImpactModel = ({
       delayCost,
       wrongDecisionCost
     ),
-    assumptionsNote: FINANCIAL_ASSUMPTIONS.note
+    assumptionsNote: `${FINANCIAL_ASSUMPTIONS.note} هذا القسم يفسر الأثر الاقتصادي للحكم التشغيلي ولا يغيّر القرار الصادر من Meyar Core.`
   };
 };
 
@@ -370,13 +365,13 @@ export const buildExternalFinancialPreview = ({
     financialSignalLabel: signalLabelMap[financialSignalLevel],
     financialSignalTone: signalToneMap[financialSignalLevel],
     retentionImpactLevel,
-    assumptionsNote: FINANCIAL_ASSUMPTIONS.note,
     summary:
       financialSignalLevel === "promising"
         ? `تمهيديًا، تعقيد الوظيفة ${complexityLabelMap[job.complexity]} والتكييف المتوقع لا يبدوان عبئًا أعلى من المخاطر المتجنبة.`
         : financialSignalLevel === "moderate"
-          ? `تمهيديًا، القيمة المالية موجودة لكنها ترتبط بإغلاق النقص الحالي قبل إدخال الحالة.`
-          : `تمهيديًا، الحساسية المالية أعلى وتحتاج الحالة ضبطًا أفضل قبل دخول نواة Meyar.`
+          ? `تمهيديًا، القيمة المالية موجودة لكنها قراءة أثر فقط قبل دخول الحالة إلى نواة Meyar.`
+          : `تمهيديًا، الحساسية المالية أعلى وتحتاج الحالة ضبطًا أفضل، دون أن يكون هذا بديلًا عن الحكم التشغيلي.`,
+    assumptionsNote: `${FINANCIAL_ASSUMPTIONS.note} هذا التقدير يشرح الأثر المالي التمهيدي فقط، ولا يقرر بديلًا عن Meyar Core.`
   };
 };
 

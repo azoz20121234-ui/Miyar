@@ -1,7 +1,7 @@
 import { FinancialAssumptions } from "@/types/financial";
 
 export const FINANCIAL_ASSUMPTIONS: FinancialAssumptions = {
-  note: "افتراضات تشغيلية أولية للعرض، قابلة للتعديل داخل Meyar، ولا تمثل تسعيرًا سوقيًا أو محاسبيًا نهائيًا.",
+  note: "تقدير مالي أولي مبني على افتراضات تشغيلية قابلة للتعديل، ولا يمثل تسعيرًا سوقيًا أو محاسبيًا نهائيًا.",
   dailyOperatingCostSarByComplexity: {
     low: 650,
     medium: 1100,
