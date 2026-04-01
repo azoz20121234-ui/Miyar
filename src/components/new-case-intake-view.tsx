@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { stripInternalCodePrefix } from "@/lib/display-copy";
 import { accommodationLevelLabelMap, complexityLabelMap } from "@/lib/external-handoff";
 import { useAssessment } from "@/store/assessment-context";
 
@@ -88,7 +89,9 @@ export const NewCaseIntakeView = () => {
             </div>
             <div className="summary-card px-4 py-4">
               <div className="text-[11px] tracking-[0.16em] text-slate-500">أعلى مانع</div>
-              <div className="mt-2 text-base font-semibold text-white">{topBlocker?.title ?? "لا يوجد"}</div>
+              <div className="mt-2 text-base font-semibold text-white">
+                {stripInternalCodePrefix(topBlocker?.title) || "لا يوجد"}
+              </div>
               <div className="mt-1 text-xs text-slate-400">{topBlocker?.ownerLabel ?? "المسار واضح حتى الآن"}</div>
             </div>
             <div className="summary-card px-4 py-4">

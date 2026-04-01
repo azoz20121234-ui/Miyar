@@ -9,6 +9,7 @@ import { FinancialImpactCard } from "@/components/financial-impact-card";
 import { ReportActions } from "@/components/report-actions";
 import { SectionCard } from "@/components/section-card";
 import { StatusPill } from "@/components/status-pill";
+import { stripInternalCodePrefix } from "@/lib/display-copy";
 import {
   estimatedDecisionROIBandLabel,
   retentionImpactLevelLabel
@@ -261,8 +262,8 @@ export default function ReadinessReportPage() {
               <ActionCard
                 key={block.id}
                 eyebrow="مانع"
-                title={block.title}
-                problem={block.title}
+                title={stripInternalCodePrefix(block.title)}
+                problem={stripInternalCodePrefix(block.title)}
                 context={block.requiredAction}
                 impact={`المسؤول ${block.ownerLabel}`}
                 status={

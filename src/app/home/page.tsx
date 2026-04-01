@@ -7,6 +7,7 @@ import { AppShell } from "@/components/app-shell";
 import { DecisionTimeline } from "@/components/decision-timeline";
 import { SectionCard } from "@/components/section-card";
 import { StatusPill } from "@/components/status-pill";
+import { stripInternalCodePrefix } from "@/lib/display-copy";
 import { INTERNAL_ROLE_REFERENCE } from "@/lib/experience-roles";
 import {
   estimatedDecisionROIBandLabel,
@@ -153,10 +154,10 @@ export default function RoleHomePage() {
           <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="surface-card-muted px-4 py-4">
-                <div className="text-[11px] tracking-[0.16em] text-slate-500">أعلى مانع</div>
-                <div className="mt-2 text-lg font-semibold text-white">
-                  {primaryBlock?.title ?? "لا يوجد مانع مباشر"}
-                </div>
+                  <div className="text-[11px] tracking-[0.16em] text-slate-500">أعلى مانع</div>
+                  <div className="mt-2 text-lg font-semibold text-white">
+                  {stripInternalCodePrefix(primaryBlock?.title) || "لا يوجد مانع مباشر"}
+                  </div>
                 <div className="mt-2 text-xs body-muted">
                   {primaryBlock?.requiredAction ?? "المسار جاهز للتحرك الآن."}
                 </div>
@@ -291,7 +292,7 @@ export default function RoleHomePage() {
                 <div className="blocker-card px-4 py-4">
                   <div className="text-xs text-amber-100">المانع الحالي</div>
                   <div className="mt-2 text-sm font-semibold text-white">
-                    {primaryBlock?.title ?? "لا يوجد مانع مباشر"}
+                    {stripInternalCodePrefix(primaryBlock?.title) || "لا يوجد مانع مباشر"}
                   </div>
                   <div className="mt-2 text-sm leading-6 text-slate-300">
                     {primaryBlock?.requiredAction ?? "المسار جاهز للتحرك الآن."}

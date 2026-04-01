@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { stripInternalCodePrefix } from "@/lib/display-copy";
 import { accommodationLevelLabelMap, complexityLabelMap } from "@/lib/external-handoff";
 import { CASE_STATE_META } from "@/lib/case-state";
 import { useAssessment } from "@/store/assessment-context";
@@ -53,7 +54,7 @@ export const SubmissionStatusView = () => {
           }
         ]),
     ...explainability.approvalBlocks.slice(0, 2).map((block) => ({
-      title: block.title,
+      title: stripInternalCodePrefix(block.title),
       detail: block.requiredAction,
       status: block.status === "missing-evidence" ? "بانتظار مراجعة" : "بانتظار اعتماد"
     }))
