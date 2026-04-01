@@ -59,73 +59,72 @@ export default function JobAnalysisPage() {
       subtitle="نحوّل الوظيفة هنا إلى صورة تشغيلية يمكن قياسها قبل التوظيف."
     >
       <div className="mx-auto max-w-5xl space-y-6">
-        <section className="decision-card p-6 sm:p-8">
-          <div className="portal-label">المدخل التشغيلي</div>
-          <div className="mt-3 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-            <div className="max-w-3xl">
-              <div className="text-3xl font-semibold tracking-[-0.03em] text-white sm:text-[44px]">
-                {job.title}
+        <section className="decision-surface">
+          <div className="border-b border-white/8 px-6 py-4 sm:px-8">
+            <div className="portal-label">المدخل التشغيلي</div>
+            <div className="mt-3 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+              <div className="max-w-3xl">
+                <div className="text-3xl font-semibold tracking-[-0.03em] text-white sm:text-[44px]">
+                  {job.title}
+                </div>
+                <div className="mt-3 text-sm leading-7 text-slate-300">
+                  نحوّل الوظيفة هنا إلى صورة تشغيلية يمكن قياسها قبل التوظيف.
+                </div>
               </div>
-              <div className="mt-3 text-sm leading-7 text-slate-300">
-                نفكك الدور هنا إلى مهام أساسية، مهام قابلة للتكييف، ومتطلبات تشغيلية تؤثر مباشرة على القرار.
-              </div>
-            </div>
 
-            <div className="flex flex-wrap gap-2">
-              <StatusPill label={job.department} tone="neutral" />
-              <StatusPill label={job.location} tone="neutral" />
-              <StatusPill label={`المخاطر ${topRisks.length}`} tone={topRisks.length > 0 ? "warning" : "success"} />
+              <div className="flex flex-wrap gap-2">
+                <StatusPill label={job.department} tone="neutral" />
+                <StatusPill label={job.location} tone="neutral" />
+                <StatusPill label={`المخاطر ${topRisks.length}`} tone={topRisks.length > 0 ? "warning" : "success"} />
+              </div>
             </div>
           </div>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="summary-card px-4 py-4">
-              <div className="text-[11px] tracking-[0.16em] text-slate-500">مستوى التعقيد</div>
-              <div className="mt-2 text-lg font-semibold text-white">{demandLabel(complexityScore)}</div>
-              <div className="mt-1 text-xs text-slate-400">محسوب من المهام والمتطلبات</div>
+          <div className="px-6 py-6 sm:px-8 sm:py-8">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="decision-stat px-4 py-4">
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">مستوى التعقيد</div>
+                <div className="mt-2 text-lg font-semibold text-white">{demandLabel(complexityScore)}</div>
+                <div className="mt-1 text-xs text-slate-400">محسوب من المهام والمتطلبات</div>
+              </div>
+              <div className="decision-stat px-4 py-4">
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">المخاطر الرئيسية</div>
+                <div className="mt-2 text-lg font-semibold text-white">{topRisks.length || 0}</div>
+                <div className="mt-1 text-xs text-slate-400">داخل البيئة التشغيلية الحالية</div>
+              </div>
+              <div className="decision-stat px-4 py-4">
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">حساسية التكييف</div>
+                <div className="mt-2 text-lg font-semibold text-white">{changeVolumeLabel(bundle.plan.changeVolume)}</div>
+                <div className="mt-1 text-xs text-slate-400">حجم التغيير المتوقع قبل الاعتماد</div>
+              </div>
             </div>
-            <div className="summary-card px-4 py-4">
-              <div className="text-[11px] tracking-[0.16em] text-slate-500">المخاطر الرئيسية</div>
-              <div className="mt-2 text-lg font-semibold text-white">{topRisks.length || 0}</div>
-              <div className="mt-1 text-xs text-slate-400">داخل البيئة التشغيلية الحالية</div>
-            </div>
-            <div className="summary-card px-4 py-4">
-              <div className="text-[11px] tracking-[0.16em] text-slate-500">حساسية التكييف</div>
-              <div className="mt-2 text-lg font-semibold text-white">{changeVolumeLabel(bundle.plan.changeVolume)}</div>
-              <div className="mt-1 text-xs text-slate-400">حجم التغيير المتوقع قبل الاعتماد</div>
-            </div>
-            <div className="summary-card px-4 py-4">
-              <div className="text-[11px] tracking-[0.16em] text-slate-500">التوافق الحالي</div>
-              <div className="mt-2 text-lg font-semibold text-white">{bundle.report.recommendation}</div>
-              <div className="mt-1 text-xs text-slate-400">ينعكس مباشرة عند تعديل المهام</div>
-            </div>
-          </div>
 
-          <div className="mt-6">
-            <div className="text-xs text-slate-500">قوالب جاهزة</div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {bundle.roleCatalogPreviews.slice(0, 6).map((role) => (
-                <button
-                  key={role.jobId}
-                  type="button"
-                  onClick={() => selectRoleTemplate(role.jobId)}
-                  className={`rounded-full px-4 py-2 text-sm transition ${
-                    role.jobId === job.id
-                      ? "bg-white text-slate-950"
-                      : "border border-white/10 bg-white/[0.04] text-slate-200 hover:bg-white/[0.07]"
-                  }`}
-                >
-                  {role.title}
-                </button>
-              ))}
+            <div className="mt-6">
+              <div className="text-xs text-slate-500">قوالب جاهزة</div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {bundle.roleCatalogPreviews.slice(0, 6).map((role) => (
+                  <button
+                    key={role.jobId}
+                    type="button"
+                    onClick={() => selectRoleTemplate(role.jobId)}
+                    className={`rounded-full px-4 py-2 text-sm transition ${
+                      role.jobId === job.id
+                        ? "bg-white text-slate-950"
+                        : "border border-white/10 bg-white/[0.04] text-slate-200 hover:bg-white/[0.07]"
+                    }`}
+                  >
+                    {role.title}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
         <SectionCard
           eyebrow="المهام الأساسية"
-          title="ما الذي لا يمكن إسقاطه؟"
-          description="هذه العناصر تمثل جوهر الوظيفة وتؤثر مباشرة على قرار الملاءمة."
+          title="المهام الأساسية"
+          description="هذه العناصر تمثل جوهر الوظيفة."
         >
           <div className="space-y-3">
             {essentialTasks.map((task) => (
@@ -169,8 +168,8 @@ export default function JobAnalysisPage() {
 
         <SectionCard
           eyebrow="المهام القابلة للتكييف"
-          title="ما الذي يمكن تكييفه؟"
-          description="هذه العناصر يمكن إعادة توزيعها أو تعديلها دون كسر جوهر الوظيفة."
+          title="المهام القابلة للتكييف"
+          description="هذه العناصر يمكن تعديلها دون كسر جوهر الوظيفة."
         >
           <div className="space-y-3">
             {adaptableTasks.map((task) => (
@@ -207,9 +206,9 @@ export default function JobAnalysisPage() {
         </SectionCard>
 
         <SectionCard
-          eyebrow="المتطلبات والمخاطر"
-          title="ما الذي يؤثر على القرار؟"
-          description="البيئة والأدوات والمخاطر هنا تشكل الصورة التشغيلية النهائية للوظيفة."
+          eyebrow="المتطلبات"
+          title="المتطلبات والمخاطر"
+          description="البيئة والأدوات والمخاطر هنا تشكل الصورة التشغيلية للوظيفة."
         >
           <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="space-y-4">

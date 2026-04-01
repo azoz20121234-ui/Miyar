@@ -3,10 +3,15 @@
 import Link from "next/link";
 
 import { ActionCard } from "@/components/action-card";
+import { AIInsightCard } from "@/components/ai-insight-card";
 import { AppShell } from "@/components/app-shell";
 import { DecisionTimeline } from "@/components/decision-timeline";
 import { SectionCard } from "@/components/section-card";
 import { StatusPill } from "@/components/status-pill";
+import {
+  generateDecisionExplanation,
+  generateNextActionReason
+} from "@/lib/ai-insights";
 import { stripInternalCodePrefix } from "@/lib/display-copy";
 import { INTERNAL_ROLE_REFERENCE } from "@/lib/experience-roles";
 import { estimatedDecisionROIBandLabel } from "@/lib/financial-model";
@@ -46,6 +51,26 @@ export default function RoleHomePage() {
   })();
   const primaryBlock = visibleBlocks[0];
   const displayTitle = job.title || `الحالة #${caseRecord.id}`;
+  const financialSignalTone =
+    financialImpact.financialSignalTone === "positive"
+      ? "success"
+      : financialImpact.financialSignalTone === "watch"
+        ? "warning"
+        : financialImpact.financialSignalTone === "risk"
+          ? "danger"
+          : "neutral";
+  const decisionExplanation = generateDecisionExplanation({
+    bundle,
+    explainability,
+    caseWorkflow,
+    financialImpact
+  });
+  const nextActionReason = generateNextActionReason({
+    bundle,
+    explainability,
+    caseWorkflow,
+    financialImpact
+  });
 
   const handlePrimaryAction = () => {
     if (primaryAction.kind === "transition") {
@@ -108,10 +133,6 @@ export default function RoleHomePage() {
         bundle.plan.items.length > 0
           ? bundle.plan.items.slice(0, 3).map((item) => item.name)
           : ["لا توجد تكييفات حاسمة حتى الآن"]
-    },
-    {
-      title: "الملخص",
-      items: [bundle.report.executiveSummary]
     }
   ];
 
@@ -131,6 +152,7 @@ export default function RoleHomePage() {
               </div>
               <div className="flex flex-wrap gap-2">
                 <StatusPill label={`المرحلة الحالية ${caseWorkflow.currentStateLabel}`} tone="neutral" />
+                <StatusPill label={financialImpact.financialSignalLabel} tone={financialSignalTone} />
                 {externalHandoff ? (
                   <div className="inline-flex items-center rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs text-emerald-200">
                     تم الإنشاء من بوابة خارجية
@@ -152,45 +174,44 @@ export default function RoleHomePage() {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-3 sm:flex-row">
-                {primaryAction.kind === "link" && primaryAction.href ? (
-                  <Link
-                    href={primaryAction.href}
-                    className={`inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition ${
-                      primaryAction.disabled
-                        ? "cursor-not-allowed border border-white/10 bg-white/[0.03] text-slate-500"
-                        : "bg-white text-slate-950 hover:bg-slate-200"
-                    }`}
-                    aria-disabled={primaryAction.disabled}
-                  >
-                    {primaryAction.label}
-                  </Link>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handlePrimaryAction}
-                    disabled={primaryAction.disabled}
-                    className={`inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition ${
-                      primaryAction.disabled
-                        ? "cursor-not-allowed border border-white/10 bg-white/[0.03] text-slate-500"
-                        : "bg-white text-slate-950 hover:bg-slate-200"
-                    }`}
-                  >
-                    {primaryAction.label}
-                  </button>
-                )}
+              <AIInsightCard title="لماذا هذا القرار؟" lines={decisionExplanation} />
 
-                <a
-                  href="#role-zone"
-                  className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.03] px-5 py-3 text-sm text-slate-200 transition hover:bg-white/[0.06]"
-                >
-                  تفاصيل الدور
-                </a>
+              <div className="decision-panel px-5 py-5">
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">الإجراء التالي</div>
+                <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  {primaryAction.kind === "link" && primaryAction.href ? (
+                    <Link
+                      href={primaryAction.href}
+                      className={`decision-cta px-5 py-3 text-sm font-semibold ${
+                        primaryAction.disabled ? "pointer-events-none cursor-not-allowed opacity-45" : ""
+                      }`}
+                      aria-disabled={primaryAction.disabled}
+                    >
+                      {primaryAction.label}
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handlePrimaryAction}
+                      disabled={primaryAction.disabled}
+                      className={`decision-cta px-5 py-3 text-sm font-semibold ${
+                        primaryAction.disabled ? "pointer-events-none cursor-not-allowed opacity-45" : ""
+                      }`}
+                    >
+                      {primaryAction.label}
+                    </button>
+                  )}
+
+                  <a href="#role-zone" className="text-sm text-slate-300 transition hover:text-white">
+                    اعرض سياق الدور
+                  </a>
+                </div>
+                <div className="mt-4 text-sm leading-7 text-slate-300">{nextActionReason}</div>
               </div>
             </div>
 
             <div className="space-y-3">
-              <div className="decision-surface-panel px-5 py-5">
+              <div className="decision-panel px-5 py-5">
                 <div className="text-[11px] tracking-[0.16em] text-slate-500">أعلى مانع</div>
                 <div className="mt-3 text-xl font-semibold text-white">
                   {stripInternalCodePrefix(primaryBlock?.title) || "لا يوجد مانع مباشر"}
@@ -200,17 +221,7 @@ export default function RoleHomePage() {
                 </div>
               </div>
 
-              <div className="decision-surface-panel px-5 py-5">
-                <div className="text-[11px] tracking-[0.16em] text-slate-500">الإجراء التالي</div>
-                <div className="mt-3 text-xl font-semibold text-white">{primaryAction.label}</div>
-                <div className="mt-3 text-sm text-slate-300">
-                  {primaryAction.disabled
-                    ? primaryAction.description
-                    : "هذا هو الإجراء الأوضح لتحريك الحالة الآن."}
-                </div>
-              </div>
-
-              <div className="decision-surface-panel px-5 py-5">
+              <div className="decision-panel px-5 py-5">
                 <div className="text-[11px] tracking-[0.16em] text-slate-500">المرحلة التالية</div>
                 <div className="mt-3 text-xl font-semibold text-white">{caseWorkflow.nextStageLabel}</div>
                 <div className="mt-3 text-sm text-slate-300">
@@ -342,13 +353,6 @@ export default function RoleHomePage() {
                       إغلاق متطلبات هذه المرحلة ضمن صلاحيات هذا الدور فقط.
                     </div>
                   </div>
-
-                  <div className="surface-card-muted px-4 py-4">
-                    <div className="text-[11px] tracking-[0.16em] text-slate-500">بعد ذلك</div>
-                    <div className="mt-2 text-sm leading-7 text-white">
-                      تنتقل الحالة إلى {caseWorkflow.nextStageLabel} بعد اكتمال المراجعة الحالية.
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -360,9 +364,9 @@ export default function RoleHomePage() {
         <SectionCard
           eyebrow="سياق داعم"
           title="ما الذي يدعم القرار؟"
-          description="تفاصيل مختصرة تظهر فقط عند الحاجة بعد القرار والإجراء."
+          description="تفاصيل مختصرة تظهر فقط بعد حسم القرار والإجراء."
         >
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2">
             {supportCards.map((card) => (
               <div key={card.title} className="summary-card px-4 py-4">
                 <div className="text-sm font-semibold text-white">{card.title}</div>

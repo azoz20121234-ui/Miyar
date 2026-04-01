@@ -44,14 +44,19 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
   const canViewPage = pageId ? canAccess(pageId) : true;
   const portalLabel = portalNameMap[role];
   const isHomePage = pageId === "home";
+  const isPortalPage = pageId?.startsWith("portal:") ?? false;
   const isFocusedSurface =
     isHomePage ||
+    isPortalPage ||
     pageId === "job-analysis" ||
+    pageId === "readiness-report" ||
     pageId === "portal:new-case" ||
     pageId === "portal:submission-status";
   const hideExternalBanner =
     isHomePage ||
+    isPortalPage ||
     pageId === "job-analysis" ||
+    pageId === "readiness-report" ||
     pageId === "portal:new-case" ||
     pageId === "portal:submission-status";
 
@@ -60,7 +65,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
       <div className="mx-auto flex min-h-screen w-full max-w-[1480px] flex-col px-4 py-5 sm:px-6 lg:px-8">
         <header
           className={`rounded-[30px] border border-white/10 bg-[#0d1117]/86 px-5 py-4 shadow-header backdrop-blur-xl ${
-            isHomePage ? "mb-5" : "sticky top-0 z-20 mb-8"
+            isFocusedSurface ? "mb-5" : "sticky top-0 z-20 mb-8"
           }`}
         >
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -79,7 +84,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
               </div>
             </div>
 
-            {!isHomePage ? (
+            {!isFocusedSurface ? (
               <div className="hidden xl:flex">
                 <RoleSwitcher />
               </div>
@@ -106,7 +111,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
             </div>
           </div>
 
-          {!isHomePage ? (
+          {!isFocusedSurface ? (
             <div
               id="meyar-role-switcher"
               className="mt-4 rounded-[22px] border border-white/10 bg-white/[0.03] px-4 py-4"
@@ -140,7 +145,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
             </div>
           ) : null}
 
-          {!isHomePage ? (
+          {!isFocusedSurface ? (
             <div className="mt-4 flex gap-2 overflow-x-auto pb-1 xl:hidden">
             {roleConfig.navItems.map((item) => {
               const active = pathname === item.href;
@@ -163,7 +168,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
         </header>
 
         <main className="flex-1">
-          {!isHomePage ? (
+          {!isFocusedSurface ? (
             <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-3xl">
                 <div className="portal-label">نواة Meyar • {portalLabel}</div>

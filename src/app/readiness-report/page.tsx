@@ -3,12 +3,16 @@
 import { useMemo, useState } from "react";
 
 import { ActionCard } from "@/components/action-card";
+import { AIInsightCard } from "@/components/ai-insight-card";
 import { AppShell } from "@/components/app-shell";
-import { DecisionCard } from "@/components/decision-card";
 import { FinancialImpactCard } from "@/components/financial-impact-card";
 import { ReportActions } from "@/components/report-actions";
 import { SectionCard } from "@/components/section-card";
 import { StatusPill } from "@/components/status-pill";
+import {
+  generateDecisionExplanation,
+  generateRiskNarrative
+} from "@/lib/ai-insights";
 import { stripInternalCodePrefix } from "@/lib/display-copy";
 import {
   estimatedDecisionROIBandLabel,
@@ -91,6 +95,31 @@ export default function ReadinessReportPage() {
   const activeRecommendation =
     explainability.recommendationModes.find((item) => item.mode === mode) ??
     explainability.recommendationModes[0];
+  const decisionExplanation = generateDecisionExplanation({
+    bundle,
+    explainability,
+    caseWorkflow,
+    financialImpact
+  });
+  const riskNarrative = generateRiskNarrative({
+    bundle,
+    explainability,
+    caseWorkflow,
+    financialImpact
+  });
+  const evidencePendingCount = explainability.approvalBlocks.filter(
+    (block) => block.status === "missing-evidence"
+  ).length;
+  const evidenceStrengthLabel =
+    evidencePendingCount > 0 ? "يحتاج استكمال" : "قيد البناء";
+  const financialSignalPillTone =
+    financialImpact.financialSignalTone === "positive"
+      ? "success"
+      : financialImpact.financialSignalTone === "watch"
+        ? "warning"
+        : financialImpact.financialSignalTone === "risk"
+          ? "danger"
+          : "neutral";
 
   return (
     <AppShell
@@ -100,34 +129,109 @@ export default function ReadinessReportPage() {
       actions={<ReportActions />}
     >
       <div className="mx-auto max-w-5xl space-y-6">
-        <DecisionCard
-          eyebrow="القرار"
-          title={bundle.report.recommendation}
-          summary={`الحالة في ${caseWorkflow.currentStateLabel} ويقودها ${caseWorkflow.currentOwnerLabel}.`}
-          value={`${bundle.report.finalReadiness}%`}
-          badge={<StatusPill label={bundle.report.recommendation} tone={statusTone(bundle.report.status)} />}
-          className="p-7 sm:p-9"
-          footer={
-            <div className="grid gap-3 sm:grid-cols-4">
-              <div className="surface-card-muted px-4 py-3">
-                <div className="text-[11px] tracking-[0.16em] text-slate-500">المرحلة</div>
-                <div className="mt-2 text-sm font-medium text-white">{caseWorkflow.currentStateLabel}</div>
+        <section className="decision-surface">
+          <div className="border-b border-white/8 px-6 py-4 sm:px-8">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="max-w-2xl">
+                <div className="portal-label">الموجز التنفيذي</div>
+                <div className="mt-3 text-4xl font-semibold tracking-[-0.04em] text-white sm:text-[56px] sm:leading-[1.02]">
+                  {bundle.report.recommendation}
+                </div>
+                <div className="mt-3 text-sm leading-7 text-slate-300">
+                  الحالة في {caseWorkflow.currentStateLabel} ويقودها {caseWorkflow.currentOwnerLabel}.
+                </div>
               </div>
-              <div className="surface-card-muted px-4 py-3">
-                <div className="text-[11px] tracking-[0.16em] text-slate-500">الموانع</div>
-                <div className="mt-2 text-sm font-medium text-white">{explainability.approvalBlocks.length}</div>
-              </div>
-              <div className="surface-card-muted px-4 py-3">
-                <div className="text-[11px] tracking-[0.16em] text-slate-500">فجوة الحد</div>
-                <div className="mt-2 text-sm font-medium text-white">{explainability.threshold.currentGap}%</div>
-              </div>
-              <div className="surface-card-muted px-4 py-3">
-                <div className="text-[11px] tracking-[0.16em] text-slate-500">التكلفة التقديرية</div>
-                <div className="mt-2 text-sm font-medium text-white">{formatCurrencyRange(bundle.report.totalCostRangeSar)}</div>
+
+              <div className="flex flex-wrap gap-2">
+                <StatusPill label={bundle.report.recommendation} tone={statusTone(bundle.report.status)} />
+                <StatusPill label={`جاهزية ${bundle.report.finalReadiness}%`} tone="neutral" />
+                <StatusPill
+                  label={
+                    bundle.report.residualRiskLevel === "low"
+                      ? "مخاطر منخفضة"
+                      : bundle.report.residualRiskLevel === "medium"
+                        ? "مخاطر متوسطة"
+                        : "مخاطر مرتفعة"
+                  }
+                  tone={riskTone(bundle.report.residualRiskLevel)}
+                />
               </div>
             </div>
-          }
-        />
+          </div>
+
+          <div className="grid gap-6 px-6 py-6 sm:px-8 sm:py-8 xl:grid-cols-[minmax(0,1.12fr)_320px]">
+            <div className="space-y-4">
+              <AIInsightCard title="لماذا القرار؟" lines={decisionExplanation} />
+            </div>
+
+            <div className="space-y-3">
+              <div className="decision-panel px-5 py-5">
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">الإشارة المالية</div>
+                <div className="mt-3 text-xl font-semibold text-white">{financialImpact.financialSignalLabel}</div>
+                <div className="mt-2 text-sm text-slate-300">تفسير اقتصادي للقرار الحالي فقط.</div>
+              </div>
+              <div className="decision-panel px-5 py-5">
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">قوة الدليل</div>
+                <div className="mt-3 text-xl font-semibold text-white">{evidenceStrengthLabel}</div>
+                <div className="mt-2 text-sm text-slate-300">
+                  {evidencePendingCount > 0
+                    ? `${evidencePendingCount} عنصر يحتاج استكمالًا قبل الاكتمال.`
+                    : "طبقة قوة الدليل ما زالت في وضع تمهيدي."}
+                </div>
+              </div>
+              <div className="decision-panel px-5 py-5">
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">التكلفة التقديرية</div>
+                <div className="mt-3 text-xl font-semibold text-white">
+                  {formatCurrencyRange(bundle.report.totalCostRangeSar)}
+                </div>
+                <div className="mt-2 text-sm text-slate-300">
+                  نطاق تنفيذي مختصر قبل اعتماد التنفيذ.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <SectionCard
+          eyebrow="الأسباب"
+          title="لماذا القرار؟"
+          description="أكثر ما يدعم القرار وما يحدّه الآن."
+        >
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="summary-card px-5 py-5">
+              <div className="portal-label">يدعم القرار</div>
+              <div className="mt-4 space-y-3">
+                {positiveDrivers.map((driver) => (
+                  <div key={driver.id} className="surface-card-muted px-4 py-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="text-sm font-semibold text-white">{stripInternalCodePrefix(driver.title)}</div>
+                      <StatusPill label={`+${Math.abs(driver.impact)}`} tone="success" />
+                    </div>
+                    <div className="mt-2 text-sm leading-7 text-slate-300">{driver.summary}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="summary-card px-5 py-5">
+              <div className="portal-label">يخفض الجاهزية</div>
+              <div className="mt-4 space-y-3">
+                {negativeDrivers.map((driver) => (
+                  <div key={driver.id} className="surface-card-muted px-4 py-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="text-sm font-semibold text-white">{stripInternalCodePrefix(driver.title)}</div>
+                      <StatusPill
+                        label={driver.level === "blocker" ? "مانع" : `-${Math.abs(driver.impact)}`}
+                        tone={driverTone(driver.level)}
+                      />
+                    </div>
+                    <div className="mt-2 text-sm leading-7 text-slate-300">{driver.summary}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </SectionCard>
 
         <SectionCard
           eyebrow="الأثر المالي"
@@ -158,12 +262,6 @@ export default function ReadinessReportPage() {
                   value: formatCurrency(financialImpact.wrongDecisionCost),
                   hint: "رفض أو تعيين غير منضبط",
                   tone: "risk"
-                },
-                {
-                  label: "الهدر المتجنب",
-                  value: formatCurrency(financialImpact.avoidedGhostHiringCost),
-                  hint: "هدر تشغيلي يمكن تقليصه",
-                  tone: "positive"
                 },
                 {
                   label: "وفرة المخاطر",
@@ -219,45 +317,13 @@ export default function ReadinessReportPage() {
           </div>
         </SectionCard>
 
-        {!isExecutive ? (
-          <SectionCard
-            eyebrow="لماذا"
-            title="لماذا صدر هذا القرار"
-            description="أقوى ما رفع القرار وأقوى ما خفضه."
-          >
-            <div className="space-y-4">
-              {[...positiveDrivers, ...negativeDrivers].map((driver) => (
-                <ActionCard
-                  key={driver.id}
-                  eyebrow={driver.direction === "positive" ? "عامل رافع" : "عامل خافض"}
-                  title={driver.title}
-                  problem={driver.title}
-                  context={driver.summary}
-                  impact={`${driver.direction === "positive" ? "+" : "-"}${Math.abs(driver.impact)} نقطة تأثير`}
-                  status={
-                    <StatusPill
-                      label={
-                        driver.level === "blocker"
-                          ? "مانع"
-                          : driver.level === "major"
-                            ? "رئيسي"
-                            : "ثانوي"
-                      }
-                      tone={driverTone(driver.level)}
-                    />
-                  }
-                />
-              ))}
-            </div>
-          </SectionCard>
-        ) : null}
-
         <SectionCard
           eyebrow="الموانع"
-          title="ما الذي يمنع الاعتماد"
-          description="العناصر الأوضح التي تمنع القرار أو تؤخره الآن."
+          title="المخاطر"
+          description="الموانع والمخاطر التي تحتاج متابعة قبل الاعتماد."
         >
           <div className="space-y-4">
+            <AIInsightCard title="قراءة المخاطر" lines={riskNarrative} tone="amber" />
             {blocks.map((block) => (
               <ActionCard
                 key={block.id}
@@ -278,59 +344,9 @@ export default function ReadinessReportPage() {
         </SectionCard>
 
         <SectionCard
-          eyebrow="الإجراءات"
-          title="ما الذي يجب أن يحدث الآن"
-          description="أهم 3 إجراءات قبل تحريك القرار."
-        >
-          <div className="space-y-4">
-            {explainability.nextActions.slice(0, 3).map((action) => (
-              <ActionCard
-                key={action.id}
-                eyebrow="إجراء"
-                title={action.title}
-                problem={action.title}
-                context={action.requiredAction}
-                impact={action.expectedImpact}
-                meta={action.ownerLabel}
-                status={
-                  <StatusPill
-                    label={
-                      action.urgency === "now"
-                        ? "فوري"
-                        : action.urgency === "next"
-                          ? "التالي"
-                          : "مخطط"
-                    }
-                    tone={
-                      action.urgency === "now"
-                        ? "danger"
-                        : action.urgency === "next"
-                          ? "warning"
-                          : "neutral"
-                    }
-                  />
-                }
-              />
-            ))}
-          </div>
-        </SectionCard>
-
-        <SectionCard
-          eyebrow="السيناريوهات"
-          title="إذا تحركنا الآن"
-          description="السيناريوهات الأقرب لتغيير القرار من الوضع الحالي."
-        >
-          <div className="space-y-4">
-            {explainability.scenarios.map((scenario) => (
-              <ScenarioCard key={scenario.id} scenario={scenario} />
-            ))}
-          </div>
-        </SectionCard>
-
-        <SectionCard
-          eyebrow="البيان التنفيذي"
+          eyebrow="التوصية"
           title="التوصية النهائية"
-          description="صياغة تنفيذية قصيرة قابلة للعرض."
+          description="صياغة تنفيذية قصيرة، مع الإجراءات والسيناريوهات الأقرب."
         >
           <div className="flex flex-wrap gap-3">
             {(["conservative", "balanced", "enablement-first"] as DecisionRecommendationMode[]).map(
@@ -359,63 +375,74 @@ export default function ReadinessReportPage() {
             )}
           </div>
 
-            <div className="mt-5 surface-card p-6">
+          <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.06fr)_minmax(0,0.94fr)]">
+            <div className="decision-card p-6">
               <div className="flex flex-wrap items-center gap-3">
                 <div className="text-lg font-semibold text-white">{activeRecommendation.title}</div>
                 <StatusPill label={activeRecommendation.summary} tone="neutral" />
                 <StatusPill label={`ثقة ${bundle.report.confidence}%`} tone="neutral" />
-                <StatusPill
-                  label={
-                    bundle.report.residualRiskLevel === "low"
-                      ? "مخاطر منخفضة"
-                      : bundle.report.residualRiskLevel === "medium"
-                        ? "مخاطر متوسطة"
-                        : "مخاطر مرتفعة"
-                  }
-                  tone={riskTone(bundle.report.residualRiskLevel)}
-                />
+                <StatusPill label={financialImpact.financialSignalLabel} tone={financialSignalPillTone} />
               </div>
-            <div className="mt-5 text-xl leading-10 text-white">
-              {activeRecommendation.printableText}
+              <div className="mt-5 text-xl leading-10 text-white">{activeRecommendation.printableText}</div>
+            </div>
+
+            <div className="space-y-3">
+              {explainability.nextActions.slice(0, 3).map((action) => (
+                <ActionCard
+                  key={action.id}
+                  eyebrow="إجراء"
+                  title={action.title}
+                  problem={action.title}
+                  context={action.requiredAction}
+                  impact={action.expectedImpact}
+                  meta={action.ownerLabel}
+                  status={
+                    <StatusPill
+                      label={
+                        action.urgency === "now"
+                          ? "فوري"
+                          : action.urgency === "next"
+                            ? "التالي"
+                            : "مخطط"
+                      }
+                      tone={
+                        action.urgency === "now"
+                          ? "danger"
+                          : action.urgency === "next"
+                            ? "warning"
+                            : "neutral"
+                      }
+                    />
+                  }
+                />
+              ))}
             </div>
           </div>
-        </SectionCard>
 
-        {isAdmin ? (
-          <SectionCard
-            eyebrow="الأثر"
-            title="أثر الاعتماد"
-            description="مسار مختصر لشروط الاعتماد."
-          >
-            <div className="table-shell">
-              <table className="min-w-full divide-y divide-white/10 text-sm">
-                <thead className="bg-white/[0.03] text-slate-500">
-                  <tr>
-                    <th className="px-4 py-3 text-right">المتطلب</th>
-                    <th className="px-4 py-3 text-right">الحالة</th>
-                    <th className="px-4 py-3 text-right">المالك</th>
-                    <th className="px-4 py-3 text-right">الإجراء</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/10">
-                  {explainability.approvalRequirements.map((requirement) => (
-                    <tr key={requirement.id}>
-                      <td className="px-4 py-4 text-white">{requirement.label}</td>
-                      <td className="px-4 py-4">
-                        <StatusPill
-                          label={requirement.passed ? "مستوفى" : "معلّق"}
-                          tone={requirement.passed ? "success" : "danger"}
-                        />
-                      </td>
-                      <td className="px-4 py-4 text-slate-300">{requirement.ownerLabel}</td>
-                      <td className="px-4 py-4 text-slate-300">{requirement.requiredAction}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          <div className="mt-5 space-y-4">
+            {explainability.scenarios.map((scenario) => (
+              <ScenarioCard key={scenario.id} scenario={scenario} />
+            ))}
+          </div>
+
+          {isAdmin ? (
+            <div className="mt-5 space-y-3">
+              {explainability.approvalRequirements.slice(0, 4).map((requirement) => (
+                <div key={requirement.id} className="summary-card px-5 py-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="text-sm font-semibold text-white">{requirement.label}</div>
+                    <StatusPill
+                      label={requirement.passed ? "مستوفى" : "معلّق"}
+                      tone={requirement.passed ? "success" : "danger"}
+                    />
+                  </div>
+                  <div className="mt-2 text-sm leading-7 text-slate-300">{requirement.requiredAction}</div>
+                  <div className="mt-2 text-xs text-slate-500">{requirement.ownerLabel}</div>
+                </div>
+              ))}
             </div>
-          </SectionCard>
-        ) : null}
+          ) : null}
+        </SectionCard>
       </div>
     </AppShell>
   );

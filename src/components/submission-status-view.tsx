@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 
+import { AIInsightCard } from "@/components/ai-insight-card";
+import { generateNextActionReason } from "@/lib/ai-insights";
 import { stripInternalCodePrefix } from "@/lib/display-copy";
 import { accommodationLevelLabelMap, complexityLabelMap } from "@/lib/external-handoff";
 import { CASE_STATE_META } from "@/lib/case-state";
@@ -18,7 +20,8 @@ const trackingToneMap = {
 };
 
 export const SubmissionStatusView = () => {
-  const { caseRecord, caseWorkflow, externalHandoff, bundle, explainability } = useAssessment();
+  const { caseRecord, caseWorkflow, externalHandoff, bundle, explainability, financialImpact } =
+    useAssessment();
   const stateMeta = CASE_STATE_META[caseRecord.state];
   const trackingState =
     caseRecord.state === "DRAFT"
@@ -59,6 +62,12 @@ export const SubmissionStatusView = () => {
       status: block.status === "missing-evidence" ? "بانتظار مراجعة" : "بانتظار اعتماد"
     }))
   ].slice(0, 3);
+  const nextActionReason = generateNextActionReason({
+    bundle,
+    explainability,
+    caseWorkflow,
+    financialImpact
+  });
 
   return (
     <AppShell
@@ -67,48 +76,60 @@ export const SubmissionStatusView = () => {
       subtitle="هذه الصفحة تتابع انتقال الحالة قبل اكتمال القرار الداخلي."
     >
       <div className="mx-auto max-w-5xl space-y-6">
-        <section className="decision-card p-6 sm:p-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="max-w-3xl">
-              <div className="portal-label">سطح التتبع</div>
-              <div className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-white sm:text-[42px]">
-                {trackingState}
+        <section className="decision-surface">
+          <div className="border-b border-white/8 px-6 py-4 sm:px-8">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="min-w-0">
+                <div className="portal-label">سطح التتبع</div>
+                <div className="mt-2 text-sm text-slate-300">{externalHandoff?.job.title ?? bundle.job.title}</div>
               </div>
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2">
+                <StatusPill label={trackingState} tone={trackingToneMap[trackingState]} />
                 <StatusPill label={`المرحلة الحالية ${caseWorkflow.currentStateLabel}`} tone="neutral" />
                 <StatusPill label={`المالك الحالي ${caseWorkflow.currentOwnerLabel}`} tone="neutral" />
-                <StatusPill label={trackingState} tone={trackingToneMap[trackingState]} />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-6 px-6 py-6 sm:px-8 sm:py-8 xl:grid-cols-[minmax(0,1.1fr)_320px]">
+            <div className="space-y-5">
+              <div className="max-w-2xl">
+                <div className="portal-label">حالة الإرسال</div>
+                <div className="mt-4 text-4xl font-semibold tracking-[-0.04em] text-white sm:text-[52px] sm:leading-[1.04]">
+                  {trackingState}
+                </div>
+                <div className="mt-4 text-sm leading-7 text-slate-300">{stateMeta.description}</div>
+              </div>
+
+              <AIInsightCard title="ما الذي سيحدث الآن؟" lines={[nextActionReason]} />
+
+              <div className="decision-panel px-5 py-5">
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">الإجراء التالي</div>
+                <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <Link href={nextHref} className="decision-cta px-5 py-3 text-sm font-semibold">
+                    {nextLabel}
+                  </Link>
+                  <div className="text-sm text-slate-300">المرحلة التالية {caseWorkflow.nextStageLabel}</div>
+                </div>
               </div>
             </div>
 
-            <Link
-              href={nextHref}
-              className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
-            >
-              {nextLabel}
-            </Link>
-          </div>
-
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="summary-card px-4 py-4">
-              <div className="text-[11px] tracking-[0.16em] text-slate-500">حالة الإرسال</div>
-              <div className="mt-2 text-lg font-semibold text-white">{trackingState}</div>
-              <div className="mt-1 text-xs text-slate-400">{stateMeta.description}</div>
-            </div>
-            <div className="summary-card px-4 py-4">
-              <div className="text-[11px] tracking-[0.16em] text-slate-500">المرحلة الحالية</div>
-              <div className="mt-2 text-lg font-semibold text-white">{caseWorkflow.currentStateLabel}</div>
-              <div className="mt-1 text-xs text-slate-400">ضمن نواة Meyar</div>
-            </div>
-            <div className="summary-card px-4 py-4">
-              <div className="text-[11px] tracking-[0.16em] text-slate-500">المالك الحالي</div>
-              <div className="mt-2 text-lg font-semibold text-white">{caseWorkflow.currentOwnerLabel}</div>
-              <div className="mt-1 text-xs text-slate-400">الجهة المسؤولة الآن</div>
-            </div>
-            <div className="summary-card px-4 py-4">
-              <div className="text-[11px] tracking-[0.16em] text-slate-500">المرحلة التالية</div>
-              <div className="mt-2 text-lg font-semibold text-white">{caseWorkflow.nextStageLabel}</div>
-              <div className="mt-1 text-xs text-slate-400">بعد إغلاق الوضع الحالي</div>
+            <div className="space-y-3">
+              <div className="decision-panel px-5 py-5">
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">المرحلة الحالية</div>
+                <div className="mt-3 text-xl font-semibold text-white">{caseWorkflow.currentStateLabel}</div>
+                <div className="mt-2 text-sm text-slate-300">ضمن نواة Meyar</div>
+              </div>
+              <div className="decision-panel px-5 py-5">
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">المالك الحالي</div>
+                <div className="mt-3 text-xl font-semibold text-white">{caseWorkflow.currentOwnerLabel}</div>
+                <div className="mt-2 text-sm text-slate-300">الجهة المسؤولة الآن</div>
+              </div>
+              <div className="decision-panel px-5 py-5">
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">المرحلة التالية</div>
+                <div className="mt-3 text-xl font-semibold text-white">{caseWorkflow.nextStageLabel}</div>
+                <div className="mt-2 text-sm text-slate-300">بعد إغلاق الوضع الحالي</div>
+              </div>
             </div>
           </div>
         </section>
@@ -184,23 +205,6 @@ export const SubmissionStatusView = () => {
           </div>
         </section>
 
-        <section className="state-card p-6">
-          <div className="portal-label">الخطوة التالية</div>
-          <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <div className="text-2xl font-semibold text-white">{nextLabel}</div>
-              <div className="mt-2 text-sm leading-7 text-slate-400">
-                المسار الحالي يقوده {caseWorkflow.currentOwnerLabel}، وبعده تنتقل الحالة إلى {caseWorkflow.nextStageLabel}.
-              </div>
-            </div>
-            <Link
-              href={nextHref}
-              className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
-            >
-              {nextLabel}
-            </Link>
-          </div>
-        </section>
       </div>
     </AppShell>
   );
