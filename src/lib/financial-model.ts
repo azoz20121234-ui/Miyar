@@ -36,13 +36,13 @@ const formatSar = (value: number) =>
   }).format(value);
 
 const retentionImpactLabelMap: Record<RetentionImpactLevel, string> = {
-  low: "يحتاج متابعة",
+  low: "قابل للتحسن",
   medium: "مستقر مبدئيًا",
   high: "يدعم الاستمرارية"
 };
 
 const retentionImpactNarrativeMap: Record<RetentionImpactLevel, string> = {
-  low: "يتطلب متابعة بعد التنفيذ",
+  low: "يتحسن مع متابعة التنفيذ",
   medium: "يبدو مستقرًا مبدئيًا",
   high: "يدعم الاستقرار بعد التنفيذ"
 };

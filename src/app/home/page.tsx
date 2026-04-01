@@ -9,10 +9,7 @@ import { SectionCard } from "@/components/section-card";
 import { StatusPill } from "@/components/status-pill";
 import { stripInternalCodePrefix } from "@/lib/display-copy";
 import { INTERNAL_ROLE_REFERENCE } from "@/lib/experience-roles";
-import {
-  estimatedDecisionROIBandLabel,
-  retentionImpactLevelLabel
-} from "@/lib/financial-model";
+import { estimatedDecisionROIBandLabel } from "@/lib/financial-model";
 import { getRoleConfig } from "@/lib/role-model";
 import { formatCurrency } from "@/lib/scoring";
 import { useAssessment } from "@/store/assessment-context";
@@ -151,8 +148,7 @@ export default function RoleHomePage() {
                   {bundle.report.recommendation}
                 </div>
                 <div className="mt-4 max-w-xl text-sm leading-7 text-slate-300">
-                  هذا هو الحكم التشغيلي الحالي. إذا أُغلق المانع الأعلى ونُفذ الإجراء التالي، تنتقل الحالة إلى{" "}
-                  {caseWorkflow.nextStageLabel}.
+                  هذا هو الحكم التشغيلي الحالي بناءً على المعطيات المكتملة حتى الآن.
                 </div>
               </div>
 
@@ -253,7 +249,7 @@ export default function RoleHomePage() {
               </div>
             </div>
             <div className="mt-3 text-xs leading-6 text-slate-400">
-              أثر الاستمرارية {retentionImpactLevelLabel(financialImpact.retentionImpactLevel)}
+              تقدير مالي أولي مبني على افتراضات تشغيلية قابلة للتعديل.
             </div>
           </div>
         </section>
@@ -323,34 +319,38 @@ export default function RoleHomePage() {
                 </div>
               </div>
 
-              <ActionCard
-                eyebrow="الإجراء المرتبط بالدور"
-                title={primaryAction.label}
-                problem={stripInternalCodePrefix(primaryBlock?.title) || "لا يوجد مانع مباشر"}
-                reason={primaryAction.description}
-                impact={`عند إنجاز هذا الإجراء تنتقل الحالة إلى ${caseWorkflow.nextStageLabel}.`}
-                meta={`الدور الحالي ${roleDefinition.label}`}
-                status={
-                  <StatusPill
-                    label={primaryAction.disabled ? "معلّق" : "جاهز"}
-                    tone={primaryAction.disabled ? "warning" : "success"}
-                  />
-                }
-                cta={
-                  primaryAction.kind === "link"
-                    ? {
-                        label: primaryAction.label,
-                        href: primaryAction.href,
-                        disabled: primaryAction.disabled
-                      }
-                    : {
-                        label: primaryAction.label,
-                        onClick: handlePrimaryAction,
-                        disabled: primaryAction.disabled
-                      }
-                }
-                variant="primary"
-              />
+              <div className="summary-card px-5 py-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="portal-label">ما يخص هذا الدور الآن</div>
+                    <div className="mt-3 text-xl font-semibold text-white">{roleDefinition.description}</div>
+                  </div>
+                  <StatusPill label={roleDefinition.label} tone="neutral" />
+                </div>
+
+                <div className="mt-5 space-y-4">
+                  <div className="surface-card-muted px-4 py-4">
+                    <div className="text-[11px] tracking-[0.16em] text-slate-500">يراجع الآن</div>
+                    <div className="mt-2 text-sm leading-7 text-white">
+                      {roleDefinition.sees.slice(0, 2).join(" • ")}
+                    </div>
+                  </div>
+
+                  <div className="surface-card-muted px-4 py-4">
+                    <div className="text-[11px] tracking-[0.16em] text-slate-500">ما الذي سيحرك المرحلة</div>
+                    <div className="mt-2 text-sm leading-7 text-white">
+                      {roleDefinition.submits[0] ?? roleDefinition.edits[0] ?? "متابعة المرحلة الحالية"}
+                    </div>
+                  </div>
+
+                  <div className="surface-card-muted px-4 py-4">
+                    <div className="text-[11px] tracking-[0.16em] text-slate-500">بعد ذلك</div>
+                    <div className="mt-2 text-sm leading-7 text-white">
+                      تنتقل الحالة إلى {caseWorkflow.nextStageLabel} بعد اكتمال المراجعة الحالية.
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </SectionCard>
