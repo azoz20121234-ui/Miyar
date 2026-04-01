@@ -339,7 +339,7 @@ export default function RoleHomePage() {
                   <div className="surface-card-muted px-4 py-4">
                     <div className="text-[11px] tracking-[0.16em] text-slate-500">ما الذي سيحرك المرحلة</div>
                     <div className="mt-2 text-sm leading-7 text-white">
-                      {roleDefinition.submits[0] ?? roleDefinition.edits[0] ?? "متابعة المرحلة الحالية"}
+                      إغلاق متطلبات هذه المرحلة ضمن صلاحيات هذا الدور فقط.
                     </div>
                   </div>
 

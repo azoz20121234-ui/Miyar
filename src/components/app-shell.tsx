@@ -79,9 +79,11 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
               </div>
             </div>
 
-            <div className={isHomePage ? "hidden" : "hidden xl:flex"}>
-              <RoleSwitcher />
-            </div>
+            {!isHomePage ? (
+              <div className="hidden xl:flex">
+                <RoleSwitcher />
+              </div>
+            ) : null}
 
             <div className="flex flex-wrap items-center gap-2.5">
               <Link
