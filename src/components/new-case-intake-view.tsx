@@ -10,7 +10,6 @@ import { coreMicrocopy } from "@/lib/microcopy";
 import { useAssessment } from "@/store/assessment-context";
 
 import { AppShell } from "./app-shell";
-import { StatusPill } from "./status-pill";
 
 export const NewCaseIntakeView = () => {
   const { bundle, profile, caseWorkflow, caseRecord, externalHandoff, explainability, financialImpact } =
@@ -32,74 +31,72 @@ export const NewCaseIntakeView = () => {
     >
       <div className="mx-auto max-w-[1040px] space-y-8">
         <section className="decision-surface mx-auto max-w-[920px]">
-          <div className="px-6 py-5 sm:px-8 sm:py-6">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <div className="min-w-0">
-                <div className="portal-label">بوابة الاستلام الداخلي</div>
-                <div className="mt-2 text-sm text-slate-300">
-                  {externalHandoff?.job.title || `الحالة #${caseRecord.id}`}
-                </div>
+          <div className="decision-surface-inner px-6 py-7 sm:px-8 sm:py-10">
+            <div className="executive-stack">
+              <div className="portal-label">بوابة الاستلام الداخلي</div>
+              <div className="text-sm text-slate-300">
+                {externalHandoff?.job.title || `الحالة #${caseRecord.id}`}
               </div>
-              <div className="flex flex-wrap gap-2">
-                <StatusPill label={`المرحلة الحالية ${caseWorkflow.currentStateLabel}`} tone="neutral" />
-                <StatusPill label={`المالك الحالي ${caseWorkflow.currentOwnerLabel}`} tone="neutral" />
-                {externalHandoff ? (
-                  <div className="inline-flex items-center rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs text-emerald-200">
-                    تم الإنشاء من بوابة خارجية
-                  </div>
-                ) : null}
+              <div className="text-4xl font-semibold tracking-[-0.04em] text-white sm:text-[52px] sm:leading-[1.04]">
+                جاهزة للتقييم
+              </div>
+              <div className="executive-note">{coreMicrocopy.newCase.purpose}</div>
+              <div className="text-sm leading-7 text-slate-400">{coreMicrocopy.newCase.next}</div>
+              <div className="executive-meta">
+                <div className="executive-chip">المرحلة الحالية {caseWorkflow.currentStateLabel}</div>
+                <div className="executive-chip">المالك الحالي {caseWorkflow.currentOwnerLabel}</div>
+                <div className="executive-chip">المرحلة التالية {caseWorkflow.nextStageLabel}</div>
+                {externalHandoff ? <div className="executive-chip">تم الإنشاء من بوابة خارجية</div> : null}
               </div>
             </div>
-          </div>
 
-          <div className="decision-surface-inner space-y-5 px-6 pb-7 sm:px-8 sm:pb-10">
-            <div className="space-y-5">
-              <div className="max-w-2xl">
-                <div className="portal-label">الحالة</div>
-                <div className="mt-4 text-4xl font-semibold tracking-[-0.04em] text-white sm:text-[52px] sm:leading-[1.04]">
-                  جاهزة للتقييم
-                </div>
-                <div className="mt-4 max-w-xl text-sm leading-7 text-slate-300">
-                  {coreMicrocopy.newCase.purpose}
-                </div>
-                <div className="mt-2 max-w-xl text-sm leading-7 text-slate-400">
-                  {coreMicrocopy.newCase.next}
-                </div>
-              </div>
-
-              <AIInsightCard title="ما الذي سيحدث الآن؟" lines={[nextActionReason]} />
-
-              <div className="decision-panel px-5 py-5">
+            <div className="executive-panel-stack mt-10">
+              <div className="decision-panel px-6 py-6 text-center">
                 <div className="text-[11px] tracking-[0.16em] text-slate-500">الإجراء التالي</div>
-                <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                  <Link href="/home" className="decision-cta px-5 py-3 text-sm font-semibold">
+                <div className="mt-3 text-sm leading-7 text-slate-300">{nextActionReason}</div>
+                <div className="mt-6 flex justify-center">
+                  <Link href="/home" className="decision-cta min-w-[220px] px-5 py-3 text-sm font-semibold">
                     ابدأ التقييم
                   </Link>
-                  <div className="text-sm text-slate-300">المرحلة التالية {caseWorkflow.nextStageLabel}</div>
                 </div>
               </div>
-            </div>
 
-            <div className="decision-flow">
-              <div className="decision-panel px-5 py-5">
-                <div className="text-[11px] tracking-[0.16em] text-slate-500">الجاهزية الأولية</div>
-                <div className="mt-3 text-2xl font-semibold text-white">
-                  {externalHandoff?.candidate.capabilityScore ?? bundle.report.baselineReadiness}%
-                </div>
-                <div className="mt-2 text-sm text-slate-300">قبل التقييم الداخلي الكامل</div>
-              </div>
-              <div className="decision-panel px-5 py-5">
-                <div className="text-[11px] tracking-[0.16em] text-slate-500">الثقة الأولية</div>
-                <div className="mt-3 text-2xl font-semibold text-white">{profile.assessmentConfidence}%</div>
-                <div className="mt-2 text-sm text-slate-300">قراءة تمهيدية للملف الحالي</div>
-              </div>
-              <div className="decision-panel px-5 py-5">
-                <div className="text-[11px] tracking-[0.16em] text-slate-500">أعلى مانع</div>
-                <div className="mt-3 text-lg font-semibold text-white">
-                  {stripInternalCodePrefix(topBlocker?.title) || "لا يوجد مانع مباشر"}
-                </div>
-                <div className="mt-2 text-sm leading-7 text-slate-300">
-                  {topBlocker?.requiredAction ?? "المسار واضح حتى الآن."}
+              <AIInsightCard
+                title="ما الذي سيحدث الآن؟"
+                lines={[nextActionReason]}
+                className="mx-auto w-full max-w-[760px]"
+              />
+
+              <div className="summary-card px-6 py-6">
+                <div className="portal-label">القراءة التمهيدية</div>
+                <div className="mt-4 space-y-4">
+                  <div className="flex items-center justify-between gap-4 border-b border-white/8 pb-4">
+                    <div>
+                      <div className="text-sm font-semibold text-white">الجاهزية الأولية</div>
+                      <div className="mt-1 text-sm text-slate-400">قبل التقييم الداخلي الكامل</div>
+                    </div>
+                    <div className="text-2xl font-semibold text-white">
+                      {externalHandoff?.candidate.capabilityScore ?? bundle.report.baselineReadiness}%
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between gap-4 border-b border-white/8 pb-4">
+                    <div>
+                      <div className="text-sm font-semibold text-white">الثقة الأولية</div>
+                      <div className="mt-1 text-sm text-slate-400">قراءة تمهيدية للملف الحالي</div>
+                    </div>
+                    <div className="text-2xl font-semibold text-white">{profile.assessmentConfidence}%</div>
+                  </div>
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <div className="text-sm font-semibold text-white">أعلى مانع</div>
+                      <div className="mt-2 text-sm leading-7 text-slate-300">
+                        {topBlocker?.requiredAction ?? "المسار واضح حتى الآن."}
+                      </div>
+                    </div>
+                    <div className="max-w-[240px] text-left text-lg font-semibold text-white">
+                      {stripInternalCodePrefix(topBlocker?.title) || "لا يوجد مانع مباشر"}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

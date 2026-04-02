@@ -135,71 +135,68 @@ export default function RoleHomePage() {
       <div className="mx-auto max-w-[1040px] space-y-8">
         <section className="decision-surface mx-auto max-w-[920px]">
           <div className="decision-surface-inner px-6 py-7 sm:px-8 sm:py-10">
-            <div className="max-w-3xl">
+            <div className="executive-stack">
               <div className="portal-label">سطح القرار</div>
               <div className="mt-2 text-sm text-slate-300">{displayTitle}</div>
               <div className="mt-6 portal-label">القرار الحالي</div>
               <div className="mt-4 text-4xl font-semibold tracking-[-0.04em] text-white sm:text-[58px] sm:leading-[1.02]">
                 {bundle.report.recommendation}
               </div>
-              <div className="mt-4 text-sm leading-7 text-slate-300">
-                {coreMicrocopy.home.guidance}
-              </div>
-            </div>
-
-            <AIInsightCard title="لماذا هذا القرار؟" lines={decisionExplanation} />
-
-            <div className="decision-panel px-5 py-5">
-              <div className="text-[11px] tracking-[0.16em] text-slate-500">أعلى مانع</div>
-              <div className="mt-3 text-xl font-semibold text-white">
-                {stripInternalCodePrefix(primaryBlock?.title) || "لا يوجد مانع مباشر"}
-              </div>
-              <div className="mt-2 text-sm leading-7 text-slate-300">
-                {primaryBlock?.requiredAction ?? "المسار جاهز للتحرك الآن."}
-              </div>
-            </div>
-
-            <div className="decision-panel px-5 py-5">
-              <div className="text-[11px] tracking-[0.16em] text-slate-500">الإجراء التالي</div>
-              <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                {primaryAction.kind === "link" && primaryAction.href ? (
-                  <Link
-                    href={primaryAction.href}
-                    className={`decision-cta px-5 py-3 text-sm font-semibold ${
-                      primaryAction.disabled ? "pointer-events-none cursor-not-allowed opacity-45" : ""
-                    }`}
-                    aria-disabled={primaryAction.disabled}
-                  >
-                    {primaryAction.label}
-                  </Link>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handlePrimaryAction}
-                    disabled={primaryAction.disabled}
-                    className={`decision-cta px-5 py-3 text-sm font-semibold ${
-                      primaryAction.disabled ? "pointer-events-none cursor-not-allowed opacity-45" : ""
-                    }`}
-                  >
-                    {primaryAction.label}
-                  </button>
-                )}
-              </div>
-              <div className="mt-3 text-sm leading-7 text-slate-300">{nextActionReason}</div>
-            </div>
-
-            <div className="decision-flow">
-              <div className="decision-stat px-4 py-4">
-                <div className="text-[11px] tracking-[0.16em] text-slate-500">المرحلة التالية</div>
-                <div className="mt-2 text-lg font-semibold text-white">{caseWorkflow.nextStageLabel}</div>
-              </div>
-              <div className="decision-stat px-4 py-4">
-                <div className="text-[11px] tracking-[0.16em] text-slate-500">الأثر المالي</div>
-                <div className="mt-2 text-lg font-semibold text-white">{financialImpact.financialSignalLabel}</div>
-                <div className="mt-1 text-xs text-slate-400">
+              <div className="executive-note">{coreMicrocopy.home.guidance}</div>
+              <div className="executive-meta">
+                <div className="executive-chip">المرحلة التالية {caseWorkflow.nextStageLabel}</div>
+                <div className="executive-chip">الأثر المالي {financialImpact.financialSignalLabel}</div>
+                <div className="executive-chip">
                   {estimatedDecisionROIBandLabel(financialImpact.estimatedDecisionROIBand)}
                 </div>
               </div>
+            </div>
+
+            <div className="executive-panel-stack mt-10">
+              <div className="decision-panel px-6 py-6 text-center">
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">أعلى مانع</div>
+                <div className="mt-3 text-2xl font-semibold text-white">
+                  {stripInternalCodePrefix(primaryBlock?.title) || "لا يوجد مانع مباشر"}
+                </div>
+                <div className="mt-3 text-sm leading-7 text-slate-300">
+                  {primaryBlock?.requiredAction ?? "المسار جاهز للتحرك الآن."}
+                </div>
+              </div>
+
+              <div className="decision-panel px-6 py-6 text-center">
+                <div className="text-[11px] tracking-[0.16em] text-slate-500">الإجراء التالي</div>
+                <div className="mt-3 text-sm leading-7 text-slate-300">{nextActionReason}</div>
+                <div className="mt-6 flex justify-center">
+                  {primaryAction.kind === "link" && primaryAction.href ? (
+                    <Link
+                      href={primaryAction.href}
+                      className={`decision-cta min-w-[220px] px-5 py-3 text-sm font-semibold ${
+                        primaryAction.disabled ? "pointer-events-none cursor-not-allowed opacity-45" : ""
+                      }`}
+                      aria-disabled={primaryAction.disabled}
+                    >
+                      {primaryAction.label}
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handlePrimaryAction}
+                      disabled={primaryAction.disabled}
+                      className={`decision-cta min-w-[220px] px-5 py-3 text-sm font-semibold ${
+                        primaryAction.disabled ? "pointer-events-none cursor-not-allowed opacity-45" : ""
+                      }`}
+                    >
+                      {primaryAction.label}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <AIInsightCard
+                title="لماذا هذا القرار؟"
+                lines={decisionExplanation}
+                className="mx-auto w-full max-w-[760px]"
+              />
             </div>
           </div>
         </section>
