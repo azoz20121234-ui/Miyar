@@ -75,9 +75,9 @@ export const SubmissionStatusView = () => {
       title="متابعة الإرسال"
       subtitle="هذه الصفحة تتابع انتقال الحالة قبل اكتمال القرار الداخلي."
     >
-      <div className="mx-auto max-w-5xl space-y-6">
-        <section className="decision-surface">
-          <div className="border-b border-white/8 px-6 py-4 sm:px-8">
+      <div className="mx-auto max-w-[1040px] space-y-8">
+        <section className="decision-surface mx-auto max-w-[920px]">
+          <div className="px-6 py-5 sm:px-8 sm:py-6">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="min-w-0">
                 <div className="portal-label">سطح التتبع</div>
@@ -91,7 +91,7 @@ export const SubmissionStatusView = () => {
             </div>
           </div>
 
-          <div className="grid gap-6 px-6 py-6 sm:px-8 sm:py-8 xl:grid-cols-[minmax(0,1.1fr)_320px]">
+          <div className="decision-surface-inner space-y-5 px-6 pb-7 sm:px-8 sm:pb-10">
             <div className="space-y-5">
               <div className="max-w-2xl">
                 <div className="portal-label">حالة الإرسال</div>
@@ -114,7 +114,7 @@ export const SubmissionStatusView = () => {
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="decision-flow">
               <div className="decision-panel px-5 py-5">
                 <div className="text-[11px] tracking-[0.16em] text-slate-500">المرحلة الحالية</div>
                 <div className="mt-3 text-xl font-semibold text-white">{caseWorkflow.currentStateLabel}</div>
@@ -134,7 +134,7 @@ export const SubmissionStatusView = () => {
           </div>
         </section>
 
-        <section className="surface-card-soft p-6">
+        <section className="surface-card-soft mx-auto max-w-[920px] p-6">
           <div className="portal-label">ما الذي تم استلامه؟</div>
           <div className="mt-3 grid gap-4 md:grid-cols-2">
             <div className="summary-card px-5 py-5">
@@ -177,7 +177,7 @@ export const SubmissionStatusView = () => {
           </div>
         </section>
 
-        <section className="surface-card-soft p-6">
+        <section className="surface-card-soft mx-auto max-w-[920px] p-6">
           <div className="portal-label">ما الذي ما زال ناقصًا؟</div>
           <div className="mt-2 text-sm leading-7 text-slate-400">
             التتبع هنا يوضح النقص أو الانتظار دون تعقيد أو ضوضاء.

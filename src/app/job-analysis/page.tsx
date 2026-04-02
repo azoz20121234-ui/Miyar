@@ -59,9 +59,9 @@ export default function JobAnalysisPage() {
       title="تحليل الوظيفة"
       subtitle="نحوّل الوظيفة هنا إلى صورة تشغيلية يمكن قياسها قبل التوظيف."
     >
-      <div className="mx-auto max-w-5xl space-y-6">
-        <section className="decision-surface">
-          <div className="border-b border-white/8 px-6 py-4 sm:px-8">
+      <div className="mx-auto max-w-[1040px] space-y-8">
+        <section className="decision-surface mx-auto max-w-[920px]">
+          <div className="px-6 py-5 sm:px-8 sm:py-6">
             <div className="portal-label">المدخل التشغيلي</div>
             <div className="mt-3 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
               <div className="max-w-3xl">
@@ -81,8 +81,8 @@ export default function JobAnalysisPage() {
             </div>
           </div>
 
-          <div className="px-6 py-6 sm:px-8 sm:py-8">
-            <div className="grid gap-3 sm:grid-cols-3">
+          <div className="decision-surface-inner px-6 pb-7 sm:px-8 sm:pb-10">
+            <div className="decision-flow">
               <div className="decision-stat px-4 py-4">
                 <div className="text-[11px] tracking-[0.16em] text-slate-500">مستوى التعقيد</div>
                 <div className="mt-2 text-lg font-semibold text-white">{demandLabel(complexityScore)}</div>

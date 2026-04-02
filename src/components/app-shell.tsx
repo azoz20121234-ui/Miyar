@@ -66,15 +66,19 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
     <div className="min-h-screen bg-cinematic text-slate-100">
       <div className="mx-auto flex min-h-screen w-full max-w-[1480px] flex-col px-4 py-5 sm:px-6 lg:px-8">
         <header
-          className={`rounded-[30px] border border-white/10 bg-[#0d1117]/86 px-5 py-4 shadow-header backdrop-blur-xl ${
-            isFocusedSurface ? "mb-5" : "sticky top-0 z-20 mb-8"
-          }`}
+          className={
+            isFocusedSurface
+              ? "mb-4 px-1 py-1"
+              : "sticky top-0 z-20 mb-8 rounded-[24px] border border-white/[0.06] bg-white/[0.035] px-4 py-3 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.14)]"
+          }
         >
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-4">
               <Link
                 href="/home"
-                className="flex h-12 w-12 items-center justify-center rounded-[18px] border border-white/10 bg-white/[0.04] text-lg font-semibold text-white transition hover:bg-white/[0.07]"
+                className={`flex items-center justify-center rounded-[16px] border border-white/[0.06] bg-white/[0.035] text-base font-semibold text-white transition hover:bg-white/[0.055] ${
+                  isFocusedSurface ? "h-10 w-10" : "h-11 w-11"
+                }`}
               >
                 م
               </Link>
@@ -99,7 +103,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
             <div className="flex flex-wrap items-center gap-2.5">
               <Link
                 href="/external"
-                className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-slate-200 transition hover:bg-white/[0.06]"
+                className="rounded-full border border-white/[0.06] bg-white/[0.035] px-3.5 py-1.5 text-sm text-slate-200 transition hover:bg-white/[0.055]"
               >
                 العودة إلى الأدوار
               </Link>
@@ -120,7 +124,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
           {!isFocusedSurface ? (
             <div
               id="meyar-role-switcher"
-              className="mt-4 rounded-[22px] border border-white/10 bg-white/[0.03] px-4 py-4"
+              className="mt-4 rounded-[20px] border border-white/[0.06] bg-white/[0.03] px-4 py-4"
             >
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div>
@@ -133,13 +137,13 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                 <div className="flex flex-wrap items-center gap-2">
                   <Link
                     href={defaultHref}
-                    className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-200 transition hover:bg-white/[0.06]"
+                    className="rounded-full border border-white/[0.06] bg-white/[0.04] px-3.5 py-1.5 text-sm text-slate-200 transition hover:bg-white/[0.055]"
                   >
                     لوحة الدور
                   </Link>
                   <Link
                     href="/external"
-                    className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-200 transition hover:bg-white/[0.06]"
+                    className="rounded-full border border-white/[0.06] bg-white/[0.04] px-3.5 py-1.5 text-sm text-slate-200 transition hover:bg-white/[0.055]"
                   >
                     العودة إلى الأدوار
                   </Link>
@@ -162,7 +166,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                   className={`whitespace-nowrap rounded-full px-4 py-2 text-sm transition ${
                     active
                       ? "bg-white text-slate-950"
-                      : "border border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.06]"
+                      : "border border-white/[0.06] bg-white/[0.03] text-slate-300 hover:bg-white/[0.055]"
                   }`}
                 >
                   {item.label}
@@ -183,13 +187,13 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
               </div>
               {!isFocusedSurface ? (
                 <div className="flex flex-wrap gap-2">
-                  <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
+                  <div className="rounded-full border border-white/[0.06] bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
                     الجاهزية {bundle.report.finalReadiness}%
                   </div>
-                  <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
+                  <div className="rounded-full border border-white/[0.06] bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
                     الثقة {bundle.report.confidence}%
                   </div>
-                  <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
+                  <div className="rounded-full border border-white/[0.06] bg-white/[0.03] px-4 py-2.5 text-sm text-slate-300">
                     التالي {caseWorkflow.nextStageLabel}
                   </div>
                 </div>
@@ -200,7 +204,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
           {!isFocusedSurface ? <CaseStatusBar /> : null}
 
           {externalHandoff && !hideExternalBanner ? (
-            <section className="surface-card-soft mb-6 p-5">
+            <section className="surface-card-soft mb-6 p-6">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                   <div className="portal-label">استلام خارجي</div>
@@ -212,16 +216,16 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-slate-200">
+                  <div className="rounded-full border border-white/[0.06] bg-white/[0.03] px-4 py-2 text-sm text-slate-200">
                     {externalHandoff.candidate.capabilityScore}% جاهزية أولية
                   </div>
-                  <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-slate-200">
+                  <div className="rounded-full border border-white/[0.06] bg-white/[0.03] px-4 py-2 text-sm text-slate-200">
                     {externalHandoff.candidate.evidence.length} أدلة
                   </div>
-                  <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-slate-200">
+                  <div className="rounded-full border border-white/[0.06] bg-white/[0.03] px-4 py-2 text-sm text-slate-200">
                     تعقيد {complexityLabelMap[externalHandoff.job.complexity]}
                   </div>
-                  <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-slate-200">
+                  <div className="rounded-full border border-white/[0.06] bg-white/[0.03] px-4 py-2 text-sm text-slate-200">
                     تكييف {accommodationLevelLabelMap[externalHandoff.expectedAccommodationLevel]}
                   </div>
                 </div>
@@ -234,7 +238,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
 
             {!isFocusedSurface ? (
               <aside className="hidden xl:block">
-                <div className="sticky top-28 space-y-4">
+                <div className="sticky top-24 space-y-3">
                   <RoleSidebar />
 
                   <NextActionPanel />

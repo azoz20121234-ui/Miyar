@@ -120,9 +120,9 @@ export default function ReadinessReportPage() {
       subtitle="وثيقة عربية موجزة للعرض على لجنة أو إدارة دون ضوضاء تشغيلية."
       actions={<ReportActions />}
     >
-      <div className="mx-auto max-w-5xl space-y-6">
-        <section className="decision-surface">
-          <div className="space-y-6 px-6 py-6 sm:px-8 sm:py-8">
+      <div className="mx-auto max-w-[1040px] space-y-8">
+        <section className="decision-surface mx-auto max-w-[920px]">
+          <div className="decision-surface-inner space-y-6 px-6 py-7 sm:px-8 sm:py-10">
             <div className="max-w-3xl">
               <div className="portal-label">القرار النهائي</div>
               <div className="mt-4 text-4xl font-semibold tracking-[-0.04em] text-white sm:text-[58px] sm:leading-[1.02]">
@@ -130,7 +130,7 @@ export default function ReadinessReportPage() {
               </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="decision-flow">
               <div className="decision-stat px-4 py-4">
                 <div className="text-[11px] tracking-[0.16em] text-slate-500">الإشارة المالية</div>
                 <div className="mt-2 text-lg font-semibold text-white">{financialImpact.financialSignalLabel}</div>
@@ -170,7 +170,7 @@ export default function ReadinessReportPage() {
         >
           <div className="space-y-3">
             <AIInsightCard title="لماذا هذا القرار؟" lines={decisionExplanation} tone="amber" />
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-3">
               {whyDecisionPoints.map((item) => (
                 <div key={item.id} className="summary-card px-5 py-4">
                   <div className="text-sm font-semibold text-white">{item.label}</div>
@@ -186,7 +186,11 @@ export default function ReadinessReportPage() {
           title="منطق القرار"
           description="قراءة قصيرة تشرح كيف اجتمعت عناصر الحالة لإنتاج الحكم الحالي."
         >
-          <DecisionBlock block={decisionBlock} upliftTitle="ما الذي يرفع القرار؟" className="space-y-0" />
+          <DecisionBlock
+            block={decisionBlock}
+            upliftTitle="ما الذي يرفع القرار؟"
+            className="summary-card px-6 py-6"
+          />
         </SectionCard>
 
         <SectionCard

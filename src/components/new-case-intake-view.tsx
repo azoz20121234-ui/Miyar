@@ -30,9 +30,9 @@ export const NewCaseIntakeView = () => {
       title="بوابة الاستلام الداخلي"
       subtitle={coreMicrocopy.newCase.subtitle}
     >
-      <div className="mx-auto max-w-5xl space-y-6">
-        <section className="decision-surface">
-          <div className="border-b border-white/8 px-6 py-4 sm:px-8">
+      <div className="mx-auto max-w-[1040px] space-y-8">
+        <section className="decision-surface mx-auto max-w-[920px]">
+          <div className="px-6 py-5 sm:px-8 sm:py-6">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="min-w-0">
                 <div className="portal-label">بوابة الاستلام الداخلي</div>
@@ -52,7 +52,7 @@ export const NewCaseIntakeView = () => {
             </div>
           </div>
 
-          <div className="grid gap-6 px-6 py-6 sm:px-8 sm:py-8 xl:grid-cols-[minmax(0,1.15fr)_320px]">
+          <div className="decision-surface-inner space-y-5 px-6 pb-7 sm:px-8 sm:pb-10">
             <div className="space-y-5">
               <div className="max-w-2xl">
                 <div className="portal-label">الحالة</div>
@@ -80,7 +80,7 @@ export const NewCaseIntakeView = () => {
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="decision-flow">
               <div className="decision-panel px-5 py-5">
                 <div className="text-[11px] tracking-[0.16em] text-slate-500">الجاهزية الأولية</div>
                 <div className="mt-3 text-2xl font-semibold text-white">
@@ -106,7 +106,7 @@ export const NewCaseIntakeView = () => {
           </div>
         </section>
 
-        <details id="received" className="surface-card-soft p-6">
+        <details id="received" className="surface-card-soft mx-auto max-w-[920px] p-6">
           <summary className="cursor-pointer list-none">
             <div className="flex items-center justify-between gap-3">
               <div>

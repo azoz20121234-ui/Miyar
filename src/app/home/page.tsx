@@ -132,18 +132,13 @@ export default function RoleHomePage() {
       title={`مساحة ${roleDefinition.label}`}
       subtitle="مساحة قرار موحدة تركّز على المرحلة الحالية، المانع الأعلى، والإجراء التالي لهذا الدور فقط."
     >
-      <div className="mx-auto max-w-5xl space-y-6">
-        <section className="decision-surface">
-          <div className="border-b border-white/8 px-6 py-4 sm:px-8">
-            <div className="min-w-0">
+      <div className="mx-auto max-w-[1040px] space-y-8">
+        <section className="decision-surface mx-auto max-w-[920px]">
+          <div className="decision-surface-inner px-6 py-7 sm:px-8 sm:py-10">
+            <div className="max-w-3xl">
               <div className="portal-label">سطح القرار</div>
               <div className="mt-2 text-sm text-slate-300">{displayTitle}</div>
-            </div>
-          </div>
-
-          <div className="space-y-5 px-6 py-6 sm:px-8 sm:py-8">
-            <div className="max-w-3xl">
-              <div className="portal-label">القرار الحالي</div>
+              <div className="mt-6 portal-label">القرار الحالي</div>
               <div className="mt-4 text-4xl font-semibold tracking-[-0.04em] text-white sm:text-[58px] sm:leading-[1.02]">
                 {bundle.report.recommendation}
               </div>
@@ -193,7 +188,7 @@ export default function RoleHomePage() {
               <div className="mt-3 text-sm leading-7 text-slate-300">{nextActionReason}</div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="decision-flow">
               <div className="decision-stat px-4 py-4">
                 <div className="text-[11px] tracking-[0.16em] text-slate-500">المرحلة التالية</div>
                 <div className="mt-2 text-lg font-semibold text-white">{caseWorkflow.nextStageLabel}</div>
@@ -209,7 +204,11 @@ export default function RoleHomePage() {
           </div>
         </section>
 
-        <DecisionBlock block={decisionBlock} upliftTitle="ما الذي يغيّر القرار؟" />
+        <DecisionBlock
+          block={decisionBlock}
+          upliftTitle="ما الذي يغيّر القرار؟"
+          className="summary-card mx-auto max-w-[920px] px-6 py-6"
+        />
 
         <SectionCard
           eyebrow={isAdmin ? "مساحة الإدارة" : "منطقة العمل"}
