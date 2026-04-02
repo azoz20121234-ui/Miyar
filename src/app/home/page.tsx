@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 
 import { ActionCard } from "@/components/action-card";
 import { AIInsightCard } from "@/components/ai-insight-card";
 import { AppShell } from "@/components/app-shell";
-import { DecisionLogicBlock } from "@/components/decision-logic-block";
+import { DecisionBlock } from "@/components/decision-block";
 import { DecisionTimeline } from "@/components/decision-timeline";
 import { SectionCard } from "@/components/section-card";
 import { StatusPill } from "@/components/status-pill";
@@ -13,6 +14,7 @@ import {
   generateDecisionExplanation,
   generateNextActionReason
 } from "@/lib/ai-insights";
+import { buildDecisionBlock } from "@/lib/decision-block";
 import { stripInternalCodePrefix } from "@/lib/display-copy";
 import { INTERNAL_ROLE_REFERENCE } from "@/lib/experience-roles";
 import { estimatedDecisionROIBandLabel } from "@/lib/financial-model";
@@ -26,7 +28,8 @@ export default function RoleHomePage() {
     bundle,
     explainability,
     financialImpact,
-    decisionLogic,
+    standards,
+    evidenceStrength,
     caseWorkflow,
     caseRecord,
     job,
@@ -58,6 +61,16 @@ export default function RoleHomePage() {
     caseWorkflow,
     financialImpact
   }).slice(0, 2);
+  const decisionBlock = useMemo(
+    () =>
+      buildDecisionBlock({
+        bundle,
+        explainability,
+        standards,
+        evidenceStrength
+      }),
+    [bundle, evidenceStrength, explainability, standards]
+  );
   const nextActionReason = generateNextActionReason({
     bundle,
     explainability,
@@ -196,11 +209,7 @@ export default function RoleHomePage() {
           </div>
         </section>
 
-        <DecisionLogicBlock
-          title="كيف وصلنا إلى هذا القرار؟"
-          upliftTitle="ما الذي يغيّر القرار؟"
-          summary={decisionLogic}
-        />
+        <DecisionBlock block={decisionBlock} upliftTitle="ما الذي يغيّر القرار؟" />
 
         <SectionCard
           eyebrow={isAdmin ? "مساحة الإدارة" : "منطقة العمل"}

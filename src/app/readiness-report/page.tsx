@@ -4,13 +4,14 @@ import { useMemo } from "react";
 
 import { AIInsightCard } from "@/components/ai-insight-card";
 import { AppShell } from "@/components/app-shell";
-import { DecisionLogicBlock } from "@/components/decision-logic-block";
+import { DecisionBlock } from "@/components/decision-block";
 import { ReportActions } from "@/components/report-actions";
 import { SectionCard } from "@/components/section-card";
 import { StatusPill } from "@/components/status-pill";
 import {
   generateDecisionExplanation
 } from "@/lib/ai-insights";
+import { buildDecisionBlock } from "@/lib/decision-block";
 import { stripInternalCodePrefix } from "@/lib/display-copy";
 import {
   estimatedDecisionROIBandLabel,
@@ -32,7 +33,7 @@ const driverTone = (level: DecisionDriver["level"]) => {
 };
 
 export default function ReadinessReportPage() {
-  const { bundle, explainability, financialImpact, evidenceStrength, decisionLogic, caseWorkflow } =
+  const { bundle, explainability, financialImpact, evidenceStrength, standards, caseWorkflow } =
     useAssessment();
   const { role } = useRoleSession();
 
@@ -101,6 +102,16 @@ export default function ReadinessReportPage() {
     }))
   ].slice(0, 4);
   const nextConditions = explainability.nextActions.slice(0, 2);
+  const decisionBlock = useMemo(
+    () =>
+      buildDecisionBlock({
+        bundle,
+        explainability,
+        standards,
+        evidenceStrength
+      }),
+    [bundle, evidenceStrength, explainability, standards]
+  );
 
   return (
     <AppShell
@@ -175,12 +186,7 @@ export default function ReadinessReportPage() {
           title="منطق القرار"
           description="قراءة قصيرة تشرح كيف اجتمعت عناصر الحالة لإنتاج الحكم الحالي."
         >
-          <DecisionLogicBlock
-            title="كيف وصلنا إلى هذا القرار؟"
-            upliftTitle="ما الذي يرفع القرار؟"
-            summary={decisionLogic}
-            variant="report"
-          />
+          <DecisionBlock block={decisionBlock} upliftTitle="ما الذي يرفع القرار؟" className="space-y-0" />
         </SectionCard>
 
         <SectionCard
