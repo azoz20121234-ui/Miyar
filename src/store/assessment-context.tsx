@@ -13,6 +13,7 @@ import { defaultLibrary, demoCapabilityProfile, demoJob } from "@/data/demo-case
 import { evaluateStageActionGuard, evaluateTransitionGuard } from "@/lib/case-guards";
 import { createInitialCaseRecord, CASE_STATE_META, type CaseRecord } from "@/lib/case-state";
 import { buildDecisionExplainability } from "@/lib/decision-explainer";
+import { buildDecisionLogicSummary } from "@/lib/decision-logic";
 import { buildEvidenceStrengthModel } from "@/lib/evidence-strength";
 import {
   accommodationLevelLabelMap,
@@ -42,6 +43,7 @@ import {
 } from "@/models/types";
 import { FinancialImpactModel } from "@/types/financial";
 import { EvidenceStrengthModel } from "@/types/evidence";
+import { DecisionLogicSummary } from "@/types/decision-logic";
 import { useRoleSession } from "@/store/role-session-context";
 
 type ActionTone = "primary" | "secondary" | "danger" | "neutral";
@@ -75,6 +77,7 @@ interface AssessmentContextValue {
   explainability: DecisionExplainability;
   financialImpact: FinancialImpactModel;
   evidenceStrength: EvidenceStrengthModel;
+  decisionLogic: DecisionLogicSummary;
   caseRecord: CaseRecord;
   caseWorkflow: CaseWorkflowSnapshot;
   externalHandoff: ExternalHandoffRecord | null;
@@ -326,6 +329,18 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
     () => buildEvidenceStrengthModel(bundle, standards, explainability),
     [bundle, standards, explainability]
   );
+  const decisionLogic = useMemo(
+    () =>
+      buildDecisionLogicSummary({
+        bundle,
+        explainability,
+        standards,
+        financialImpact,
+        evidenceStrength,
+        caseRecord
+      }),
+    [bundle, explainability, standards, financialImpact, evidenceStrength, caseRecord]
+  );
   const caseMeta = CASE_STATE_META[caseRecord.state];
 
   const transitionCase = (transitionId: string) => {
@@ -528,6 +543,7 @@ export const AssessmentProvider = ({ children }: { children: ReactNode }) => {
         explainability,
         financialImpact,
         evidenceStrength,
+        decisionLogic,
         caseRecord,
         caseWorkflow,
         externalHandoff,

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ActionCard } from "@/components/action-card";
 import { AIInsightCard } from "@/components/ai-insight-card";
 import { AppShell } from "@/components/app-shell";
+import { DecisionLogicBlock } from "@/components/decision-logic-block";
 import { DecisionTimeline } from "@/components/decision-timeline";
 import { SectionCard } from "@/components/section-card";
 import { StatusPill } from "@/components/status-pill";
@@ -24,6 +25,7 @@ export default function RoleHomePage() {
     bundle,
     explainability,
     financialImpact,
+    decisionLogic,
     caseWorkflow,
     caseRecord,
     job,
@@ -189,6 +191,12 @@ export default function RoleHomePage() {
             </div>
           </div>
         </section>
+
+        <DecisionLogicBlock
+          title="كيف وصلنا إلى هذا القرار؟"
+          upliftTitle="ما الذي يغيّر القرار؟"
+          summary={decisionLogic}
+        />
 
         <SectionCard
           eyebrow={isAdmin ? "مساحة الإدارة" : "منطقة العمل"}

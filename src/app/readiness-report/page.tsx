@@ -4,6 +4,7 @@ import { useMemo } from "react";
 
 import { AIInsightCard } from "@/components/ai-insight-card";
 import { AppShell } from "@/components/app-shell";
+import { DecisionLogicBlock } from "@/components/decision-logic-block";
 import { ReportActions } from "@/components/report-actions";
 import { SectionCard } from "@/components/section-card";
 import { StatusPill } from "@/components/status-pill";
@@ -30,7 +31,7 @@ const driverTone = (level: DecisionDriver["level"]) => {
 };
 
 export default function ReadinessReportPage() {
-  const { bundle, explainability, financialImpact, evidenceStrength, caseWorkflow } =
+  const { bundle, explainability, financialImpact, evidenceStrength, decisionLogic, caseWorkflow } =
     useAssessment();
   const { role } = useRoleSession();
 
@@ -166,6 +167,19 @@ export default function ReadinessReportPage() {
               ))}
             </div>
           </div>
+        </SectionCard>
+
+        <SectionCard
+          eyebrow="المنطق"
+          title="منطق القرار"
+          description="قراءة قصيرة تشرح كيف اجتمعت عناصر الحالة لإنتاج الحكم الحالي."
+        >
+          <DecisionLogicBlock
+            title="كيف وصلنا إلى هذا القرار؟"
+            upliftTitle="ما الذي يرفع القرار؟"
+            summary={decisionLogic}
+            variant="report"
+          />
         </SectionCard>
 
         <SectionCard
