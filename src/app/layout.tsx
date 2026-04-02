@@ -19,7 +19,7 @@ const headingFont = Tajawal({
 });
 
 export const metadata: Metadata = {
-  title: "Meyar — محرك القرار والامتثال المعياري",
+  title: "Miyar — محرك القرار والامتثال المعياري",
   description:
     "منصة عربية RTL لمراجعة القرار حسب الدور، وفحص المعايير، وتقييم القدرات التشغيلية، وجاهزية ما قبل التوظيف."
 };

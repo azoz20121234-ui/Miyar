@@ -118,7 +118,7 @@ export const SubmissionStatusView = () => {
               <div className="decision-panel px-5 py-5">
                 <div className="text-[11px] tracking-[0.16em] text-slate-500">المرحلة الحالية</div>
                 <div className="mt-3 text-xl font-semibold text-white">{caseWorkflow.currentStateLabel}</div>
-                <div className="mt-2 text-sm text-slate-300">ضمن نواة Meyar</div>
+                <div className="mt-2 text-sm text-slate-300">ضمن نواة Miyar</div>
               </div>
               <div className="decision-panel px-5 py-5">
                 <div className="text-[11px] tracking-[0.16em] text-slate-500">المالك الحالي</div>

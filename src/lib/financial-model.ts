@@ -290,7 +290,7 @@ export const buildFinancialImpactModel = ({
         ? "اقتصاديًا، يبدو التنفيذ المبكر أقل عبئًا من ترك الحالة معلقة أو تأجيل التهيئة."
         : financialSignalLevel === "moderate"
           ? "الأثر المالي مقنع، لكنه يبقى مرتبطًا بسرعة الإغلاق والتنفيذ بعد صدور الحكم التشغيلي."
-          : "الأثر المالي حساس حاليًا ويحتاج إحكام الأدلة أو خفض كلفة التنفيذ، دون أن يغيّر الحكم الصادر من Meyar Core.",
+          : "الأثر المالي حساس حاليًا ويحتاج إحكام الأدلة أو خفض كلفة التنفيذ، دون أن يغيّر الحكم الصادر من نواة Miyar.",
     executionScenario: `تنفيذ التكييف الآن يقيد الكلفة المباشرة عند ${formatSar(
       directAccommodationCost
     )} مع مسار استمرارية ${retentionImpactNarrativeMap[retentionImpactLevel]}.`,
@@ -306,7 +306,7 @@ export const buildFinancialImpactModel = ({
       delayCost,
       wrongDecisionCost
     ),
-    assumptionsNote: `${FINANCIAL_ASSUMPTIONS.note} هذا القسم يفسر الأثر الاقتصادي للحكم التشغيلي ولا يغيّر القرار الصادر من Meyar Core.`
+    assumptionsNote: `${FINANCIAL_ASSUMPTIONS.note} هذا القسم يفسر الأثر الاقتصادي للحكم التشغيلي ولا يغيّر القرار الصادر من نواة Miyar.`
   };
 };
 
@@ -375,9 +375,9 @@ export const buildExternalFinancialPreview = ({
       financialSignalLevel === "promising"
         ? `تمهيديًا، تعقيد الوظيفة ${complexityLabelMap[job.complexity]} والتكييف المتوقع لا يبدوان عبئًا أعلى من المخاطر المتجنبة.`
         : financialSignalLevel === "moderate"
-          ? `تمهيديًا، القيمة المالية موجودة لكنها قراءة أثر فقط قبل دخول الحالة إلى نواة Meyar.`
+          ? `تمهيديًا، القيمة المالية موجودة لكنها قراءة أثر فقط قبل دخول الحالة إلى نواة Miyar.`
           : `تمهيديًا، الحساسية المالية أعلى وتحتاج الحالة ضبطًا أفضل، دون أن يكون هذا بديلًا عن الحكم التشغيلي.`,
-    assumptionsNote: `${FINANCIAL_ASSUMPTIONS.note} هذا التقدير يشرح الأثر المالي التمهيدي فقط، ولا يقرر بديلًا عن Meyar Core.`
+    assumptionsNote: `${FINANCIAL_ASSUMPTIONS.note} هذا التقدير يشرح الأثر المالي التمهيدي فقط، ولا يقرر بديلًا عن نواة Miyar.`
   };
 };
 

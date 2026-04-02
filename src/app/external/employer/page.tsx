@@ -7,14 +7,15 @@ import { ExternalField } from "@/components/external/external-field";
 import { ExternalFlowCard } from "@/components/external/external-flow-card";
 import { ExternalShell } from "@/components/external/external-shell";
 import { complexityLabelMap, joinExternalList } from "@/lib/external-handoff";
+import { employerFlowMicrocopy } from "@/lib/microcopy";
 import { useExternalIntake } from "@/store/external-intake-context";
 
 const employerSteps = [
-  { id: "description", label: "تعريف الوظيفة" },
-  { id: "critical", label: "المهام الأساسية" },
-  { id: "adaptable", label: "ما يمكن تكييفه" },
-  { id: "risks", label: "المتطلبات والمخاطر" },
-  { id: "summary", label: "ملخص الوظيفة" }
+  { id: "description", label: employerFlowMicrocopy.steps.description.title },
+  { id: "critical", label: employerFlowMicrocopy.steps.critical.title },
+  { id: "adaptable", label: employerFlowMicrocopy.steps.adaptable.title },
+  { id: "risks", label: employerFlowMicrocopy.steps.risks.title },
+  { id: "summary", label: employerFlowMicrocopy.steps.summary.title }
 ] as const;
 
 type EmployerStep = (typeof employerSteps)[number]["id"];
@@ -75,16 +76,19 @@ export default function ExternalEmployerPage() {
   return (
     <ExternalShell
       flowLabel="بوابة جهة العمل"
-      title="ملف الوظيفة"
-      subtitle="صف الوظيفة كما تُمارس فعليًا قبل إرسالها إلى فريق التقييم."
+      title={employerFlowMicrocopy.shell.title}
+      subtitle={employerFlowMicrocopy.shell.subtitle}
       steps={employerSteps.map((item) => item.label)}
       activeStep={activeIndex}
     >
       {step === "description" ? (
         <ExternalFlowCard
-          title="عرّف الوظيفة كما تُمارس فعليًا"
-          subtitle="ابدأ بالمسمى ومستوى التعقيد فقط."
-          notice="هذا التعريف سيُستخدم لتحليل الوظيفة تشغيليًا وتقليل مخاطر التوظيف."
+          title={employerFlowMicrocopy.steps.description.title}
+          subtitle={employerFlowMicrocopy.steps.description.subtitle}
+          notice={employerFlowMicrocopy.steps.description.valueLine}
+          purpose={employerFlowMicrocopy.steps.description.purpose}
+          impact={employerFlowMicrocopy.steps.description.impact}
+          nextStepHint={employerFlowMicrocopy.steps.description.next}
           footer={
             <button
               type="button"
@@ -96,7 +100,7 @@ export default function ExternalEmployerPage() {
                   : "cursor-not-allowed border border-white/10 bg-white/[0.03] text-slate-500"
               }`}
             >
-              التالي
+              {employerFlowMicrocopy.steps.description.cta}
             </button>
           }
         >
@@ -122,9 +126,12 @@ export default function ExternalEmployerPage() {
 
       {step === "critical" ? (
         <ExternalFlowCard
-          title="ما المهام الأساسية؟"
-          subtitle="اذكر المهام التي لا يمكن حذفها من الدور."
-          notice="هذا التعريف سيُستخدم لتحليل الوظيفة تشغيليًا وتقليل مخاطر التوظيف."
+          title={employerFlowMicrocopy.steps.critical.title}
+          subtitle={employerFlowMicrocopy.steps.critical.subtitle}
+          notice={employerFlowMicrocopy.steps.critical.valueLine}
+          purpose={employerFlowMicrocopy.steps.critical.purpose}
+          impact={employerFlowMicrocopy.steps.critical.impact}
+          nextStepHint={employerFlowMicrocopy.steps.critical.next}
           footer={
             <button
               type="button"
@@ -136,7 +143,7 @@ export default function ExternalEmployerPage() {
                   : "cursor-not-allowed border border-white/10 bg-white/[0.03] text-slate-500"
               }`}
             >
-              التالي
+              {employerFlowMicrocopy.steps.critical.cta}
             </button>
           }
         >
@@ -152,16 +159,19 @@ export default function ExternalEmployerPage() {
 
       {step === "adaptable" ? (
         <ExternalFlowCard
-          title="ما الذي يمكن تكييفه؟"
-          subtitle="اذكر المهام التي يمكن تعديلها أو إعادة توزيعها."
-          notice="هذا التعريف سيُستخدم لتحليل الوظيفة تشغيليًا وتقليل مخاطر التوظيف."
+          title={employerFlowMicrocopy.steps.adaptable.title}
+          subtitle={employerFlowMicrocopy.steps.adaptable.subtitle}
+          notice={employerFlowMicrocopy.steps.adaptable.valueLine}
+          purpose={employerFlowMicrocopy.steps.adaptable.purpose}
+          impact={employerFlowMicrocopy.steps.adaptable.impact}
+          nextStepHint={employerFlowMicrocopy.steps.adaptable.next}
           footer={
             <button
               type="button"
               onClick={() => nextStep && setStep(nextStep)}
               className="w-full rounded-[22px] bg-white px-6 py-4 text-base font-semibold text-slate-950 transition hover:bg-slate-200"
             >
-              التالي
+              {employerFlowMicrocopy.steps.adaptable.cta}
             </button>
           }
         >
@@ -177,16 +187,19 @@ export default function ExternalEmployerPage() {
 
       {step === "risks" ? (
         <ExternalFlowCard
-          title="ما المتطلبات والمخاطر؟"
-          subtitle="اذكر ما يحتاج تهيئة أو مراجعة قبل بدء التقييم."
-          notice="هذا التعريف سيُستخدم لتحليل الوظيفة تشغيليًا وتقليل مخاطر التوظيف."
+          title={employerFlowMicrocopy.steps.risks.title}
+          subtitle={employerFlowMicrocopy.steps.risks.subtitle}
+          notice={employerFlowMicrocopy.steps.risks.valueLine}
+          purpose={employerFlowMicrocopy.steps.risks.purpose}
+          impact={employerFlowMicrocopy.steps.risks.impact}
+          nextStepHint={employerFlowMicrocopy.steps.risks.next}
           footer={
             <button
               type="button"
               onClick={() => nextStep && setStep(nextStep)}
               className="w-full rounded-[22px] bg-white px-6 py-4 text-base font-semibold text-slate-950 transition hover:bg-slate-200"
             >
-              التالي
+              {employerFlowMicrocopy.steps.risks.cta}
             </button>
           }
         >
@@ -207,15 +220,18 @@ export default function ExternalEmployerPage() {
 
       {step === "summary" ? (
         <ExternalFlowCard
-          title="ملخص الوظيفة"
-          subtitle="هذه هي الصورة التي سنرسلها إلى صفحة الإرسال."
-          notice="سيتم استخدام هذا التعريف لإنتاج توصية تشغيلية قابلة للتنفيذ."
+          title={employerFlowMicrocopy.steps.summary.title}
+          subtitle={employerFlowMicrocopy.steps.summary.subtitle}
+          notice={employerFlowMicrocopy.steps.summary.valueLine}
+          purpose={employerFlowMicrocopy.steps.summary.purpose}
+          impact={employerFlowMicrocopy.steps.summary.impact}
+          nextStepHint={employerFlowMicrocopy.steps.summary.next}
           footer={
             <Link
               href="/external/submit"
               className="block w-full rounded-[22px] bg-white px-6 py-4 text-center text-base font-semibold text-slate-950 transition hover:bg-slate-200"
             >
-              انتقل لربط المرشح
+              {employerFlowMicrocopy.steps.summary.cta}
             </Link>
           }
         >

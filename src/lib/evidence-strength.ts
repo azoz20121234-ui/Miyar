@@ -108,6 +108,6 @@ export const buildEvidenceStrengthModel = (
     verifiedItems,
     pendingItems,
     assumptionsNote:
-      "قراءة تمهيدية مبنية على اكتمال الأدلة التشغيلية الحالية داخل Meyar، وليست اعتمادًا مستقلاً."
+      "قراءة تمهيدية مبنية على اكتمال الأدلة التشغيلية الحالية داخل Miyar، وليست اعتمادًا مستقلاً."
   };
 };

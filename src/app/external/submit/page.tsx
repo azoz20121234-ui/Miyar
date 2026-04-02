@@ -15,6 +15,7 @@ import {
   buildExternalFinancialPreview,
   retentionImpactLevelLabel
 } from "@/lib/financial-model";
+import { submitPageMicrocopy } from "@/lib/microcopy";
 import { formatCurrency } from "@/lib/scoring";
 import { applyExternalHandoff } from "@/store/assessment-context";
 import { useRoleSession } from "@/store/role-session-context";
@@ -54,14 +55,17 @@ export default function ExternalSubmitPage() {
   return (
     <ExternalShell
       flowLabel="الإرسال"
-      title="جاهز للتقييم"
-      subtitle="راجع الملخص التمهيدي ثم ابدأ التقييم داخل نواة Meyar."
+      title={submitPageMicrocopy.title}
+      subtitle={submitPageMicrocopy.subtitle}
       steps={steps}
       activeStep={2}
     >
       <ExternalFlowCard
-        title="كل شيء جاهز قبل بدء القرار"
-        subtitle="هذه الصفحة تعرض الملخص الذي سينتقل إلى فريق التقييم."
+        title={submitPageMicrocopy.cardTitle}
+        subtitle={submitPageMicrocopy.cardSubtitle}
+        purpose={submitPageMicrocopy.recap}
+        impact="سيُستخدم هذا الملخص لتحديد التوافق، والتكييف المطلوب، وقابلية التنفيذ."
+        nextStepHint={submitPageMicrocopy.transition}
         footer={
           <div className="space-y-4">
             {!canStartAssessment ? (
@@ -71,7 +75,7 @@ export default function ExternalSubmitPage() {
                     href="/external/candidate"
                     className="block rounded-[20px] border border-white/10 bg-white/[0.04] px-4 py-4 text-center text-sm font-medium text-white transition hover:bg-white/[0.06]"
                   >
-                    أكمل ملف المرشح
+                    {submitPageMicrocopy.completeCandidate}
                   </Link>
                 ) : null}
                 {!hasJobData ? (
@@ -79,17 +83,20 @@ export default function ExternalSubmitPage() {
                     href="/external/employer"
                     className="block rounded-[20px] border border-white/10 bg-white/[0.04] px-4 py-4 text-center text-sm font-medium text-white transition hover:bg-white/[0.06]"
                   >
-                    أكمل تعريف الوظيفة
+                    {submitPageMicrocopy.completeJob}
                   </Link>
                 ) : null}
               </div>
             ) : null}
 
             <div className="rounded-[20px] border border-cyan-400/15 bg-cyan-400/10 px-4 py-4 text-sm leading-6 text-cyan-100">
-              القرار جاهز للدخول إلى التقييم الداخلي بناءً على المعطيات الحالية.
+              {submitPageMicrocopy.commitment}
             </div>
             <div className="rounded-[20px] border border-white/10 bg-white/[0.03] px-4 py-4 text-sm leading-6 text-slate-300">
-              سيتم إرسال ملخص تمهيدي فقط، ولن يتم كشف التفاصيل التشغيلية الكاملة.
+              {submitPageMicrocopy.trust}
+            </div>
+            <div className="rounded-[20px] border border-white/10 bg-white/[0.03] px-4 py-4 text-sm leading-6 text-slate-300">
+              {submitPageMicrocopy.transition}
             </div>
             <button
               type="button"
@@ -101,7 +108,7 @@ export default function ExternalSubmitPage() {
                   : "cursor-not-allowed border border-white/10 bg-white/[0.03] text-slate-500"
               }`}
             >
-              ابدأ التقييم الداخلي
+              {submitPageMicrocopy.cta}
             </button>
           </div>
         }
@@ -204,7 +211,7 @@ export default function ExternalSubmitPage() {
         </div>
 
         <div className="surface-card-muted px-5 py-5">
-          <div className="portal-label">ما الذي سينتقل إلى نواة Meyar؟</div>
+          <div className="portal-label">ما الذي سينتقل إلى نواة Miyar؟</div>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <div className="rounded-[18px] border border-white/10 bg-white/[0.03] px-4 py-4">
               <div className="text-xs text-slate-500">ملف المرشح</div>
@@ -282,7 +289,7 @@ export default function ExternalSubmitPage() {
                     : "risk"
             }
           ]}
-          footnote={`هذا تقدير تمهيدي قبل إدخال الحالة إلى Meyar Core. ${financialPreview.assumptionsNote}`}
+          footnote={`هذا تقدير تمهيدي قبل إدخال الحالة إلى نواة Miyar. ${financialPreview.assumptionsNote}`}
         />
       </ExternalFlowCard>
     </ExternalShell>

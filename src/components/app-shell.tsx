@@ -80,7 +80,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
               </Link>
               <div>
                 <div className="portal-label">
-                  {isReportPage ? "وثيقة قرار تنفيذية" : "نواة Meyar"}
+                  {isReportPage ? "وثيقة قرار تنفيذية" : "نواة Miyar"}
                 </div>
                 <div className="mt-1 text-sm text-slate-300">
                   {isReportPage
@@ -177,7 +177,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
           {!isFocusedSurface ? (
             <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-3xl">
-                <div className="portal-label">نواة Meyar • {portalLabel}</div>
+                <div className="portal-label">نواة Miyar • {portalLabel}</div>
                 <h1 className="page-title mt-3">{title}</h1>
                 <p className="mt-3 max-w-2xl text-sm leading-7 body-muted sm:text-base">{subtitle}</p>
               </div>
@@ -208,7 +208,7 @@ export const AppShell = ({ title, subtitle, children, actions, pageId }: AppShel
                     مرشح خارجي • {externalHandoff.job.title}
                   </div>
                   <div className="mt-2 text-sm text-slate-400">
-                    تم الاستلام من البوابة الخارجية وإدخاله في مسودة نواة Meyar.
+                    تم الاستلام من البوابة الخارجية وإدخاله في مسودة نواة Miyar.
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">

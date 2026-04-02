@@ -7,13 +7,14 @@ import { ExternalField } from "@/components/external/external-field";
 import { ExternalFlowCard } from "@/components/external/external-flow-card";
 import { ExternalShell } from "@/components/external/external-shell";
 import { joinExternalList } from "@/lib/external-handoff";
+import { candidateFlowMicrocopy } from "@/lib/microcopy";
 import { useExternalIntake } from "@/store/external-intake-context";
 
 const candidateSteps = [
-  { id: "capabilities", label: "ما الذي يمكنك تنفيذه؟" },
-  { id: "environment", label: "ما البيئة الأنسب لنجاحك؟" },
-  { id: "evidence", label: "الأدلة المتاحة" },
-  { id: "summary", label: "ملخص الجاهزية" }
+  { id: "capabilities", label: candidateFlowMicrocopy.steps.capabilities.title },
+  { id: "environment", label: candidateFlowMicrocopy.steps.environment.title },
+  { id: "evidence", label: candidateFlowMicrocopy.steps.evidence.title },
+  { id: "summary", label: candidateFlowMicrocopy.steps.summary.title }
 ] as const;
 
 type CandidateStep = (typeof candidateSteps)[number]["id"];
@@ -87,16 +88,19 @@ export default function ExternalCandidatePage() {
   return (
     <ExternalShell
       flowLabel="بوابة المرشح"
-      title="ملف القدرات"
-      subtitle="أدخل صورة تمهيدية مختصرة تساعد فريق التقييم على فهم القدرات والبيئة المناسبة."
+      title={candidateFlowMicrocopy.shell.title}
+      subtitle={candidateFlowMicrocopy.shell.subtitle}
       steps={candidateSteps.map((item) => item.label)}
       activeStep={activeIndex}
     >
       {step === "capabilities" ? (
         <ExternalFlowCard
-          title="ما الذي يمكنك تنفيذه؟"
-          subtitle="اذكر نقاط القوة الحالية وما يحتاج مراعاة عند التنفيذ."
-          notice="سيتم تحويل هذه المعلومات إلى ملف قدرات يدعم القرار."
+          title={candidateFlowMicrocopy.steps.capabilities.title}
+          subtitle={candidateFlowMicrocopy.steps.capabilities.subtitle}
+          notice={candidateFlowMicrocopy.steps.capabilities.valueLine}
+          purpose={candidateFlowMicrocopy.steps.capabilities.purpose}
+          impact={candidateFlowMicrocopy.steps.capabilities.impact}
+          nextStepHint={candidateFlowMicrocopy.steps.capabilities.next}
           footer={
             <button
               type="button"
@@ -108,7 +112,7 @@ export default function ExternalCandidatePage() {
                   : "cursor-not-allowed border border-white/10 bg-white/[0.03] text-slate-500"
               }`}
             >
-              التالي
+              {candidateFlowMicrocopy.steps.capabilities.cta}
             </button>
           }
         >
@@ -131,9 +135,12 @@ export default function ExternalCandidatePage() {
 
       {step === "environment" ? (
         <ExternalFlowCard
-          title="ما البيئة الأنسب لنجاحك؟"
-          subtitle="اذكر الظروف أو التفضيلات التي تساعد على أداء أكثر استقرارًا."
-          notice="سيتم تحويل هذه المعلومات إلى ملف قدرات يدعم القرار."
+          title={candidateFlowMicrocopy.steps.environment.title}
+          subtitle={candidateFlowMicrocopy.steps.environment.subtitle}
+          notice={candidateFlowMicrocopy.steps.environment.valueLine}
+          purpose={candidateFlowMicrocopy.steps.environment.purpose}
+          impact={candidateFlowMicrocopy.steps.environment.impact}
+          nextStepHint={candidateFlowMicrocopy.steps.environment.next}
           footer={
             <button
               type="button"
@@ -145,7 +152,7 @@ export default function ExternalCandidatePage() {
                   : "cursor-not-allowed border border-white/10 bg-white/[0.03] text-slate-500"
               }`}
             >
-              التالي
+              {candidateFlowMicrocopy.steps.environment.cta}
             </button>
           }
         >
@@ -161,16 +168,19 @@ export default function ExternalCandidatePage() {
 
       {step === "evidence" ? (
         <ExternalFlowCard
-          title="الأدلة المتاحة"
-          subtitle="أضف أمثلة أو أدلة مختصرة تدعم ملف القدرات. هذه الخطوة اختيارية."
-          notice="سيتم تحويل هذه المعلومات إلى ملف قدرات يدعم القرار."
+          title={candidateFlowMicrocopy.steps.evidence.title}
+          subtitle={candidateFlowMicrocopy.steps.evidence.subtitle}
+          notice={candidateFlowMicrocopy.steps.evidence.valueLine}
+          purpose={candidateFlowMicrocopy.steps.evidence.purpose}
+          impact={candidateFlowMicrocopy.steps.evidence.impact}
+          nextStepHint={candidateFlowMicrocopy.steps.evidence.next}
           footer={
             <button
               type="button"
               onClick={() => nextStep && setStep(nextStep)}
               className="w-full rounded-[22px] bg-white px-6 py-4 text-base font-semibold text-slate-950 transition hover:bg-slate-200"
             >
-              التالي
+              {candidateFlowMicrocopy.steps.evidence.cta}
             </button>
           }
         >
@@ -186,15 +196,18 @@ export default function ExternalCandidatePage() {
 
       {step === "summary" ? (
         <ExternalFlowCard
-          title="ملخص الجاهزية"
-          subtitle="هذه هي الصورة التي سنرسلها إلى صفحة الإرسال قبل بدء التقييم."
-          notice="هذا الملخص سيستخدم مباشرة في تقييم جاهزيتك الوظيفية."
+          title={candidateFlowMicrocopy.steps.summary.title}
+          subtitle={candidateFlowMicrocopy.steps.summary.subtitle}
+          notice={candidateFlowMicrocopy.steps.summary.valueLine}
+          purpose={candidateFlowMicrocopy.steps.summary.purpose}
+          impact={candidateFlowMicrocopy.steps.summary.impact}
+          nextStepHint={candidateFlowMicrocopy.steps.summary.next}
           footer={
             <Link
               href="/external/submit"
               className="block w-full rounded-[22px] bg-white px-6 py-4 text-center text-base font-semibold text-slate-950 transition hover:bg-slate-200"
             >
-              انتقل لربط الوظيفة
+              {candidateFlowMicrocopy.steps.summary.cta}
             </Link>
           }
         >

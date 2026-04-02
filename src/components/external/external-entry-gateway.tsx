@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 
+import { externalEntryMicrocopy } from "@/lib/microcopy";
+
 export const ExternalEntryGateway = () => (
   <div className="min-h-screen bg-cinematic text-slate-100">
     <div className="mx-auto flex min-h-screen max-w-[1080px] flex-col justify-center px-4 py-10 sm:px-6 lg:px-8">
@@ -9,10 +11,10 @@ export const ExternalEntryGateway = () => (
         <section className="surface-card p-8 sm:p-10">
           <div className="portal-label text-center">بوابة الدخول</div>
           <h1 className="mx-auto mt-4 max-w-4xl text-center text-4xl font-semibold tracking-[-0.04em] text-white sm:text-[56px]">
-            اتخذ قرار التوظيف بثقة
+            {externalEntryMicrocopy.hero.title}
           </h1>
           <p className="mx-auto mt-4 max-w-3xl text-center text-sm leading-7 text-slate-400 sm:text-base">
-            يربط Meyar بين الوظيفة والقدرات والتكييف لإصدار قرار تشغيلي واضح قبل التوظيف.
+            {externalEntryMicrocopy.hero.subtitle}
           </p>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-3">
@@ -21,10 +23,14 @@ export const ExternalEntryGateway = () => (
               className="surface-card-muted px-6 py-7 text-right transition hover:bg-white/[0.05]"
             >
               <div className="text-3xl">👤</div>
-              <div className="mt-4 text-xl font-semibold text-white">أنا مرشح</div>
-              <div className="mt-2 text-sm leading-6 text-slate-400">ابدأ ملف القدرات والأدلة.</div>
+              <div className="mt-4 text-xl font-semibold text-white">
+                {externalEntryMicrocopy.cards.candidate.title}
+              </div>
+              <div className="mt-2 text-sm leading-6 text-slate-400">
+                {externalEntryMicrocopy.cards.candidate.subtitle}
+              </div>
               <div className="mt-5 inline-flex rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-200">
-                ابدأ الملف
+                {externalEntryMicrocopy.cards.candidate.cta}
               </div>
             </Link>
 
@@ -33,24 +39,32 @@ export const ExternalEntryGateway = () => (
               className="surface-card-muted px-6 py-7 text-right transition hover:bg-white/[0.05]"
             >
               <div className="text-3xl">🏢</div>
-              <div className="mt-4 text-xl font-semibold text-white">أنا جهة عمل</div>
-              <div className="mt-2 text-sm leading-6 text-slate-400">عرّف الوظيفة كما تُمارس فعليًا.</div>
+              <div className="mt-4 text-xl font-semibold text-white">
+                {externalEntryMicrocopy.cards.employer.title}
+              </div>
+              <div className="mt-2 text-sm leading-6 text-slate-400">
+                {externalEntryMicrocopy.cards.employer.subtitle}
+              </div>
               <div className="mt-5 inline-flex rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-200">
-                عرّف الوظيفة
+                {externalEntryMicrocopy.cards.employer.cta}
               </div>
             </Link>
 
-          <Link
-            href="/external/submit"
-            className="rounded-[28px] border border-white/10 bg-white px-6 py-7 text-right transition hover:bg-slate-200"
-          >
-            <div className="text-3xl">⚡</div>
-            <div className="mt-4 text-xl font-semibold text-slate-950">ابدأ التقييم</div>
-            <div className="mt-2 text-sm leading-6 text-slate-700">راجع الملخص التمهيدي ثم ادخل إلى نواة Meyar.</div>
-            <div className="mt-5 inline-flex rounded-full bg-slate-950 px-4 py-2 text-sm text-white">
-                ابدأ التقييم
-            </div>
-          </Link>
+            <Link
+              href="/external/submit"
+              className="rounded-[28px] border border-white/10 bg-white px-6 py-7 text-right transition hover:bg-slate-200"
+            >
+              <div className="text-3xl">⚡</div>
+              <div className="mt-4 text-xl font-semibold text-slate-950">
+                {externalEntryMicrocopy.cards.submit.title}
+              </div>
+              <div className="mt-2 text-sm leading-6 text-slate-700">
+                {externalEntryMicrocopy.cards.submit.subtitle}
+              </div>
+              <div className="mt-5 inline-flex rounded-full bg-slate-950 px-4 py-2 text-sm text-white">
+                {externalEntryMicrocopy.cards.submit.cta}
+              </div>
+            </Link>
           </div>
         </section>
 
@@ -73,7 +87,7 @@ export const ExternalEntryGateway = () => (
 
         <section className="grid gap-4 md:grid-cols-2">
           <div className="surface-card-soft p-6">
-            <div className="portal-label">نواة Meyar</div>
+            <div className="portal-label">نواة Miyar</div>
             <div className="mt-3 text-2xl font-semibold text-white">محرك القرار الداخلي</div>
             <div className="mt-2 text-sm leading-6 text-slate-400">
               للأدوار المؤسسية، ومسار الاعتماد، وإصدار القرار.
@@ -88,6 +102,10 @@ export const ExternalEntryGateway = () => (
             </div>
           </div>
         </section>
+
+        <div className="text-center text-sm text-slate-400">
+          {externalEntryMicrocopy.footerNote}
+        </div>
       </div>
     </div>
   </div>

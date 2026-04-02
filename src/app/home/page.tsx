@@ -16,6 +16,7 @@ import {
 import { stripInternalCodePrefix } from "@/lib/display-copy";
 import { INTERNAL_ROLE_REFERENCE } from "@/lib/experience-roles";
 import { estimatedDecisionROIBandLabel } from "@/lib/financial-model";
+import { coreMicrocopy } from "@/lib/microcopy";
 import { getRoleConfig } from "@/lib/role-model";
 import { useAssessment } from "@/store/assessment-context";
 import { useRoleSession } from "@/store/role-session-context";
@@ -132,6 +133,9 @@ export default function RoleHomePage() {
               <div className="portal-label">القرار الحالي</div>
               <div className="mt-4 text-4xl font-semibold tracking-[-0.04em] text-white sm:text-[58px] sm:leading-[1.02]">
                 {bundle.report.recommendation}
+              </div>
+              <div className="mt-4 text-sm leading-7 text-slate-300">
+                {coreMicrocopy.home.guidance}
               </div>
             </div>
 

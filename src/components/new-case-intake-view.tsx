@@ -6,6 +6,7 @@ import { AIInsightCard } from "@/components/ai-insight-card";
 import { generateNextActionReason } from "@/lib/ai-insights";
 import { stripInternalCodePrefix } from "@/lib/display-copy";
 import { accommodationLevelLabelMap, complexityLabelMap } from "@/lib/external-handoff";
+import { coreMicrocopy } from "@/lib/microcopy";
 import { useAssessment } from "@/store/assessment-context";
 
 import { AppShell } from "./app-shell";
@@ -27,7 +28,7 @@ export const NewCaseIntakeView = () => {
     <AppShell
       pageId="portal:new-case"
       title="بوابة الاستلام الداخلي"
-      subtitle="تم الاستلام. هذه الصفحة تنقل الحالة من الإدخال الخارجي إلى مساحة القرار الداخلية."
+      subtitle={coreMicrocopy.newCase.subtitle}
     >
       <div className="mx-auto max-w-5xl space-y-6">
         <section className="decision-surface">
@@ -59,7 +60,10 @@ export const NewCaseIntakeView = () => {
                   جاهزة للتقييم
                 </div>
                 <div className="mt-4 max-w-xl text-sm leading-7 text-slate-300">
-                  تم الاستلام داخليًا، ويمكن الآن فتح مساحة القرار دون خطوات إضافية.
+                  {coreMicrocopy.newCase.purpose}
+                </div>
+                <div className="mt-2 max-w-xl text-sm leading-7 text-slate-400">
+                  {coreMicrocopy.newCase.next}
                 </div>
               </div>
 

@@ -16,6 +16,7 @@ import {
   estimatedDecisionROIBandLabel,
   retentionImpactLevelLabel
 } from "@/lib/financial-model";
+import { coreMicrocopy } from "@/lib/microcopy";
 import { formatCurrency } from "@/lib/scoring";
 import { DecisionDriver } from "@/models/types";
 import { useAssessment } from "@/store/assessment-context";
@@ -145,7 +146,7 @@ export default function ReadinessReportPage() {
               <div className="text-[11px] tracking-[0.16em] text-slate-500">التوصية التنفيذية</div>
               <div className="mt-3 text-lg font-semibold text-white">{executiveLine}</div>
               <div className="mt-2 text-sm text-slate-300">
-                تقرير مختصر للعرض، مبني على القرار الحالي دون تفاصيل تشغيلية زائدة.
+                {coreMicrocopy.report.summary}
               </div>
             </div>
           </div>
@@ -208,7 +209,9 @@ export default function ReadinessReportPage() {
                   <div className="mt-2 text-lg font-semibold text-white">{evidenceStrength.blockerCount}</div>
                 </div>
               </div>
-              <div className="mt-4 text-xs leading-6 text-slate-500">{evidenceStrength.assumptionsNote}</div>
+              <div className="mt-4 text-xs leading-6 text-slate-500">
+                {coreMicrocopy.report.evidence} {evidenceStrength.assumptionsNote}
+              </div>
             </div>
 
             <div className="grid gap-4 lg:grid-cols-2">
@@ -296,7 +299,7 @@ export default function ReadinessReportPage() {
             </div>
 
             <div className="summary-card px-5 py-5 text-sm leading-7 text-slate-300">
-              {financialImpact.executiveConclusion}
+              {coreMicrocopy.report.financial} {financialImpact.executiveConclusion}
               <div className="mt-3 text-xs leading-6 text-slate-500">{financialImpact.assumptionsNote}</div>
             </div>
           </div>
@@ -316,7 +319,7 @@ export default function ReadinessReportPage() {
               </div>
               <div className="mt-5 text-xl leading-10 text-white">{activeRecommendation.printableText}</div>
               <div className="mt-5 rounded-[22px] border border-white/10 bg-white/[0.03] px-4 py-4 text-sm leading-7 text-slate-300">
-                {executiveLine}
+                {coreMicrocopy.report.recommendation} {executiveLine}
               </div>
             </div>
 
